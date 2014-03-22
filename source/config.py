@@ -19,9 +19,9 @@ CREEP_TYPES = []
 CREEP_COUNT = 0
 
 # World #
-WORLD_WIDTH = 550
-WORLD_HEIGHT = 400
-WORLD1 = "worlds/world1.txt"
+WORLD_DEFAULT_WIDTH = 550
+WORLD_DEFAULT_HEIGHT = 600
+WORLD1 = "../assets/worlds/world1.txt"
 
 # States #
 PAUSE = 1
