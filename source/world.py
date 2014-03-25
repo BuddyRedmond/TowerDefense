@@ -1,20 +1,23 @@
-# World Class (includes the playing spaces, creeps, and towers)
+# World Class (includes the playing spaces such as path vs non-path)
 # 2014/3/21
 # written by Michael Shawn Redmond
 
 from config import *
+import cell
+import pygame
 import os
 
 class World:
-    def __init__(self, width, height, layout_file=None):
+    def __init__(self, position, width, height, layout_file=None):
+        self.position = position
         self.width = self.safe_assign("Width", width, int, WORLD_DEFAULT_WIDTH)
         self.height = self.safe_assign("Height", height, int, WORLD_DEFAULT_HEIGHT)
-        self.creeps = []
-        self.towers = []
+        self.cell_width = TILE_WIDTH
+        self.cell_height = TILE_HEIGHT
         self.layout = []
         if layout_file is not None:
             self.load_from_file(layout_file)
-
+            
     # attempts to assign a variable called var_name (for debugging)
     # to a value of value but assigns it to value: default
     # if the original type cannot be casted into desired_type
@@ -51,7 +54,6 @@ class World:
             dim[1] = int(dim[1])
             if len(dim) != 2:
                 raise Exception("Invalid dimension description\n" + str(dim))
-            cell_width, cell_height = self.width/dim[0], self.height/dim[1]
             layout = []
             fin = fin[1:]
             for line in fin:
@@ -69,10 +71,37 @@ class World:
             print "Error loading world file " + layout_file + ": Invalid formatting"
             print e
             return False
-        self.cell_width = cell_width
-        self.cell_height = cell_height
-        self.layout = layout
+        row_size = self.width/self.cell_width
+        col_size = self.height/self.cell_height
+        filled_rows = int(dim[0])
+        filled_cols = int(dim[1])
+        empty_rows = row_size - filled_rows
+        empty_cols = col_size - filled_cols
+        for i in range(len(layout)):
+            fill = empty_rows*'0'
+            layout[i] = layout[i] + fill
+        for i in range(empty_cols):
+            fill = row_size*'0'
+            layout.append(fill)
+        self.layout = []
+        for j in range(len(layout)):
+            r = []
+            for i in range(len(layout[j])):
+                tile = layout[j][i]
+                if tile == '0':
+                    img = pygame.image.load(GRASS_IMG)
+                else:
+                    img = pygame.image.load(PATH_IMG)
+                x = self.position[0] + (i+1)*self.cell_width - .5*self.cell_width
+                y = self.position[1] + (j+1)*self.cell_height - .5*self.cell_height
+                r.append(cell.Cell((x, y), img, self.cell_width, self.cell_height))
+            self.layout.append(r)
         return True
+
+    def paint(self, surface):
+        for row in self.layout:
+            for cell in row:
+                cell.paint(surface)
 
     def __str__(self):
         board = ""
@@ -82,5 +111,3 @@ class World:
                 line += str(cell)
             board += line + '\n'
         return board
-
-w = World(200, 200, WORLD1)
