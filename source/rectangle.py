@@ -1,3 +1,12 @@
+# Rectangle base class
+#
+# Capable of storing/drawing and image
+# and testing if a point is inside of
+# that image
+#
+# 2014/3/27
+# written by Michael Shawn Redmond
+
 import pygame
 from config import *
 

@@ -1,4 +1,12 @@
 # TowerDefense game subclass
+#
+# Stores the items necessary for
+# a game of tower defense. Handles
+# tower, creep, map, menu, and
+# money storage, user input,
+# and changing the states of
+# the game.
+#
 # 2014/3/21
 # written by Michael Shawn Redmond
 
@@ -23,7 +31,7 @@ class TowerDefense(game.Game):
                               WORLD_DEFAULT_WIDTH, \
                               screen_height - (world_pos_y + WORLD_DEFAULT_HEIGHT + 2*MARGIN), \
                               MENU_COLOR)
-        #self.towers_types = [tower.Tower(TOWER_TYPES[i]) for i in range(TOWER_TYPE_COUNT)]
+        self.towers_types = [tower.Tower]
         self.towers = []#[tower.Tower((16,16), pygame.image.load(TOWER_BASIC_IMAGE), TOWER_BASIC_WIDTH, TOWER_BASIC_HEIGHT)]
         self.money = STARTING_MONEY
         #self.waves = [wave for wave in WAVES]

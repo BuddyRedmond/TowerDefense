@@ -1,9 +1,15 @@
-# World Class (includes the playing spaces such as path vs non-path)
+# World Class
+#
+# Stores the map in a useful way,
+# keeps track of cell info, loads
+# new maps from files, and answers
+# questions about the map.
+#
 # 2014/3/21
 # written by Michael Shawn Redmond
 
 from config import *
-import cell
+import rectangle
 import pygame
 import os
 
@@ -94,7 +100,7 @@ class World:
                     img = pygame.image.load(PATH_IMG)
                 x = self.position[0] + (i)*self.cell_width
                 y = self.position[1] + (j)*self.cell_height
-                r.append(cell.Cell((x, y), img, self.cell_width, self.cell_height))
+                r.append(rectangle.Rectangle((x, y), img, self.cell_width, self.cell_height))
             self.layout.append(r)
         return True
 

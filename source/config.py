@@ -7,9 +7,7 @@ FRAMES_PER_SECOND = 30
 # Menu #
 MENU_COLOR = (100, 100, 100)
 
-# Tower #
-TOWER_TYPES = []
-TOWER_COUNT = 0
+# Tower #II
 TOWER_BASIC_IMAGE = "../assets/images/towers/basic.png"
 TOWER_BASIC_WIDTH = 8
 TOWER_BASIC_HEIGHT = 8
@@ -35,7 +33,7 @@ WORLD_DEFAULT_WIDTH = 576
 WORLD_DEFAULT_HEIGHT = 528
 WORLD1 = "../assets/worlds/world1.txt"
 PATH_IMG = "../assets/images/tiles/path.png"
-GRASS_IMG = "../assets/images/tiles/grass.png"
+GRASS_IMG = "../assets/images/tiles/grass_outlined.png"
 TILE_WIDTH = 16
 TILE_HEIGHT = 16
 

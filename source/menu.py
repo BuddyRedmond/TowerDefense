@@ -1,3 +1,11 @@
+# Menu Class
+#
+# Handles menu for buttons and
+# purchasing icons.
+#
+# 2014/3/27
+# written by Michael Shawn Redmond
+
 import rectangle
 import pygame
 
@@ -25,9 +33,3 @@ class Menu(rectangle.Rectangle):
         pygame.draw.rect(surface, self.color, r)
         for item in self.items:
             item.paint(surface)
-
-    def is_inside(self, position):
-        if position[0] >= self.position[0] and position[0] <= self.position[0] + self.width:
-            if position[1] >= self.position[1] and position[1] <= self.position[1] + self.height:
-                return True
-        return False

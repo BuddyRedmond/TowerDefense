@@ -1,3 +1,12 @@
+# Creep Class
+#
+# Handles creep's health, speed,
+# and various attributes, taking
+# damage, moving, and drawing.
+#
+# 2014/3/27
+# written by Michael Shawn Redmond
+
 import pygame
 from config import *
 import rectangle
