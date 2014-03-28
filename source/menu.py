@@ -24,6 +24,9 @@ class Menu(rectangle.Rectangle):
         y = self.position[1] + self.margin
         return (x, y)
 
+    def game_logic(self, keys, newkeys, mouse_pos, newclicks):
+        pass
+
     def add_item(self, item):
         item.set_position(self.next_item_position())
         self.items.append(item)

@@ -39,6 +39,9 @@ class TowerDefense(game.Game):
         #self.creeps_types = [creep.Creep(CREEP_TYPES[i]) for i in range(CREEP_TYPE_COUNT)]
         self.creeps = []#[creep.Creep((0,0), pygame.image.load(CREEP_DEFAULT_IMAGE), CREEP_DEFAULT_WIDTH, CREEP_DEFAULT_HEIGHT)]
         self.state = CLEAR
+        self.sub_state = IDLE
+        self.purchaser = None
+        self.selected = None
 
     def paint(self, surface):
         self.world.paint(surface)
@@ -48,5 +51,6 @@ class TowerDefense(game.Game):
         for tower in self.towers:
             tower.paint(surface)
 
-    def game_logic(self, keys, newkeys):
-        pos = pygame.mouse.get_pos()
+    def game_logic(self, keys, newkeys, mouse_pos, newclicks):
+        pass
+        

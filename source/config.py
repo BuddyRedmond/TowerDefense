@@ -37,7 +37,16 @@ GRASS_IMG = "../assets/images/tiles/grass_outlined.png"
 TILE_WIDTH = 16
 TILE_HEIGHT = 16
 
+# Buttons #
+MOUSE_LEFT = 0
+MOUSE_RIGHT = 1
+MOUSE_MIDDLE = 2
+
 # States #
 PAUSE = 1
 PLAYING = 2 # wave in progress
 CLEAR = 3 # in between waves
+
+# Sub states #
+IDLE = CLEAR + 1
+FOLLOW = IDLE + 1

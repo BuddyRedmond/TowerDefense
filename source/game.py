@@ -31,11 +31,12 @@ class Game:
     def main_loop(self):
         clock = pygame.time.Clock()
         keys = set()
-
+        mouse_pos = (0, 0)
         while True:
             clock.tick(config.FRAMES_PER_SECOND)
 
             newkeys = set()
+            newclicks = set()
             for e in pygame.event.get():
                 # did the user try to close the window?
                 if e.type == pygame.QUIT:
@@ -54,8 +55,16 @@ class Game:
                 if e.type == pygame.KEYUP:
                     keys.discard(e.key)
 
+                # track which mouse buttons were pressed
+                if e.type == pygame.MOUSEBUTTONUP:
+                    newclicks.add(e.button)
+
+                # track the mouse's position
+                if e.type == pygame.MOUSEMOTION:
+                    mouse_pos = e.pos
+
             if self.on:
-                self.game_logic(keys, newkeys)
+                self.game_logic(keys, newkeys, mouse_pos, newclicks)
                 self.paint(self.screen)
 
             pygame.display.flip()

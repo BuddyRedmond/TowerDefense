@@ -25,5 +25,5 @@ class Creep(rectangle.Rectangle):
     def is_alive(self):
         return self.health > 0
 
-    def game_logic(self, keys, newkeys):
+    def game_logic(self, keys, newkeys, mouse_pos, newclicks):
         pass
