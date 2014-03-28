@@ -92,8 +92,8 @@ class World:
                     img = pygame.image.load(GRASS_IMG)
                 else:
                     img = pygame.image.load(PATH_IMG)
-                x = self.position[0] + (i+1)*self.cell_width - .5*self.cell_width
-                y = self.position[1] + (j+1)*self.cell_height - .5*self.cell_height
+                x = self.position[0] + (i)*self.cell_width
+                y = self.position[1] + (j)*self.cell_height
                 r.append(cell.Cell((x, y), img, self.cell_width, self.cell_height))
             self.layout.append(r)
         return True

@@ -1,8 +1,11 @@
 # Screen #
 SCREEN_WIDTH = 600
 SCREEN_HEIGHT = 600
-MARGIN = 10
+MARGIN = 5
 FRAMES_PER_SECOND = 30
+
+# Menu #
+MENU_COLOR = (100, 100, 100)
 
 # Tower #
 TOWER_TYPES = []
@@ -28,8 +31,8 @@ CREEP_DEFAULT_WIDTH = 8
 CREEP_DEFAULT_HEIGHT = 8
 
 # World #
-WORLD_DEFAULT_WIDTH = 512
-WORLD_DEFAULT_HEIGHT = 512
+WORLD_DEFAULT_WIDTH = 576
+WORLD_DEFAULT_HEIGHT = 528
 WORLD1 = "../assets/worlds/world1.txt"
 PATH_IMG = "../assets/images/tiles/path.png"
 GRASS_IMG = "../assets/images/tiles/grass.png"

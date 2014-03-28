@@ -3,7 +3,7 @@ from config import *
 
 class Rectangle:
     def __init__(self, position, image, width, height):
-        self.position = position
+        self.position = position # topleft
         self.image = image
         self.width = width
         self.height = height
