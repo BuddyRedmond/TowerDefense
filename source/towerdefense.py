@@ -22,28 +22,36 @@ class TowerDefense(game.Game):
     def __init__(self, name, screen_width, screen_height):
         # setup data members and the screen
         game.Game.__init__(self, name, screen_width, screen_width)
+
+        ### World setup ###
         world_pos_x = (screen_width - WORLD_DEFAULT_WIDTH)/2
         world_pos_y = MARGIN
         self.world = world.World((world_pos_x, world_pos_y), \
                                  WORLD_DEFAULT_WIDTH, WORLD_DEFAULT_HEIGHT, WORLD1)
+
+        ### Menu setup ###
         self.menu = menu.Menu((world_pos_x, \
                                world_pos_y + WORLD_DEFAULT_HEIGHT + MARGIN), \
-                              WORLD_DEFAULT_WIDTH, \
+                              WORLD_DEFAULT_WIDTH*.5, \
                               screen_height - (world_pos_y + WORLD_DEFAULT_HEIGHT + 2*MARGIN), \
                               MENU_COLOR)
         self.towers_types = [tower.Tower]
+        for tt in self.towers_types:
+            self.menu.add_purchaser(tt)
+        
         self.towers = []#[tower.Tower((16,16), pygame.image.load(TOWER_BASIC_IMAGE), TOWER_BASIC_WIDTH, TOWER_BASIC_HEIGHT)]
         self.money = STARTING_MONEY
         #self.waves = [wave for wave in WAVES]
         self.wave = 0
         #self.creeps_types = [creep.Creep(CREEP_TYPES[i]) for i in range(CREEP_TYPE_COUNT)]
         self.creeps = []#[creep.Creep((0,0), pygame.image.load(CREEP_DEFAULT_IMAGE), CREEP_DEFAULT_WIDTH, CREEP_DEFAULT_HEIGHT)]
-        self.state = CLEAR
-        self.sub_state = IDLE
+        self.state = TD_CLEAR
+        self.sub_state = TD_IDLE
         self.purchaser = None
         self.selected = None
 
     def paint(self, surface):
+        surface.fill(BACKGROUND_COLOR)
         self.world.paint(surface)
         self.menu.paint(surface)
         for creep in self.creeps:
@@ -52,5 +60,30 @@ class TowerDefense(game.Game):
             tower.paint(surface)
 
     def game_logic(self, keys, newkeys, mouse_pos, newclicks):
-        pass
+        # collect actions
+        actions = []
+        menu_actions = self.menu.game_logic(keys, newkeys, mouse_pos, newclicks)
+        for action in menu_actions:
+            if action is not None:
+                actions.append(action)
+        for action in actions:
+            if action[0] == P_FOLLOW:
+                self.sub_state = TD_FOLLOW
+                self.purchaser = action[1]
+                pygame.mouse.set_visible(False)
+            elif action[0] == P_PLACE:
+                candidate = self.purchaser((0,0))
+                if candidate.get_cost() <= self.money:
+                    mx, my = mouse_pos
+                    tw, th = candidate.get_dims()
+                    tower_top_left = (mx - .5*tw, my - .5*th)
+                    cell_num = self.world.get_cell_at(tower_top_left)
+                    cell_top_left = self.world.get_cell_top_left(cell_num)
+                    candidate.set_position(cell_top_left)
+                    self.towers.append(candidate)
+                self.sub_state = TD_IDLE
+                self.purchaser = None
+                pygame.mouse.set_visible(True)
+        # perform actions
+                
         

@@ -3,14 +3,21 @@ SCREEN_WIDTH = 600
 SCREEN_HEIGHT = 600
 MARGIN = 5
 FRAMES_PER_SECOND = 30
+BACKGROUND_COLOR = (255, 255, 255)
+
+# game_logic actions #
+P_IDLE = 0
+P_FOLLOW = 1 # purchaser
+P_PLACE = 2  # purchaser
 
 # Menu #
 MENU_COLOR = (100, 100, 100)
+MENU_ITEM_MARGIN_X = 10
 
-# Tower #II
+# Tower #
 TOWER_BASIC_IMAGE = "../assets/images/towers/basic.png"
-TOWER_BASIC_WIDTH = 8
-TOWER_BASIC_HEIGHT = 8
+TOWER_BASIC_WIDTH = 32
+TOWER_BASIC_HEIGHT = 32
 
 # Money #
 STARTING_MONEY = 100
@@ -43,10 +50,10 @@ MOUSE_RIGHT = 1
 MOUSE_MIDDLE = 2
 
 # States #
-PAUSE = 1
-PLAYING = 2 # wave in progress
-CLEAR = 3 # in between waves
+TD_PAUSE = 1
+TD_PLAYING = 2 # wave in progress
+TD_CLEAR = 3 # in between waves
 
 # Sub states #
-IDLE = CLEAR + 1
-FOLLOW = IDLE + 1
+TD_IDLE = TD_CLEAR + 1
+TD_FOLLOW = TD_IDLE + 1

@@ -95,9 +95,9 @@ class World:
             for i in range(len(layout[j])):
                 tile = layout[j][i]
                 if tile == '0':
-                    img = pygame.image.load(GRASS_IMG)
+                    img = GRASS_IMG
                 else:
-                    img = pygame.image.load(PATH_IMG)
+                    img = PATH_IMG
                 x = self.position[0] + (i)*self.cell_width
                 y = self.position[1] + (j)*self.cell_height
                 r.append(rectangle.Rectangle((x, y), img, self.cell_width, self.cell_height))
@@ -108,6 +108,31 @@ class World:
         for row in self.layout:
             for cell in row:
                 cell.paint(surface)
+
+    def get_cell_at(self, position):
+        for j in range(len(self.layout)):
+            for i in range(len(self.layout[0])):
+                if self.layout[j][i].is_inside(position):
+                    return self.loc_to_cell(i, j)
+
+    def loc_to_cell(self, i, j):
+        # where i is the column, j is the row
+        return j*(self.width/self.cell_width) + i
+
+    def cell_to_loc(self, cell_num):
+        i = cell_num%(self.width/self.cell_width)
+        j = cell_num/(self.width/self.cell_width)
+        return i, j
+
+    def get_cell_top_left(self, cell_num):
+        i, j = self.cell_to_loc(cell_num)
+        return self.layout[j][i].get_position()
+
+    def is_inside(self, position):
+        if position[0] >= self.position[0] and position[0] <= self.position[0] + self.width:
+            if position[1] >= self.position[1] and position[1] <= self.position[1] + self.height:
+                return True
+        return False
 
     def __str__(self):
         board = ""
