@@ -65,6 +65,7 @@ class TowerDefense(game.Game):
         if self.sub_state == TD_FOLLOW:
             if self.world.is_inside(mouse_pos):
                 cell_num = self.world.get_cell_at(mouse_pos)
+                print cell_num
                 snap_loc = self.world.get_cell_top_left(cell_num)
             else:
                 snap_loc = mouse_pos
