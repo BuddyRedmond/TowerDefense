@@ -23,13 +23,7 @@ class TowerPurchaser():
         self.height = tower_height
         
     def get_width(self):
-        return self.width
         
-    def get_height(self):
-        return self.height
-        
-    def get_dims(self):
-        return (self.get_width(), self.get_height())
 
     def paint(self, surface):
         self.tower.paint(surface)

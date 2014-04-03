@@ -18,7 +18,7 @@ class Rectangle:
         self.height = height
         
     def collide(self, other):
-        other_pos = other.get_position()
+        other_pos = other.get_position
         other_width, other_height = other.get_dims()
         c1 = other_pos
         c2 = (other_pos[0] + other_width, other_pos[1])

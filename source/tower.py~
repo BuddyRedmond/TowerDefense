@@ -26,3 +26,6 @@ class GreenTower(Tower):
         image=TOWER_GREEN_IMAGE
         Tower.__init__(self, position, width, height, image)
         self.cost = TOWER_GREEN_COST
+        
+g = GreenTower((0, 0))
+print g.get_width()

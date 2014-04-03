@@ -39,6 +39,7 @@ class Menu(rectangle.Rectangle):
 
     def add_purchaser(self, towertype):
         tower = towertype((0, 0))
+        print tower.get_width()
         pos = self.next_item_position(tower)
         self.items.append(towerpurchaser.TowerPurchaser(pos, towertype, tower.get_width(), tower.get_height()))
 

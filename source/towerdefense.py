@@ -35,7 +35,7 @@ class TowerDefense(game.Game):
                               WORLD_DEFAULT_WIDTH*.5, \
                               screen_height - (world_pos_y + WORLD_DEFAULT_HEIGHT + 2*MARGIN), \
                               MENU_COLOR)
-        self.towers_types = [tower.Tower]
+        self.towers_types = [tower.Tower, tower.GreenTower]
         for tt in self.towers_types:
             self.menu.add_purchaser(tt)
         
@@ -90,8 +90,15 @@ class TowerDefense(game.Game):
                 if candidate.get_cost() <= self.money:
                     can_dimensions = candidate.get_dims() 
                     if self.world.can_build(can_position, can_dimensions):
-                        self.towers.append(candidate)
-                        self.money -= candidate.get_cost()
+                        collision = False
+                        for t in self.towers:
+                            if t.collide(candidate):
+                                collision = True
+                                break
+                        if not collision:
+                            print "Tower Placed"
+                            self.towers.append(candidate)
+                            self.money -= candidate.get_cost()
                 self.sub_state = TD_IDLE
                 self.purchaser = None
                 pygame.mouse.set_visible(True)
