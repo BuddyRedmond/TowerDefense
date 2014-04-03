@@ -65,7 +65,7 @@ class Rectangle:
         surface.blit(self.image, self.position)
 
     def is_inside(self, position):
-        if position[0] >= self.position[0] and position[0] <= self.position[0] + self.width:
-            if position[1] >= self.position[1] and position[1] <= self.position[1] + self.height:
+        if position[0] >= self.position[0] and position[0] < self.position[0] + self.width:
+            if position[1] >= self.position[1] and position[1] < self.position[1] + self.height:
                 return True
         return False

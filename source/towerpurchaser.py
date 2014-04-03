@@ -31,10 +31,12 @@ class TowerPurchaser():
         else:
             self.status =  P_IDLE
 
-    def game_logic(self, keys, newkeys, mouse_pos, newclicks):
+    def game_logic(self, keys, newkeys, mouse_pos, newclicks, instructions):
+        for instruction in instructions:
+            if instruction[0] == P_SNAP_LOC and self.status == P_FOLLOW:
+                self.follower.set_position(instruction[1])
+        
         actions = []
-        if self.status == P_FOLLOW:
-            self.follower.set_center(mouse_pos)
         if 1 in newclicks: # left click
             if self.status == P_IDLE and self.tower.is_inside(mouse_pos):
                 self.follower = self.towertype(self.position)

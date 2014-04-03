@@ -21,6 +21,7 @@ class World:
         self.cell_width = TILE_WIDTH
         self.cell_height = TILE_HEIGHT
         self.layout = []
+        self.tile_types = []
         if layout_file is not None:
             self.load_from_file(layout_file)
             
@@ -91,17 +92,22 @@ class World:
             layout.append(fill)
         self.layout = []
         for j in range(len(layout)):
-            r = []
+            r_row = []
+            t_row = []
             for i in range(len(layout[j])):
                 tile = layout[j][i]
                 if tile == '0':
                     img = GRASS_IMG
+                    t = 0
                 else:
                     img = PATH_IMG
+                    t = 1
                 x = self.position[0] + (i)*self.cell_width
                 y = self.position[1] + (j)*self.cell_height
-                r.append(rectangle.Rectangle((x, y), img, self.cell_width, self.cell_height))
-            self.layout.append(r)
+                t_row.append(t)
+                r_row.append(rectangle.Rectangle((x, y), img, self.cell_width, self.cell_height))
+            self.layout.append(r_row)
+            self.tile_types.append(t_row)
         return True
 
     def paint(self, surface):
@@ -127,6 +133,22 @@ class World:
     def get_cell_top_left(self, cell_num):
         i, j = self.cell_to_loc(cell_num)
         return self.layout[j][i].get_position()
+
+    def cell_is_path(self, cell_num):
+        i, j = self.cell_to_loc(cell_num)
+        return self.tile_types[j][i] == 1
+
+    def can_build(self, position, dimensions):
+        # assumes that the object's size is a whole amount of tiles
+        area_width = dimensions[0] / self.cell_width
+        area_height = dimensions[1] / self.cell_height
+        for i in range(area_width):
+            for j in range(area_height):
+                p = (position[0] + i*self.cell_width, position[1] + j*self.cell_height)
+                cell_num = self.get_cell_at(p)
+                if self.cell_is_path(cell_num):
+                    return False
+        return True
 
     def is_inside(self, position):
         if position[0] >= self.position[0] and position[0] <= self.position[0] + self.width:

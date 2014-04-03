@@ -28,10 +28,10 @@ class Menu(rectangle.Rectangle):
         y = self.position[1] + self.margin_y - .5*item.get_height()
         return (x, y)
 
-    def game_logic(self, keys, newkeys, mouse_pos, newclicks):
+    def game_logic(self, keys, newkeys, mouse_pos, newclicks, instructions):
         actions = []
         for item in self.items:
-            item_actions = item.game_logic(keys, newkeys, mouse_pos, newclicks)
+            item_actions = item.game_logic(keys, newkeys, mouse_pos, newclicks, instructions)
             for action in item_actions:
                 if action is not None:
                     actions.append(action)

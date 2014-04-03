@@ -60,30 +60,39 @@ class TowerDefense(game.Game):
             tower.paint(surface)
 
     def game_logic(self, keys, newkeys, mouse_pos, newclicks):
+        # generate instructions
+        instructions = []
+        if self.sub_state == TD_FOLLOW:
+            if self.world.is_inside(mouse_pos):
+                cell_num = self.world.get_cell_at(mouse_pos)
+                snap_loc = self.world.get_cell_top_left(cell_num)
+            else:
+                snap_loc = mouse_pos
+            instructions.append((P_SNAP_LOC, snap_loc))
         # collect actions
         actions = []
-        menu_actions = self.menu.game_logic(keys, newkeys, mouse_pos, newclicks)
+        menu_actions = self.menu.game_logic(keys, newkeys, mouse_pos, newclicks, instructions)
         for action in menu_actions:
             if action is not None:
                 actions.append(action)
+
+        # handle actions
         for action in actions:
             if action[0] == P_FOLLOW:
                 self.sub_state = TD_FOLLOW
                 self.purchaser = action[1]
                 pygame.mouse.set_visible(False)
             elif action[0] == P_PLACE:
-                candidate = self.purchaser((0,0))
+                # verify ability to place tower
+                cell_num = self.world.get_cell_at(mouse_pos)
+                can_position = self.world.get_cell_top_left(cell_num)
+                candidate = self.purchaser(can_position)
                 if candidate.get_cost() <= self.money:
-                    mx, my = mouse_pos
-                    tw, th = candidate.get_dims()
-                    tower_top_left = (mx - .5*tw, my - .5*th)
-                    cell_num = self.world.get_cell_at(tower_top_left)
-                    cell_top_left = self.world.get_cell_top_left(cell_num)
-                    candidate.set_position(cell_top_left)
-                    self.towers.append(candidate)
+                    can_dimensions = candidate.get_dims() 
+                    if self.world.can_build(can_position, can_dimensions):
+                        self.towers.append(candidate)
+                        self.money -= candidate.get_cost()
                 self.sub_state = TD_IDLE
                 self.purchaser = None
-                pygame.mouse.set_visible(True)
-        # perform actions
-                
+                pygame.mouse.set_visible(True)               
         

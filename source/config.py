@@ -10,6 +10,9 @@ P_IDLE = 0
 P_FOLLOW = 1 # purchaser
 P_PLACE = 2  # purchaser
 
+# instructions #
+P_SNAP_LOC = 3
+
 # Menu #
 MENU_COLOR = (100, 100, 100)
 MENU_ITEM_MARGIN_X = 10
