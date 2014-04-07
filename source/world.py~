@@ -24,9 +24,12 @@ class World:
         self.tile_types = []
         if layout_file is not None:
             self.load_from_file(layout_file)
-        print self.position, self.width, self.height
-        end_cell =  self.layout[len(self.layout)-1][len(self.layout[0])-1]
-        print end_cell.get_position(), end_cell.get_dims()
+        print "First row positions:"
+        for i in self.layout[0]:
+            print i.get_position(), (i.get_position()[0] + i.get_width(), i.get_position[1] + i.get_height())
+        print "Second row positions:"
+        for i in self.layout[1]:
+            print i.get_position(), (i.get_position()[0] + i.get_width(), i.get_position[1] + i.get_height())
             
     # attempts to assign a variable called var_name (for debugging)
     # to a value of value but assigns it to value: default

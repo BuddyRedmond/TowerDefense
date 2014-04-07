@@ -96,7 +96,6 @@ class TowerDefense(game.Game):
                                 collision = True
                                 break
                         if not collision:
-                            print "Tower Placed"
                             self.towers.append(candidate)
                             self.money -= candidate.get_cost()
                 self.sub_state = TD_IDLE
