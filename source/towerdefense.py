@@ -90,14 +90,9 @@ class TowerDefense(game.Game):
                 if candidate.get_cost() <= self.money:
                     can_dimensions = candidate.get_dims() 
                     if self.world.can_build(can_position, can_dimensions):
-                        collision = False
-                        for t in self.towers:
-                            if t.collide(candidate):
-                                collision = True
-                                break
-                        if not collision:
-                            self.towers.append(candidate)
-                            self.money -= candidate.get_cost()
+                        self.world.occupy_area(can_position, can_dimensions)
+                        self.towers.append(candidate)
+                        self.money -= candidate.get_cost()
                 self.sub_state = TD_IDLE
                 self.purchaser = None
                 pygame.mouse.set_visible(True)

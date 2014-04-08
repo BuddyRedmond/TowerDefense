@@ -20,16 +20,11 @@ class World:
         self.height = self.safe_assign("Height", height, int, WORLD_DEFAULT_HEIGHT)
         self.cell_width = TILE_WIDTH
         self.cell_height = TILE_HEIGHT
+        self.tower_locations = []
         self.layout = []
         self.tile_types = []
         if layout_file is not None:
             self.load_from_file(layout_file)
-        print "First row positions:"
-        for i in self.layout[0]:
-            print i.get_position(), (i.get_position()[0] + i.get_width(), i.get_position[1] + i.get_height())
-        print "Second row positions:"
-        for i in self.layout[1]:
-            print i.get_position(), (i.get_position()[0] + i.get_width(), i.get_position[1] + i.get_height())
             
     # attempts to assign a variable called var_name (for debugging)
     # to a value of value but assigns it to value: default
@@ -100,6 +95,7 @@ class World:
         for j in range(len(layout)):
             r_row = []
             t_row = []
+            t_locations = []
             for i in range(len(layout[j])):
                 tile = layout[j][i]
                 if tile == '0':
@@ -111,9 +107,14 @@ class World:
                 x = self.position[0] + (i)*self.cell_width
                 y = self.position[1] + (j)*self.cell_height
                 t_row.append(t)
+                
+                # tower location default to 0
+                t_locations.append(0)
+                
                 r_row.append(rectangle.Rectangle((x, y), img, self.cell_width, self.cell_height))
             self.layout.append(r_row)
             self.tile_types.append(t_row)
+            self.tower_locations.append(t_locations)
         return True
 
     def paint(self, surface):
@@ -144,16 +145,33 @@ class World:
     def cell_is_path(self, cell_num):
         i, j = self.cell_to_loc(cell_num)
         return self.tile_types[j][i] == 1
-
-    def can_build(self, position, dimensions):
-        # assumes that the object's size is a whole amount of tiles
-        area_width = dimensions[0] / self.cell_width
-        area_height = dimensions[1] / self.cell_height
-        for i in range(area_width):
-            for j in range(area_height):
-                p = (position[0] + i*self.cell_width, position[1] + j*self.cell_height)
+        
+    def occupy_cell(self, cell_num):
+        i, j = self.cell_to_loc(cell_num)
+        self.tower_locations[j][i] = 1
+    
+    def occupy_area(self, pos, dims):
+        x_span = dims[0] / self.cell_width
+        y_span = dims[1] / self.cell_height
+        for i in range(x_span):
+            for j in range(y_span):
+                p = pos[0] + i*self.cell_width, pos[1] + j*self.cell_height)
                 cell_num = self.get_cell_at(p)
-                if self.cell_is_path(cell_num):
+                self.occupy_cell(cell_num)
+        
+    def is_occupied(self, cell_num):
+        i, j = self.cell_to_loc(cell_num)
+        return self.tower_locations[j][i] == 1
+
+    def can_build(self, pos, dims):
+        # assumes that the object's size is a whole amount of tiles
+        x_span = dims[0] / self.cell_width
+        y_span = dims[1] / self.cell_height
+        for i in range(x_span):
+            for j in range(y_span):
+                p = (pos[0] + i*self.cell_width, pos[1] + j*self.cell_height)
+                cell_num = self.get_cell_at(p)
+                if self.cell_is_path(cell_num) or self.is_occupied(cell_num):
                     return False
         return True
 
