@@ -18,7 +18,7 @@ class Game:
 
                 # apply alpha blending
                 pygame.locals.SRCALPHA)
-
+        self.screen.set_alpha(0)
         # set the title of the window
         pygame.display.set_caption(name)
 

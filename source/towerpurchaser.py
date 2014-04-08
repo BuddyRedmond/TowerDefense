@@ -41,6 +41,7 @@ class TowerPurchaser():
             self.status = P_FOLLOW
         else:
             self.status =  P_IDLE
+            self.follower = None
 
     def game_logic(self, keys, newkeys, mouse_pos, newclicks, instructions):
         for instruction in instructions:
@@ -51,10 +52,10 @@ class TowerPurchaser():
         if 1 in newclicks: # left click
             if self.status == P_IDLE and self.tower.is_inside(mouse_pos):
                 self.follower = self.towertype(self.position)
+                self.follower.activate()
                 actions.append((P_FOLLOW, self.towertype))
                 self.toggle_status()
             elif self.status == P_FOLLOW :
                 actions.append((P_PLACE, self.towertype))
-                self.follower = None
                 self.toggle_status()
         return actions

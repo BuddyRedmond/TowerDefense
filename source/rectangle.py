@@ -31,7 +31,7 @@ class Rectangle:
     def calc_center(self):
         px, py = self.position
         cx, cy = px + .5*self.width, py + .5*self.height
-        self.center = cx, cy
+        return (int(cx), int(cy))
 
     def get_image(self):
         return self.image
@@ -47,13 +47,7 @@ class Rectangle:
         self.calc_center
 
     def get_center(self):
-        return self.center
-
-    def set_center(self, center):
-        cx, cy = center
-        px, py = cx - .5*self.width, cy - .5*self.height
-        self.position = px, py
-        self.center = cx, cy
+        return self.calc_center()
 
     def get_width(self):
         return self.width

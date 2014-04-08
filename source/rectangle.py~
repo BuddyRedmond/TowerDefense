@@ -18,7 +18,7 @@ class Rectangle:
         self.height = height
         
     def collide(self, other):
-        other_pos = other.get_position
+        other_pos = other.get_position()
         other_width, other_height = other.get_dims()
         c1 = other_pos
         c2 = (other_pos[0] + other_width, other_pos[1])
@@ -31,7 +31,7 @@ class Rectangle:
     def calc_center(self):
         px, py = self.position
         cx, cy = px + .5*self.width, py + .5*self.height
-        self.center = cx, cy
+        return (cx, cy)
 
     def get_image(self):
         return self.image
@@ -47,13 +47,7 @@ class Rectangle:
         self.calc_center
 
     def get_center(self):
-        return self.center
-
-    def set_center(self, center):
-        cx, cy = center
-        px, py = cx - .5*self.width, cy - .5*self.height
-        self.position = px, py
-        self.center = cx, cy
+        return self.calc_center()
 
     def get_width(self):
         return self.width

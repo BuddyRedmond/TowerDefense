@@ -39,12 +39,10 @@ class TowerDefense(game.Game):
         for tt in self.towers_types:
             self.menu.add_purchaser(tt)
         
-        self.towers = []#[tower.Tower((16,16), pygame.image.load(TOWER_BASIC_IMAGE), TOWER_BASIC_WIDTH, TOWER_BASIC_HEIGHT)]
+        self.towers = []
         self.money = STARTING_MONEY
-        #self.waves = [wave for wave in WAVES]
         self.wave = 0
-        #self.creeps_types = [creep.Creep(CREEP_TYPES[i]) for i in range(CREEP_TYPE_COUNT)]
-        self.creeps = []#[creep.Creep((0,0), pygame.image.load(CREEP_DEFAULT_IMAGE), CREEP_DEFAULT_WIDTH, CREEP_DEFAULT_HEIGHT)]
+        self.creeps = []
         self.state = TD_CLEAR
         self.sub_state = TD_IDLE
         self.purchaser = None
@@ -60,25 +58,36 @@ class TowerDefense(game.Game):
             tower.paint(surface)
 
     def game_logic(self, keys, newkeys, mouse_pos, newclicks):
-        # generate instructions
-        instructions = []
+        # generate instructions for menu
+        menu_instructions = []
         if self.sub_state == TD_FOLLOW:
             if self.world.is_inside(mouse_pos):
                 cell_num = self.world.get_cell_at(mouse_pos)
                 snap_loc = self.world.get_cell_top_left(cell_num)
             else:
                 snap_loc = mouse_pos
-            instructions.append((P_SNAP_LOC, snap_loc))
-        # collect actions
+            menu_instructions.append((P_SNAP_LOC, snap_loc))
+        
+        # collect actions for menu
         actions = []
-        menu_actions = self.menu.game_logic(keys, newkeys, mouse_pos, newclicks, instructions)
+        menu_actions = self.menu.game_logic(keys, newkeys, mouse_pos, newclicks, menu_instructions)
         for action in menu_actions:
             if action is not None:
                 actions.append(action)
-
+        
+        # collect actions for towers
+        for tower in self.towers:
+            tower_actions = tower.game_logic(keys, newkeys, mouse_pos, newclicks)
+            for action in tower_actions:
+                if action is not None:
+                    actions.append(action)
+        
         # handle actions
         for action in actions:
             if action[0] == P_FOLLOW:
+                if self.sub_state == TD_SHOW:
+                    self.selected.deactivate()
+                    self.selected = None
                 self.sub_state = TD_FOLLOW
                 self.purchaser = action[1]
                 pygame.mouse.set_visible(False)
@@ -87,18 +96,35 @@ class TowerDefense(game.Game):
                 cell_num = self.world.get_cell_at(mouse_pos)
                 can_position = self.world.get_cell_top_left(cell_num)
                 candidate = self.purchaser(can_position)
+                placed = False
                 if candidate.get_cost() <= self.money:
                     can_dimensions = candidate.get_dims() 
                     if self.world.can_build(can_position, can_dimensions):
-                        #collision = False
-                        #for t in self.towers:
-                        #    if t.collide(candidate):
-                        #        collision = True
-                        #        break
-                        #if not collision:
                         self.world.occupy_area(can_position, can_dimensions)
+                        candidate.activate()
                         self.towers.append(candidate)
                         self.money -= candidate.get_cost()
-                self.sub_state = TD_IDLE
+                        self.selected = candidate
+                        self.selected.activate()
+                        self.sub_state = TD_SHOW
+                        placed = True
+                if not placed:
+                    self.sub_state = TD_IDLE
                 self.purchaser = None
                 pygame.mouse.set_visible(True)
+            elif action[0] == T_SELECTED:
+                if self.sub_state == TD_FOLLOW:
+                    self.purchaser = None
+                if self.selected is not None:
+                    self.selected.deactivate()
+                    self.selected = None
+                self.selected = action[1]
+                self.selected.activate()
+                self.sub_state = TD_SHOW
+        if 1 in newclicks: # left mouse click
+            cell_num = self.world.loc_to_cell(mouse_pos)
+            if self.sub_state == TD_SHOW:
+                if not self.world.is_occupied(cell_num):
+                    self.selected.deactivate()
+                    self.selected = None
+                    self.sub_state = TD_IDLE
