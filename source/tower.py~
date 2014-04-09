@@ -43,7 +43,25 @@ class Tower(rectangle.Rectangle):
         distance = math.sqrt((px-cx)**2 + (py-cy)**2)
         return distance <= self.range
         
-    def paint_range(self, surface):
+    def paint_range(self, surface, color=RANGE_COLOR):
+        if self.is_active():
+            # if the tower is selected
+            # draw a partially transparent
+            # circle to indicate its range
+            cx, cy = self.get_center()
+            topleft = (cx - self.range, cy - self.range)
+            surf = pygame.Surface((self.range*2, self.range*2), pygame.SRCALPHA)
+            surf.fill((255, 255, 255, 0))
+            
+            # loop through each pixel in the rectangle
+            # that contains the range and change its
+            # color if it is inside the range
+            # (excludes the corners of the rectangle)
+            for i in range(surf.get_width()):
+                for j in range(surf.get_height()):
+                    if self.is_in_range((i + topleft[0] - .5*self.width, j + topleft[1] - .5*self.height)):
+                        surf.set_at((i, j), RANGE_COLOR)
+            surface.blit(surf, topleft)
      
     def paint(self, surface):
         surface.blit(self.image, self.position)

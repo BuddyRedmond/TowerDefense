@@ -160,9 +160,7 @@ class World:
                 self.occupy_cell(cell_num)
     
     def has_cell(self, cell_num):
-        print cell_num
-        print self.width, self.cell_width, self.height, self.cell_height
-        if cell_num >= (self.width/self.cell_width)*(self.height/self.cell_height):
+        if cell_num is None or cell_num >= (self.width/self.cell_width)*(self.height/self.cell_height):
             return False
         return True
     

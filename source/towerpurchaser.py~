@@ -18,7 +18,7 @@ class TowerPurchaser():
         self.towertype = towertype
         self.tower = towertype(position)
         self.status = P_IDLE
-        self.follower = None
+        #self.follower = None
         self.width = tower_width
         self.height = tower_height
         
@@ -33,9 +33,6 @@ class TowerPurchaser():
 
     def paint(self, surface):
         self.tower.paint(surface)
-        if self.status == P_FOLLOW:
-            self.follower.paint(surface)
-            self.follower.paint_range(surface)
 
     def toggle_status(self):
         if self.status == P_IDLE:
@@ -44,19 +41,13 @@ class TowerPurchaser():
             self.status =  P_IDLE
             self.follower = None
 
-    def game_logic(self, keys, newkeys, mouse_pos, newclicks, instructions):
-        for instruction in instructions:
-            if instruction[0] == P_SNAP_LOC and self.status == P_FOLLOW:
-                self.follower.set_position(instruction[1])
-        
+    def game_logic(self, keys, newkeys, mouse_pos, newclicks):
         actions = []
         if 1 in newclicks: # left click
             if self.status == P_IDLE and self.tower.is_inside(mouse_pos):
-                self.follower = self.towertype(self.position)
-                self.follower.activate()
-                actions.append((P_FOLLOW, self.towertype))
+                actions.append((P_FOLLOW, self.towertype(self.position)))
                 self.toggle_status()
             elif self.status == P_FOLLOW :
-                actions.append((P_PLACE, self.towertype))
+                actions.append((P_PLACE, None))
                 self.toggle_status()
         return actions

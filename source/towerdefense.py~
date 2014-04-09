@@ -54,25 +54,34 @@ class TowerDefense(game.Game):
         self.menu.paint(surface)
         for creep in self.creeps:
             creep.paint(surface)
-        if self.selected is not None:
-            self.selected.paint_range(surface)
+        if self.sub_state == TD_SHOW:
+            if self.selected is not None:
+                self.selected.paint_range(surface)
+        elif self.sub_state == TD_FOLLOW:
+            if self.purchaser is not None:
+                if not self.world.can_build(self.purchaser.get_position(), self.purchaser.get_dims()):
+                    self.purchaser.paint_range(surface, RANGE_BAD_COLOR)
+                else:
+                    self.purchaser.paint_range(surface)
+                self.purchaser.paint(surface)
         for tower in self.towers:
             tower.paint(surface)
 
     def game_logic(self, keys, newkeys, mouse_pos, newclicks):
-        # generate instructions for menu
-        menu_instructions = []
+        # if we are placing a tower
+        # snap its location to the
+        # cells of the world
         if self.sub_state == TD_FOLLOW:
             if self.world.is_inside(mouse_pos):
                 cell_num = self.world.get_cell_at(mouse_pos)
                 snap_loc = self.world.get_cell_top_left(cell_num)
             else:
                 snap_loc = mouse_pos
-            menu_instructions.append((P_SNAP_LOC, snap_loc))
+            self.purchaser.set_position(snap_loc)
         
         # collect actions for menu
         actions = []
-        menu_actions = self.menu.game_logic(keys, newkeys, mouse_pos, newclicks, menu_instructions)
+        menu_actions = self.menu.game_logic(keys, newkeys, mouse_pos, newclicks)
         for action in menu_actions:
             if action is not None:
                 actions.append(action)
@@ -87,34 +96,42 @@ class TowerDefense(game.Game):
         # handle actions
         for action in actions:
             if action[0] == P_FOLLOW:
+                # if we clicked on a menu item
+                # to start placing a tower
+                # keep track of that tower
                 if self.sub_state == TD_SHOW:
                     self.selected.deactivate()
                     self.selected = None
                 self.sub_state = TD_FOLLOW
                 self.purchaser = action[1]
+                self.purchaser.activate()
                 pygame.mouse.set_visible(False)
             elif action[0] == P_PLACE:
                 # verify ability to place tower
-                cell_num = self.world.get_cell_at(mouse_pos)
-                can_position = self.world.get_cell_top_left(cell_num)
-                candidate = self.purchaser(can_position)
+                f_pos = self.purchaser.get_position()
+                f_dims = self.purchaser.get_dims()
+                cell_num = self.world.get_cell_at(f_pos)
                 placed = False
-                if candidate.get_cost() <= self.money:
-                    can_dimensions = candidate.get_dims() 
-                    if self.world.can_build(can_position, can_dimensions):
-                        self.world.occupy_area(can_position, can_dimensions)
-                        candidate.activate()
-                        self.towers.append(candidate)
-                        self.money -= candidate.get_cost()
-                        self.selected = candidate
-                        self.selected.activate()
-                        self.sub_state = TD_SHOW
-                        placed = True
+                if self.world.has_cell(cell_num):
+                    if self.purchaser.get_cost() <= self.money:
+                        if self.world.can_build(f_pos, f_dims):
+                            self.world.occupy_area(f_pos, f_dims)
+                            self.purchaser.activate()
+                            self.towers.append(self.purchaser)
+                            self.money -= self.purchaser.get_cost()
+                            self.selected = self.purchaser
+                            self.sub_state = TD_SHOW
+                            placed = True
                 if not placed:
                     self.sub_state = TD_IDLE
                 self.purchaser = None
                 pygame.mouse.set_visible(True)
             elif action[0] == T_SELECTED:
+                # if we clicked on a tower
+                # stop showing the range
+                # of the previously selected
+                # tower and show this tower's
+                # range
                 if self.sub_state == TD_FOLLOW:
                     self.purchaser = None
                 if self.selected is not None:
@@ -124,6 +141,9 @@ class TowerDefense(game.Game):
                 self.selected.activate()
                 self.sub_state = TD_SHOW
         if 1 in newclicks: # left mouse click
+            # if we clicked on an empty cell
+            # stop showing the previously
+            # selected tower's range
             cell_num = self.world.get_cell_at(mouse_pos)
             if self.sub_state == TD_SHOW:
                 if self.world.has_cell(cell_num) and not self.world.is_occupied(cell_num):

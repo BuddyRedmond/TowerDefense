@@ -43,7 +43,7 @@ class Tower(rectangle.Rectangle):
         distance = math.sqrt((px-cx)**2 + (py-cy)**2)
         return distance <= self.range
         
-    def paint_range(self, surface):
+    def paint_range(self, surface, color=RANGE_COLOR):
         if self.is_active():
             # if the tower is selected
             # draw a partially transparent
@@ -60,7 +60,7 @@ class Tower(rectangle.Rectangle):
             for i in range(surf.get_width()):
                 for j in range(surf.get_height()):
                     if self.is_in_range((i + topleft[0] - .5*self.width, j + topleft[1] - .5*self.height)):
-                        surf.set_at((i, j), RANGE_COLOR)
+                        surf.set_at((i, j), color)
             surface.blit(surf, topleft)
      
     def paint(self, surface):

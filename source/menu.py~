@@ -28,10 +28,10 @@ class Menu(rectangle.Rectangle):
         y = self.position[1] + self.margin_y - .5*item.get_height()
         return (x, y)
 
-    def game_logic(self, keys, newkeys, mouse_pos, newclicks, instructions):
+    def game_logic(self, keys, newkeys, mouse_pos, newclicks,):
         actions = []
         for item in self.items:
-            item_actions = item.game_logic(keys, newkeys, mouse_pos, newclicks, instructions)
+            item_actions = item.game_logic(keys, newkeys, mouse_pos, newclicks)
             for action in item_actions:
                 if action is not None:
                     actions.append(action)
@@ -39,7 +39,6 @@ class Menu(rectangle.Rectangle):
 
     def add_purchaser(self, towertype):
         tower = towertype((0, 0))
-        print tower.get_width()
         pos = self.next_item_position(tower)
         self.items.append(towerpurchaser.TowerPurchaser(pos, towertype, tower.get_width(), tower.get_height()))
 

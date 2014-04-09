@@ -176,7 +176,7 @@ class World:
             for j in range(y_span):
                 p = (pos[0] + i*self.cell_width, pos[1] + j*self.cell_height)
                 cell_num = self.get_cell_at(p)
-                if self.cell_is_path(cell_num) or self.is_occupied(cell_num):
+                if not self.has_cell(cell_num) or self.cell_is_path(cell_num) or self.is_occupied(cell_num):
                     return False
         return True
 

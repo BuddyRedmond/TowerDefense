@@ -21,6 +21,7 @@ MENU_ITEM_MARGIN_X = 10
 
 # Tower #
 RANGE_COLOR = (50, 255, 50, 125)
+RANGE_BAD_COLOR = (255, 50, 50, 125)
 
 TOWER_BASIC_IMAGE = "../assets/images/towers/basic.png"
 TOWER_BASIC_WIDTH = 32
