@@ -54,6 +54,8 @@ class TowerDefense(game.Game):
         self.menu.paint(surface)
         for creep in self.creeps:
             creep.paint(surface)
+        if self.selected is not None:
+            self.selected.paint_range(surface)
         for tower in self.towers:
             tower.paint(surface)
 
@@ -122,9 +124,9 @@ class TowerDefense(game.Game):
                 self.selected.activate()
                 self.sub_state = TD_SHOW
         if 1 in newclicks: # left mouse click
-            cell_num = self.world.loc_to_cell(mouse_pos)
+            cell_num = self.world.get_cell_at(mouse_pos)
             if self.sub_state == TD_SHOW:
-                if not self.world.is_occupied(cell_num):
+                if self.world.has_cell(cell_num) and not self.world.is_occupied(cell_num):
                     self.selected.deactivate()
                     self.selected = None
                     self.sub_state = TD_IDLE

@@ -34,6 +34,7 @@ class TowerPurchaser():
     def paint(self, surface):
         self.tower.paint(surface)
         if self.status == P_FOLLOW:
+            self.follower.paint_range(surface)
             self.follower.paint(surface)
 
     def toggle_status(self):

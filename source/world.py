@@ -158,7 +158,12 @@ class World:
                 p = (pos[0] + i*self.cell_width, pos[1] + j*self.cell_height)
                 cell_num = self.get_cell_at(p)
                 self.occupy_cell(cell_num)
-        
+    
+    def has_cell(self, cell_num):
+        if cell_num is None or cell_num >= (self.width/self.cell_width)*(self.height/self.cell_height):
+            return False
+        return True
+    
     def is_occupied(self, cell_num):
         i, j = self.cell_to_loc(cell_num)
         return self.tower_locations[j][i] == 1

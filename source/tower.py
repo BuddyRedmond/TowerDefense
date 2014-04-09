@@ -42,8 +42,8 @@ class Tower(rectangle.Rectangle):
         cx, cy = self.get_position()
         distance = math.sqrt((px-cx)**2 + (py-cy)**2)
         return distance <= self.range
-     
-    def paint(self, surface):
+        
+    def paint_range(self, surface):
         if self.is_active():
             # if the tower is selected
             # draw a partially transparent
@@ -62,6 +62,8 @@ class Tower(rectangle.Rectangle):
                     if self.is_in_range((i + topleft[0] - .5*self.width, j + topleft[1] - .5*self.height)):
                         surf.set_at((i, j), RANGE_COLOR)
             surface.blit(surf, topleft)
+     
+    def paint(self, surface):
         surface.blit(self.image, self.position)
         
     def game_logic(self, keys, newkeys, mouse_pos, newclicks):

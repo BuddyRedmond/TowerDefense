@@ -54,6 +54,8 @@ class TowerDefense(game.Game):
         self.menu.paint(surface)
         for creep in self.creeps:
             creep.paint(surface)
+        if self.selected is not None:
+            self.selected.paint_range(surface)
         for tower in self.towers:
             tower.paint(surface)
 
@@ -94,20 +96,21 @@ class TowerDefense(game.Game):
             elif action[0] == P_PLACE:
                 # verify ability to place tower
                 cell_num = self.world.get_cell_at(mouse_pos)
-                can_position = self.world.get_cell_top_left(cell_num)
-                candidate = self.purchaser(can_position)
                 placed = False
-                if candidate.get_cost() <= self.money:
-                    can_dimensions = candidate.get_dims() 
-                    if self.world.can_build(can_position, can_dimensions):
-                        self.world.occupy_area(can_position, can_dimensions)
-                        candidate.activate()
-                        self.towers.append(candidate)
-                        self.money -= candidate.get_cost()
-                        self.selected = candidate
-                        self.selected.activate()
-                        self.sub_state = TD_SHOW
-                        placed = True
+                if self.world.has_cell(cell_num):
+                    can_position = self.world.get_cell_top_left(cell_num)
+                    candidate = self.purchaser(can_position)
+                    if candidate.get_cost() <= self.money:
+                        can_dimensions = candidate.get_dims() 
+                        if self.world.can_build(can_position, can_dimensions):
+                            self.world.occupy_area(can_position, can_dimensions)
+                            candidate.activate()
+                            self.towers.append(candidate)
+                            self.money -= candidate.get_cost()
+                            self.selected = candidate
+                            self.selected.activate()
+                            self.sub_state = TD_SHOW
+                            placed = True
                 if not placed:
                     self.sub_state = TD_IDLE
                 self.purchaser = None
@@ -124,7 +127,7 @@ class TowerDefense(game.Game):
         if 1 in newclicks: # left mouse click
             cell_num = self.world.get_cell_at(mouse_pos)
             if self.sub_state == TD_SHOW:
-                if not self.world.is_occupied(cell_num):
+                if self.world.has_cell(cell_num) and not self.world.is_occupied(cell_num):
                     self.selected.deactivate()
                     self.selected = None
                     self.sub_state = TD_IDLE
