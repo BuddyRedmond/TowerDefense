@@ -10,6 +10,7 @@
 import pygame
 from config import *
 import rectangle
+import math
 
 class Tower(rectangle.Rectangle):
     def __init__(self, position, width=TOWER_BASIC_WIDTH,       height=TOWER_BASIC_HEIGHT, image=TOWER_BASIC_IMAGE):
@@ -35,16 +36,41 @@ class Tower(rectangle.Rectangle):
         
     def deactivate(self):
         self.active = False
+        
+    def is_in_range(self, position):
+        px, py = position
+        cx, cy = self.get_position()
+        distance = math.sqrt((px-cx)**2 + (py-cy)**2)
+        return distance <= self.range
      
     def paint(self, surface):
         if self.is_active():
-            pygame.draw.circle(surface, RANGE_COLOR, self.get_center(), self.range, 3)
+            # if the tower is selected
+            # draw a partially transparent
+            # circle to indicate its range
+            cx, cy = self.get_center()
+            topleft = (cx - self.range, cy - self.range)
+            surf = pygame.Surface((self.range*2, self.range*2), pygame.SRCALPHA)
+            surf.fill((255, 255, 255, 0))
+            
+            # loop through each pixel in the rectangle
+            # that contains the range and change its
+            # color if it is inside the range
+            # (excludes the corners of the rectangle)
+            for i in range(surf.get_width()):
+                for j in range(surf.get_height()):
+                    if self.is_in_range((i + topleft[0] - .5*self.width, j + topleft[1] - .5*self.height)):
+                        surf.set_at((i, j), RANGE_COLOR)
+            
+            #pygame.draw.circle(surf, RANGE_COLOR, (self.range, self.range), self.range)
+            surface.blit(surf, topleft)
         surface.blit(self.image, self.position)
         
-    def game_logic(self, keys, newkeys, mouse_pos, newclicks):        
+    def game_logic(self, keys, newkeys, mouse_pos, newclicks):
         actions = []
-        if 1 in newclicks: # left click
-            actions.append((T_SELECTED, self))
+        if self.is_inside(mouse_pos):
+            if 1 in newclicks: # left click
+                actions.append((T_SELECTED, self))
         return actions
         
 class GreenTower(Tower):
