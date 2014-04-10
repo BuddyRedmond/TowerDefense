@@ -45,9 +45,15 @@ class TowerPurchaser():
         actions = []
         if 1 in newclicks: # left click
             if self.status == P_IDLE and self.tower.is_inside(mouse_pos):
+                # if we were idle but the tower was clicked
+                # tell the game that we want to start placing
+                # a tower
                 actions.append((P_FOLLOW, self.towertype(self.position)))
                 self.toggle_status()
             elif self.status == P_FOLLOW :
+                # if we were following a tower and the user
+                # just clicked, tell the game to try and
+                # place the tower
                 actions.append((P_PLACE, None))
                 self.toggle_status()
         return actions

@@ -4,24 +4,51 @@ SCREEN_HEIGHT = 600
 MARGIN = 5
 FRAMES_PER_SECOND = 30
 WHITE = (255, 255, 255)
-BACKGROUND_COLOR = WHITE
+BACKGROUND_COLOR = (225, 225, 225)
 
-# game_logic actions #
+# Mouse Buttons #
+MOUSE_LEFT = 1
+MOUSE_RIGHT = 2
+MOUSE_MIDDLE = 3
+
+# enums #
+
+## game_logic actions ##
 P_IDLE = 0
-P_FOLLOW = P_IDLE + 1
-P_PLACE = P_FOLLOW + 1
-T_SELECTED = P_PLACE + 1
+P_FOLLOW = 1
+P_PLACE = 2
+T_SELECTED = 3
+
+## Sub states ##
+TD_IDLE = 4
+TD_FOLLOW = 5
+TD_SHOW = 6
+
+## States ##
+TD_PAUSE = 7
+TD_PLAYING = 8 # wave in progress
+TD_CLEAR = 9 # in between waves
+
+## Menu Buttons ##
+BUTTON_NEW_WAVE_MSG = 10
+
+###########
 
 # instructions #
-P_SNAP_LOC = T_SELECTED + 1
+P_SNAP_LOC = 11
 
 # Menu #
 MENU_COLOR = (100, 100, 100)
 MENU_ITEM_MARGIN_X = 10
 
+# Menu Buttons #
+BUTTON_NEW_WAVE_IMG = "../assets/images/buttons/newWave.png"
+BUTTON_NEW_WAVE_WIDTH = 64
+BUTTON_NEW_WAVE_HEIGHT = 32
+
 # Tower #
 RANGE_COLOR = (50, 255, 50, 125)
-RANGE_BAD_COLOR = (50, 255, 50, 125)
+RANGE_BAD_COLOR = (255, 50, 50, 125)
 
 TOWER_BASIC_IMAGE = "../assets/images/towers/basic.png"
 TOWER_BASIC_WIDTH = 32
@@ -43,7 +70,6 @@ WAVES = []
 # Creep #
 CREEP_TYPES = []
 CREEP_COUNT = 0
-# Default #
 CREEP_DEFAULT_HEALTH = 100
 CREEP_DEFAULT_SPEED = 1
 CREEP_DEFAULT_IMAGE = "../assets/images/creeps/default.png"
@@ -58,18 +84,3 @@ PATH_IMG = "../assets/images/tiles/path.png"
 GRASS_IMG = "../assets/images/tiles/grass_outlined.png"
 TILE_WIDTH = 16
 TILE_HEIGHT = 16
-
-# Buttons #
-MOUSE_LEFT = 0
-MOUSE_RIGHT = 1
-MOUSE_MIDDLE = 2
-
-# States #
-TD_PAUSE = 1
-TD_PLAYING = 2 # wave in progress
-TD_CLEAR = 3 # in between waves
-
-# Sub states #
-TD_IDLE = TD_CLEAR + 1
-TD_FOLLOW = TD_IDLE + 1
-TD_SHOW = TD_FOLLOW + 1

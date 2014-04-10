@@ -14,7 +14,7 @@ import math
 
 class Tower(rectangle.Rectangle):
     def __init__(self, position, width=TOWER_BASIC_WIDTH,       height=TOWER_BASIC_HEIGHT, image=TOWER_BASIC_IMAGE):
-        rectangle.Rectangle.__init__(self, position, image, width, height)
+        rectangle.Rectangle.__init__(self, position, width, height, image)
         self.cost = TOWER_BASIC_COST
         self.range = TOWER_BASIC_RANGE
         self.active = False
@@ -60,7 +60,7 @@ class Tower(rectangle.Rectangle):
             for i in range(surf.get_width()):
                 for j in range(surf.get_height()):
                     if self.is_in_range((i + topleft[0] - .5*self.width, j + topleft[1] - .5*self.height)):
-                        surf.set_at((i, j), RANGE_COLOR)
+                        surf.set_at((i, j), color)
             surface.blit(surf, topleft)
      
     def paint(self, surface):
@@ -69,7 +69,7 @@ class Tower(rectangle.Rectangle):
     def game_logic(self, keys, newkeys, mouse_pos, newclicks):
         actions = []
         if self.is_inside(mouse_pos):
-            if 1 in newclicks: # left click
+            if MOUSE_LEFT in newclicks:
                 actions.append((T_SELECTED, self))
         return actions
         
@@ -79,5 +79,6 @@ class GreenTower(Tower):
         height=TOWER_GREEN_HEIGHT
         image=TOWER_GREEN_IMAGE
         Tower.__init__(self, position, width, height, image)
+        print "GT", self.width, self.height
         self.cost = TOWER_GREEN_COST
         self.range = TOWER_GREEN_RANGE

@@ -11,7 +11,7 @@ import pygame
 from config import *
 
 class Rectangle:
-    def __init__(self, position, image, width, height):
+    def __init__(self, position, width, height, image):
         self.position = position # topleft
         self.image = pygame.image.load(image)
         self.width = width

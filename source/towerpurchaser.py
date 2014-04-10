@@ -43,7 +43,7 @@ class TowerPurchaser():
 
     def game_logic(self, keys, newkeys, mouse_pos, newclicks):
         actions = []
-        if 1 in newclicks: # left click
+        if MOUSE_LEFT in newclicks:
             if self.status == P_IDLE and self.tower.is_inside(mouse_pos):
                 # if we were idle but the tower was clicked
                 # tell the game that we want to start placing

@@ -8,6 +8,7 @@
 
 import rectangle
 import towerpurchaser
+import button
 import pygame
 from config import *
 
@@ -24,10 +25,10 @@ class Menu(rectangle.Rectangle):
     def next_item_position(self, item):
         # calculates the next position in
         # the menu for an item
+        y = self.position[1] + .5*(self.height - item.get_height())
         x = self.position[0] + self.margin_x
         for item in self.items:
             x += item.get_width() + self.margin_x
-        y = self.position[1] + self.margin_y - .5*item.get_height()
         return (x, y)
 
     def game_logic(self, keys, newkeys, mouse_pos, newclicks,):
@@ -41,6 +42,12 @@ class Menu(rectangle.Rectangle):
                 if action is not None:
                     actions.append(action)
         return actions
+        
+    def add_button(self, buttontype):
+        btn = buttontype((0, 0))
+        pos = self.next_item_position(btn)
+        btn.set_position(pos)
+        self.items.append(btn)
 
     def add_purchaser(self, towertype):
         # add a specific item to the menu
@@ -51,6 +58,6 @@ class Menu(rectangle.Rectangle):
 
     def paint(self, surface):
         r = pygame.Rect(self.position, (self.width, self.height))
-        pygame.draw.rect(surface, self.color, r)
+        pygame.draw.rect(surface, self.color, r, 3)
         for item in self.items:
             item.paint(surface)

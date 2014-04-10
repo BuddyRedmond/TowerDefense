@@ -111,7 +111,7 @@ class World:
                 # tower location default to 0
                 t_locations.append(0)
                 
-                r_row.append(rectangle.Rectangle((x, y), img, self.cell_width, self.cell_height))
+                r_row.append(rectangle.Rectangle((x, y), self.cell_width, self.cell_height, img))
             self.layout.append(r_row)
             self.tile_types.append(t_row)
             self.tower_locations.append(t_locations)

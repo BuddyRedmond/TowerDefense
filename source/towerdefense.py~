@@ -17,6 +17,7 @@ import creep
 import world
 import tower
 import menu
+import button
 
 class TowerDefense(game.Game):
     def __init__(self, name, screen_width, screen_height):
@@ -35,7 +36,12 @@ class TowerDefense(game.Game):
                               WORLD_DEFAULT_WIDTH*.5, \
                               screen_height - (world_pos_y + WORLD_DEFAULT_HEIGHT + 2*MARGIN), \
                               MENU_COLOR)
-        self.towers_types = [tower.Tower, tower.GreenTower]
+        
+        #self.buttons = [button.NewWave]                      
+        #for btn in self.buttons:
+        #    self.menu.add_button(btn)
+            
+        self.towers_types = [tower.Tower]#, tower.GreenTower]
         for tt in self.towers_types:
             self.menu.add_purchaser(tt)
         
@@ -68,10 +74,10 @@ class TowerDefense(game.Game):
             tower.paint(surface)
 
     def game_logic(self, keys, newkeys, mouse_pos, newclicks):
-        # if we are placing a tower
-        # snap its location to the
-        # cells of the world
         if self.sub_state == TD_FOLLOW:
+            # if we are placing a tower
+            # snap its location to the
+            # cells of the world
             if self.world.is_inside(mouse_pos):
                 cell_num = self.world.get_cell_at(mouse_pos)
                 snap_loc = self.world.get_cell_top_left(cell_num)

@@ -17,6 +17,7 @@ import creep
 import world
 import tower
 import menu
+import button
 
 class TowerDefense(game.Game):
     def __init__(self, name, screen_width, screen_height):
@@ -35,6 +36,11 @@ class TowerDefense(game.Game):
                               WORLD_DEFAULT_WIDTH*.5, \
                               screen_height - (world_pos_y + WORLD_DEFAULT_HEIGHT + 2*MARGIN), \
                               MENU_COLOR)
+        
+        #self.buttons = [button.NewWave]                      
+        #for btn in self.buttons:
+        #    self.menu.add_button(btn)
+            
         self.towers_types = [tower.Tower, tower.GreenTower]
         for tt in self.towers_types:
             self.menu.add_purchaser(tt)

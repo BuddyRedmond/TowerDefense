@@ -14,7 +14,7 @@ import math
 
 class Tower(rectangle.Rectangle):
     def __init__(self, position, width=TOWER_BASIC_WIDTH,       height=TOWER_BASIC_HEIGHT, image=TOWER_BASIC_IMAGE):
-        rectangle.Rectangle.__init__(self, position, image, width, height)
+        rectangle.Rectangle.__init__(self, position, width, height, image)
         self.cost = TOWER_BASIC_COST
         self.range = TOWER_BASIC_RANGE
         self.active = False
@@ -69,7 +69,7 @@ class Tower(rectangle.Rectangle):
     def game_logic(self, keys, newkeys, mouse_pos, newclicks):
         actions = []
         if self.is_inside(mouse_pos):
-            if 1 in newclicks: # left click
+            if MOUSE_LEFT in newclicks:
                 actions.append((T_SELECTED, self))
         return actions
         
