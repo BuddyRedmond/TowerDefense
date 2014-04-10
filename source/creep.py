@@ -12,7 +12,7 @@ from config import *
 import rectangle
 
 class Creep(rectangle.Rectangle):
-    def __init__(self, position, width, height, image):
+    def __init__(self, position, width=CREEP_DEFAULT_WIDTH, height=CREEP_DEFAULT_HEIGHT, image=CREEP_DEFAULT_IMAGE):
         rectangle.Rectangle.__init__(self, position, width, height, image)
         self.health = CREEP_DEFAULT_HEALTH
         self.speed = CREEP_DEFAULT_SPEED

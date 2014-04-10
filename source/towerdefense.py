@@ -22,20 +22,17 @@ import button
 class TowerDefense(game.Game):
     def __init__(self, name, screen_width, screen_height):
         # setup data members and the screen
-        game.Game.__init__(self, name, screen_width, screen_width)
+        game.Game.__init__(self, name, screen_width, screen_height)
 
         ### World setup ###
-        world_pos_x = (screen_width - WORLD_DEFAULT_WIDTH)/2
+        world_pos_x = (self.width - WORLD_DEFAULT_WIDTH)/2
+        if world_pos_x < 0:
+            world_pos_x = MARGIN
         world_pos_y = MARGIN
-        self.world = world.World((world_pos_x, world_pos_y), \
-                                 WORLD_DEFAULT_WIDTH, WORLD_DEFAULT_HEIGHT, WORLD1)
+        self.world = world.World((world_pos_x, world_pos_y), WORLD_DEFAULT_WIDTH, WORLD_DEFAULT_HEIGHT, WORLD1)
 
         ### Menu setup ###
-        self.menu = menu.Menu((world_pos_x, \
-                               world_pos_y + WORLD_DEFAULT_HEIGHT + MARGIN), \
-                              WORLD_DEFAULT_WIDTH*.5, \
-                              screen_height - (world_pos_y + WORLD_DEFAULT_HEIGHT + 2*MARGIN), \
-                              MENU_COLOR)
+        self.menu = menu.Menu((world_pos_x, world_pos_y + WORLD_DEFAULT_HEIGHT + MARGIN), WORLD_DEFAULT_WIDTH*.5, MENU_HEIGHT, MENU_COLOR)
         
         #self.buttons = [button.NewWave]                      
         #for btn in self.buttons:
@@ -48,6 +45,7 @@ class TowerDefense(game.Game):
         self.towers = []
         self.money = STARTING_MONEY
         self.wave = 0
+        self.creep_types = [creep.Creep]
         self.creeps = []
         self.state = TD_CLEAR
         self.sub_state = TD_IDLE
@@ -156,3 +154,12 @@ class TowerDefense(game.Game):
                     self.selected.deactivate()
                     self.selected = None
                     self.sub_state = TD_IDLE
+                    
+        if len(self.creeps) == 0:
+            self.wave += 1
+            for i in range(CREEP_COUNT):
+                for j in range(WAVES[self.wave][i]):
+                    c = self.creep_types[i](0, 0)
+                    start_cell = self.world.get_start()
+                    c.set_position(self.world.get_cell_top_left(start_cell))
+                    self.creeps.append(c)

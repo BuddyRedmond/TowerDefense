@@ -23,6 +23,7 @@ class World:
         self.tower_locations = []
         self.layout = []
         self.tile_types = []
+        self.start_cell = None
         if layout_file is not None:
             self.load_from_file(layout_file)
             
@@ -56,12 +57,14 @@ class World:
         f = open(layout_file, 'rb')
         fin = [line.strip() for line in f.readlines()]
         f.close()
-        dim = fin[0].split()
+        data = fin[0].split()
+        dim = [0, 0]
         try:
-            dim[0] = int(dim[0])
-            dim[1] = int(dim[1])
-            if len(dim) != 2:
-                raise Exception("Invalid dimension description\n" + str(dim))
+            dim[0] = int(data[0])
+            dim[1] = int(data[1])
+            if len(data) != 2:
+                raise Exception("Invalid layout description\n" + str(dim))
+            self.start_cell = (int(data[2]), int(data[3]))
             layout = []
             fin = fin[1:]
             for line in fin:
@@ -111,7 +114,7 @@ class World:
                 # tower location default to 0
                 t_locations.append(0)
                 
-                r_row.append(rectangle.Rectangle((x, y), img, self.cell_width, self.cell_height))
+                r_row.append(rectangle.Rectangle((x, y), self.cell_width, self.cell_height, img))
             self.layout.append(r_row)
             self.tile_types.append(t_row)
             self.tower_locations.append(t_locations)
@@ -128,6 +131,9 @@ class World:
                 if self.layout[j][i].is_inside(position):
                     return self.loc_to_cell(i, j)
         return None
+        
+    def get_start(self):
+        return self.loc_to_cell(self.start_cell[0], self.start_cell[1])
 
     def loc_to_cell(self, i, j):
         # where i is the column, j is the row
@@ -141,6 +147,10 @@ class World:
     def get_cell_top_left(self, cell_num):
         i, j = self.cell_to_loc(cell_num)
         return self.layout[j][i].get_position()
+        
+    def get_cell_center(self, cell_num):
+        i, j = self.cell_to_loc(cell_num)
+        return self.layout[j][i].get_center()
 
     def cell_is_path(self, cell_num):
         i, j = self.cell_to_loc(cell_num)
