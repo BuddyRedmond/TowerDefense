@@ -64,8 +64,10 @@ class TowerDefense(game.Game):
         elif self.sub_state == TD_FOLLOW:
             if self.purchaser is not None:
                 if not self.world.can_build(self.purchaser.get_position(), self.purchaser.get_dims()):
-                    self.purchaser.paint_range(surface, RANGE_BAD_COLOR)
+                    self.purchaser.bad_pos()
+                    self.purchaser.paint_range(surface)
                 else:
+                    self.purchaser.good_pos()
                     self.purchaser.paint_range(surface)
                 self.purchaser.paint(surface)
         for tower in self.towers:
