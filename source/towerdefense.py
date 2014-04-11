@@ -72,8 +72,22 @@ class TowerDefense(game.Game):
                 self.purchaser.paint(surface)
         for tower in self.towers:
             tower.paint(surface)
+            
+    def begin_wave(self):
+        self.wave += 1
+        for i in range(CREEP_COUNT):
+            for j in range(WAVES[self.wave][i]):
+                c = self.creep_types[i]((0, 0))
+                start_cell = self.world.get_start()
+                x, y = self.world.get_cell_top_left(start_cell)
+                c.set_position((-(j+1)*c.get_width(), y))
+                c.set_destination((120, y))
+                self.creeps.append(c)
 
     def game_logic(self, keys, newkeys, mouse_pos, newclicks):
+        for creep in self.creeps:
+            if not creep.has_destination():
+                creep.set_destination((120, 464))
         if self.sub_state == TD_FOLLOW:
             # if we are placing a tower
             # snap its location to the
@@ -157,11 +171,8 @@ class TowerDefense(game.Game):
                     self.selected = None
                     self.sub_state = TD_IDLE
                     
+        for creep in self.creeps:
+            creep.game_logic(keys, newkeys, mouse_pos, newclicks)
+                    
         if len(self.creeps) == 0:
-            self.wave += 1
-            for i in range(CREEP_COUNT):
-                for j in range(WAVES[self.wave][i]):
-                    c = self.creep_types[i](0, 0)
-                    start_cell = self.world.get_start()
-                    c.set_position(self.world.get_cell_top_left(start_cell))
-                    self.creeps.append(c)
+            self.begin_wave()

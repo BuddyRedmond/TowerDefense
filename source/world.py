@@ -103,13 +103,11 @@ class World:
                 tile = layout[j][i]
                 if tile == '0':
                     img = GRASS_IMG
-                    t = 0
                 else:
                     img = PATH_IMG
-                    t = 1
                 x = self.position[0] + (i)*self.cell_width
                 y = self.position[1] + (j)*self.cell_height
-                t_row.append(t)
+                t_row.append(int(tile))
                 
                 # tower location default to 0
                 t_locations.append(0)
@@ -119,6 +117,27 @@ class World:
             self.tile_types.append(t_row)
             self.tower_locations.append(t_locations)
         return True
+        
+    def next_path_from(self, position, prev=None):
+        current = self.get_cell_at(position)
+        if prev is not None:
+            previous = self.get_cell_at(prev)
+        candidates = []
+        
+        has_top = self.has_cell(self.get_cell_at((position[0], position[1]-1)))
+        has_left = self.has_cell(self.get_cell_at((position[0]-1, position[1])))
+        has_right = self.has_cell(self.get_cell_at((position[0]+1, position[1])))
+        has_bottom = self.has_cell(self.get_cell_at((position[0], position[1]+1)))
+        if has_top:
+            # topleft
+            can = 
+            # top
+            # topright
+        # left
+        # right
+        # bottomleft
+        # bottom
+        # bottomright
 
     def paint(self, surface):
         for row in self.layout:
