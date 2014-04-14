@@ -27,9 +27,7 @@ class World:
         self.start_cell = None
         if layout_file is not None:
             self.load_from_file(layout_file)
-        print self.waypoints
         self.order_waypoints()
-        print self.waypoints
             
     # attempts to assign a variable called var_name (for debugging)
     # to a value of value but assigns it to value: default
@@ -126,6 +124,44 @@ class World:
         for point in waypoints:
             self.waypoints.append(self.loc_to_cell(point[0], point[1]))
         return True
+        
+    def cell_is_middle_path(self, i, j):
+        # a cell is a middle path if
+        # if is surrounded by ONLY
+        # path cells (diagonals included)
+        if self.tile_types[j][i] == 2:
+            return True
+        can_top = j > 0
+        can_left = i > 0
+        can_right = i < self.width - 1
+        can_bottom = j < self.height - 1
+        if can_top:
+            if not self.cell_is_path(self.loc_to_cell(i, j-1)):
+                return False
+            if can_left:
+                if not self.cell_is_path(self.loc_to_cell(i-1, j-1)):
+                    return False
+            if can_right:
+                if not self.cell_is_path(self.loc_to_cell(i+1, j-1)):
+                    return False
+        else:
+            return False
+        if not can_left or not self.cell_is_path(self.loc_to_cell(i-1, j)):
+            return False
+        if not can_right or not self.cell_is_path(self.loc_to_cell(i+1, j)):
+            return False
+        if can_bottom:
+            if not self.cell_is_path(self.loc_to_cell(i, j+1)):
+                return False
+            if can_left:
+                if not self.cell_is_path(self.loc_to_cell(i-1, j+1)):
+                    return False
+            if can_right:
+                if not self.cell_is_path(self.loc_to_cell(i+1, j+1)):
+                    return False
+        else:
+            return False
+        return True
 
     def get_path_neighbors(self, i, j): # diagonals not included
         neighbors = []
@@ -134,22 +170,14 @@ class World:
         can_left = i > 0
         can_right = i < self.width - 1
         can_bottom = j < self.height - 1
-        if can_top and self.cell_is_path(self.loc_to_cell(i, j-1)):
-            can_top2 = j > 1
-            if can_top2 and self.cell_is_path(self.loc_to_cell(i, j-2)):
-                neighbors.append((i, j-1))
-        if can_left and self.cell_is_path(self.loc_to_cell(i-1, j)):
-            can_left2 = j > 1
-            if can_left2 and self.cell_is_path(self.loc_to_cell(i-2, j)):
-                neighbors.append((i-1, j))
-        if can_right and self.cell_is_path(self.loc_to_cell(i+1, j)):
-            can_top2 = i < self.width - 2
-            if can_top2 and self.cell_is_path(self.loc_to_cell(i+2, j)):
-                neighbors.append((i+1, j))
-        if can_bottom and self.cell_is_path(self.loc_to_cell(i, j+1)):
-            can_top2 = j < self.height - 2
-            if can_top2 and self.cell_is_path(self.loc_to_cell(i, j+2)):
-                neighbors.append((i, j+1))
+        if can_top and self.cell_is_middle_path(i, j-1):
+            neighbors.append((i, j-1))
+        if can_left and self.cell_is_middle_path(i-1, j):
+            neighbors.append((i-1, j))
+        if can_right and self.cell_is_middle_path(i+1, j):
+            neighbors.append((i+1, j))
+        if can_bottom and self.cell_is_middle_path(i, j+1):
+            neighbors.append((i, j+1))
         return neighbors
 
     def order_waypoints(self):
@@ -175,7 +203,7 @@ class World:
     def next_waypoint(self, num_visited):
         # where prevs is a list of previously
         # visited waypoints
-        if num_visited >= len(self.waypoints):
+        if num_visited > len(self.waypoints):
             return None
         return self.get_cell_top_left(self.waypoints[num_visited-1])
 
