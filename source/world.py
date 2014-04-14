@@ -23,9 +23,13 @@ class World:
         self.tower_locations = []
         self.layout = []
         self.tile_types = []
+        self.waypoints = []
         self.start_cell = None
         if layout_file is not None:
             self.load_from_file(layout_file)
+        print self.waypoints
+        self.order_waypoints()
+        print self.waypoints
             
     # attempts to assign a variable called var_name (for debugging)
     # to a value of value but assigns it to value: default
@@ -95,6 +99,7 @@ class World:
             fill = row_size*'0'
             layout.append(fill)
         self.layout = []
+        waypoints = []
         for j in range(len(layout)):
             r_row = []
             t_row = []
@@ -105,6 +110,8 @@ class World:
                     img = GRASS_IMG
                 else:
                     img = PATH_IMG
+                    if tile == '2':
+                        waypoints.append((i, j))
                 x = self.position[0] + (i)*self.cell_width
                 y = self.position[1] + (j)*self.cell_height
                 t_row.append(int(tile))
@@ -116,28 +123,61 @@ class World:
             self.layout.append(r_row)
             self.tile_types.append(t_row)
             self.tower_locations.append(t_locations)
+        for point in waypoints:
+            self.waypoints.append(self.loc_to_cell(point[0], point[1]))
         return True
+
+    def get_path_neighbors(self, i, j): # diagonals not included
+        neighbors = []
+        # check for bounds
+        can_top = j > 0
+        can_left = i > 0
+        can_right = i < self.width - 1
+        can_bottom = j < self.height - 1
+        if can_top and self.cell_is_path(self.loc_to_cell(i, j-1)):
+            can_top2 = j > 1
+            if can_top2 and self.cell_is_path(self.loc_to_cell(i, j-2)):
+                neighbors.append((i, j-1))
+        if can_left and self.cell_is_path(self.loc_to_cell(i-1, j)):
+            can_left2 = j > 1
+            if can_left2 and self.cell_is_path(self.loc_to_cell(i-2, j)):
+                neighbors.append((i-1, j))
+        if can_right and self.cell_is_path(self.loc_to_cell(i+1, j)):
+            can_top2 = i < self.width - 2
+            if can_top2 and self.cell_is_path(self.loc_to_cell(i+2, j)):
+                neighbors.append((i+1, j))
+        if can_bottom and self.cell_is_path(self.loc_to_cell(i, j+1)):
+            can_top2 = j < self.height - 2
+            if can_top2 and self.cell_is_path(self.loc_to_cell(i, j+2)):
+                neighbors.append((i, j+1))
+        return neighbors
+
+    def order_waypoints(self):
+        ordered_waypoints = []
+        i, j = self.start_cell
+        count = 0
+        end = len(self.waypoints)
+        prev = []
+        while count < end:
+            next_prev = []
+            neighbors = self.get_path_neighbors(i, j)
+            for neighbor in neighbors:
+                # verify that the neighbor is a middle path cell (path in every direction)
+                if neighbor not in prev:
+                    next_prev.append((i, j))
+                    i, j = neighbor
+                    if self.tile_types[j][i] == 2:
+                        count += 1
+                        ordered_waypoints.append(self.loc_to_cell(i, j))
+            prev = next_prev[:]
+        self.waypoints = ordered_waypoints[:]
         
-    def next_path_from(self, position, prev=None):
-        current = self.get_cell_at(position)
-        if prev is not None:
-            previous = self.get_cell_at(prev)
-        candidates = []
-        
-        has_top = self.has_cell(self.get_cell_at((position[0], position[1]-1)))
-        has_left = self.has_cell(self.get_cell_at((position[0]-1, position[1])))
-        has_right = self.has_cell(self.get_cell_at((position[0]+1, position[1])))
-        has_bottom = self.has_cell(self.get_cell_at((position[0], position[1]+1)))
-        if has_top:
-            # topleft
-            can = 
-            # top
-            # topright
-        # left
-        # right
-        # bottomleft
-        # bottom
-        # bottomright
+    def next_waypoint(self, num_visited):
+        # where prevs is a list of previously
+        # visited waypoints
+        if num_visited >= len(self.waypoints):
+            return None
+        return self.get_cell_top_left(self.waypoints[num_visited-1])
 
     def paint(self, surface):
         for row in self.layout:
@@ -173,7 +213,7 @@ class World:
 
     def cell_is_path(self, cell_num):
         i, j = self.cell_to_loc(cell_num)
-        return self.tile_types[j][i] == 1
+        return self.tile_types[j][i] != 0
         
     def occupy_cell(self, cell_num):
         i, j = self.cell_to_loc(cell_num)

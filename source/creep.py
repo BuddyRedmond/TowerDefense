@@ -18,6 +18,7 @@ class Creep(rectangle.Rectangle):
         self.speed = CREEP_DEFAULT_SPEED
         self.speed_modifier = 1
         self.destination = None
+        self.visited = 0
         #self.resistances = CREEP_DEFAULT_RESISTANCES
 
     def hit(self, damage):
@@ -31,15 +32,27 @@ class Creep(rectangle.Rectangle):
         
     def has_destination(self):
         return self.destination is not None
+
+    def get_visited(self):
+        return self.visited
         
     def move(self):
         if not self.has_destination():
             return
         x, y = self.position
-        dx = min(abs(self.destination[0]-x), self.speed*self.speed_modifier)
-        dy = min(abs(self.destination[1]-y), self.speed*self.speed_modifier)
+        dx = self.destination[0]-x
+        dy = self.destination[1]-y
+        on_left = dx < 0
+        above = dy < 0
+        dx = min(abs(dx), self.speed*self.speed_modifier)
+        dy = min(abs(dy), self.speed*self.speed_modifier)
+        if on_left:
+            dx *= -1
+        if above:
+            dy *= -1
         self.position = (x + dx, y + dy)
         if self.position == self.destination:
+            self.visited += 1
             self.destination = None
 
     def game_logic(self, keys, newkeys, mouse_pos, newclicks):
