@@ -27,6 +27,7 @@ class World:
         self.start_cell = None
         if layout_file is not None:
             self.load_from_file(layout_file)
+        self.start = self.get_cell_top_left(self.loc_to_cell(self.start_cell[0], self.start_cell[1]))
         self.order_waypoints()
             
     # attempts to assign a variable called var_name (for debugging)
@@ -122,7 +123,7 @@ class World:
             self.tile_types.append(t_row)
             self.tower_locations.append(t_locations)
         for point in waypoints:
-            self.waypoints.append(self.loc_to_cell(point[0], point[1]))
+            self.waypoints.append(self.get_cell_top_left(self.loc_to_cell(point[0], point[1])))
         return True
         
     def cell_is_middle_path(self, i, j):
@@ -181,6 +182,9 @@ class World:
         return neighbors
 
     def order_waypoints(self):
+        # orders the waypoints in the order
+        # that they would be reached when
+        # walking the path
         ordered_waypoints = []
         i, j = self.start_cell
         count = 0
@@ -196,16 +200,28 @@ class World:
                     i, j = neighbor
                     if self.tile_types[j][i] == 2:
                         count += 1
-                        ordered_waypoints.append(self.loc_to_cell(i, j))
+                        ordered_waypoints.append(self.get_cell_top_left(self.loc_to_cell(i, j)))
             prev = next_prev[:]
         self.waypoints = ordered_waypoints[:]
+        
+        # adds an extra waypoint to make the
+        # "end" of the path be slightly off
+        # of the screen
+        last = self.waypoints[-1]
+        p = self.get_cell_top_left(self.loc_to_cell(prev[0][0], prev[0][1]))
+        dx, dy = (last[0]-p[0], last[1]-p[1])
+        end = (last[0]+dx*2, last[1]+dy*2)
+        self.waypoints.append(end)
         
     def next_waypoint(self, num_visited):
         # where prevs is a list of previously
         # visited waypoints
         if num_visited > len(self.waypoints):
             return None
-        return self.get_cell_top_left(self.waypoints[num_visited-1])
+        elif num_visited == 0:
+            return self.start
+        else:
+            return self.waypoints[num_visited-1]
 
     def paint(self, surface):
         for row in self.layout:
@@ -220,7 +236,8 @@ class World:
         return None
         
     def get_start(self):
-        return self.loc_to_cell(self.start_cell[0], self.start_cell[1])
+        return self.start
+        #return self.loc_to_cell(self.start_cell[0], self.start_cell[1])
 
     def loc_to_cell(self, i, j):
         # where i is the column, j is the row

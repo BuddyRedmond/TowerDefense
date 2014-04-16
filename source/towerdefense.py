@@ -51,6 +51,8 @@ class TowerDefense(game.Game):
         self.sub_state = TD_IDLE
         self.purchaser = None
         self.selected = None
+        
+        self.count = 0
 
     def paint(self, surface):
         surface.fill(BACKGROUND_COLOR)
@@ -75,19 +77,27 @@ class TowerDefense(game.Game):
             
     def begin_wave(self):
         self.wave += 1
+        if self.wave > len(WAVES)-1:
+            return
         for i in range(CREEP_COUNT):
             for j in range(WAVES[self.wave][i]):
                 c = self.creep_types[i]((0, 0))
-                start_cell = self.world.get_start()
-                x, y = self.world.get_cell_top_left(start_cell)
+                x, y = self.world.get_start()
                 c.set_position((-(j+1)*c.get_width(), y))
-                c.set_destination(self.world.get_cell_top_left(self.world.loc_to_cell(5, 3)))
+                c.set_destination(self.world.next_waypoint(0))
                 self.creeps.append(c)
 
     def game_logic(self, keys, newkeys, mouse_pos, newclicks):
+        remaining_creeps = []
         for creep in self.creeps:
             if not creep.has_destination():
-                creep.set_destination(self.world.next_waypoint(creep.get_visited()))
+                dest = self.world.next_waypoint(creep.get_visited())
+                if dest is not None:
+                    creep.set_destination(self.world.next_waypoint(creep.get_visited()))
+                    remaining_creeps.append(creep)
+            else:
+                remaining_creeps.append(creep)
+        self.creeps = remaining_creeps[:]
         if self.sub_state == TD_FOLLOW:
             # if we are placing a tower
             # snap its location to the
@@ -108,7 +118,7 @@ class TowerDefense(game.Game):
         
         # collect actions for towers
         for tower in self.towers:
-            tower_actions = tower.game_logic(keys, newkeys, mouse_pos, newclicks)
+            tower_actions = tower.game_logic(keys, newkeys, mouse_pos, newclicks, self.creeps)
             for action in tower_actions:
                 if action is not None:
                     actions.append(action)
@@ -160,6 +170,10 @@ class TowerDefense(game.Game):
                 self.selected = action[1]
                 self.selected.activate()
                 self.sub_state = TD_SHOW
+            elif action[0] == T_FIRE:
+                self.count += 1
+                print action[1]
+                print self.count
         if 1 in newclicks: # left mouse click
             # if we clicked on an empty cell
             # stop showing the previously

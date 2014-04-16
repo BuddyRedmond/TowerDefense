@@ -18,19 +18,20 @@ P_IDLE = 0
 P_FOLLOW = 1
 P_PLACE = 2
 T_SELECTED = 3
+T_FIRE = 4
 
 ## Sub states ##
-TD_IDLE = 4
-TD_FOLLOW = 5
-TD_SHOW = 6
+TD_IDLE = 5
+TD_FOLLOW = 6
+TD_SHOW = 7
 
 ## States ##
-TD_PAUSE = 7
-TD_PLAYING = 8 # wave in progress
-TD_CLEAR = 9 # in between waves
+TD_PAUSE = 8
+TD_PLAYING = 9 # wave in progress
+TD_CLEAR = 10 # in between waves
 
 ## Menu Buttons ##
-BUTTON_NEW_WAVE_MSG = 10
+BUTTON_NEW_WAVE_MSG = 11
 
 ###########
 
@@ -71,7 +72,7 @@ WAVES = [[0], [10]]
 # Creep #
 CREEP_COUNT = 1
 CREEP_DEFAULT_HEALTH = 100
-CREEP_DEFAULT_SPEED = 1
+CREEP_DEFAULT_SPEED = 2
 CREEP_DEFAULT_IMAGE = "../assets/images/creeps/creep.png"
 CREEP_DEFAULT_WIDTH = 16
 CREEP_DEFAULT_HEIGHT = 16

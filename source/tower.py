@@ -18,6 +18,9 @@ class Tower(rectangle.Rectangle):
         self.cost = cost
         self.range = rng
         self.active = False
+        
+        self.attack_speed = 3
+        self.fs_last_attack = 0 # frames since last attack
 
         # true if the tower is in a good
         # (placable) location, else: false
@@ -91,15 +94,26 @@ class Tower(rectangle.Rectangle):
                 surface.blit(self.range_surface_good, topleft)
             else:
                 surface.blit(self.range_surface_bad, topleft)
+                
+    def can_attack(self):
+        return self.fs_last_attack/float(FRAMES_PER_SECOND) >= 1.0/self.attack_speed
      
     def paint(self, surface):
         surface.blit(self.image, self.position)
         
-    def game_logic(self, keys, newkeys, mouse_pos, newclicks):
+    def game_logic(self, keys, newkeys, mouse_pos, newclicks, creeps):
+        self.fs_last_attack += 1
+        # assumes that creeps is a list
+        # of objects that have a position
         actions = []
         if self.is_inside(mouse_pos):
             if MOUSE_LEFT in newclicks:
                 actions.append((T_SELECTED, self))
+        if self.can_attack():
+            for creep in creeps:
+                if self.is_in_range(creep.get_center()):
+                    actions.append((T_FIRE, "FIRE"))
+                    self.fs_last_attack = 0
         return actions
         
 class GreenTower(Tower):
