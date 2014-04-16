@@ -35,6 +35,9 @@ class Creep(rectangle.Rectangle):
 
     def get_visited(self):
         return self.visited
+
+    def is_dead(self):
+        return self.health <= 0
         
     def move(self):
         if not self.has_destination():
@@ -56,4 +59,8 @@ class Creep(rectangle.Rectangle):
             self.destination = None
 
     def game_logic(self, keys, newkeys, mouse_pos, newclicks):
+        actions = []
+        if self.health <= 0:
+            actions.append((C_DEAD, self))
         self.move()
+        return actions

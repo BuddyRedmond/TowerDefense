@@ -11,16 +11,18 @@ import pygame
 from config import *
 import rectangle
 import math
+import bullet
 
 class Tower(rectangle.Rectangle):
-    def __init__(self, position, width=TOWER_BASIC_WIDTH, height=TOWER_BASIC_HEIGHT, image=TOWER_BASIC_IMAGE, rng=TOWER_BASIC_RANGE, cost=TOWER_BASIC_COST):
+    def __init__(self, position, width=TOWER_BASIC_WIDTH, height=TOWER_BASIC_HEIGHT, image=TOWER_BASIC_IMAGE, rng=TOWER_BASIC_RANGE, cost=TOWER_BASIC_COST, atk_speed=TOWER_BASIC_ATK_SPEED):
         rectangle.Rectangle.__init__(self, position, width, height, image)
         self.cost = cost
         self.range = rng
         self.active = False
         
-        self.attack_speed = 3
-        self.fs_last_attack = 0 # frames since last attack
+        self.atk_speed = atk_speed
+        # frames since last attack
+        self.fs_last_attack = float(FRAMES_PER_SECOND)/self.atk_speed
 
         # true if the tower is in a good
         # (placable) location, else: false
@@ -32,6 +34,9 @@ class Tower(rectangle.Rectangle):
         self.range_surface_good = pygame.Surface((self.range*2, self.range*2), pygame.SRCALPHA)
         self.range_surface_bad = pygame.Surface((self.range*2, self.range*2), pygame.SRCALPHA)
         self.generate_range()
+
+        self.target = None
+        self.bullets = set()
 
     def get_cost(self):
         return self.cost
@@ -96,26 +101,59 @@ class Tower(rectangle.Rectangle):
                 surface.blit(self.range_surface_bad, topleft)
                 
     def can_attack(self):
-        return self.fs_last_attack/float(FRAMES_PER_SECOND) >= 1.0/self.attack_speed
+        return self.fs_last_attack >= float(FRAMES_PER_SECOND)/self.atk_speed
+
+    def attack(self, target):
+        b = bullet.Bullet(self.get_center())
+        b.set_target(target)
+        self.bullets.add(b)
      
     def paint(self, surface):
         surface.blit(self.image, self.position)
+        for bullet in self.bullets:
+            bullet.paint(surface)
         
     def game_logic(self, keys, newkeys, mouse_pos, newclicks, creeps):
-        self.fs_last_attack += 1
+        self.fs_last_attack += 1 # frame count since last attack
+
+        if self.target is not None and self.target.is_dead():
+            self.target = None
+
+        bullets_actions = []
+        for bullet in self.bullets:
+            bullet_actions = bullet.game_logic(keys, newkeys, mouse_pos, newclicks)
+            for a in bullet_actions:
+                if a is not None:
+                    bullets_actions.append(a)
+        for action in bullets_actions:
+            if action[0] == B_DONE:
+                self.bullets.remove(action[1])
+        
         # assumes that creeps is a list
         # of objects that have a position
         actions = []
         if self.is_inside(mouse_pos):
             if MOUSE_LEFT in newclicks:
                 actions.append((T_SELECTED, self))
+
         if self.can_attack():
-            for creep in creeps:
-                if self.is_in_range(creep.get_center()):
-                    actions.append((T_FIRE, "FIRE"))
-                    self.fs_last_attack = 0
+            if self.target is not None and self.is_in_range(self.target.get_center()):
+                self.attack(self.target)
+                self.fs_last_attack = 0
+            else:
+                for creep in creeps:
+                    if self.is_in_range(creep.get_center()):
+                        self.target = creep
+                        self.attack(creep)
+                        self.fs_last_attack = 0
+                        break # only attack one creep at a time
         return actions
         
 class GreenTower(Tower):
     def __init__(self, position):
-        Tower.__init__(self, position, TOWER_GREEN_WIDTH, TOWER_GREEN_HEIGHT, TOWER_GREEN_IMAGE, TOWER_GREEN_RANGE, TOWER_GREEN_COST)
+        Tower.__init__(self, position, TOWER_GREEN_WIDTH, TOWER_GREEN_HEIGHT, TOWER_GREEN_IMAGE, TOWER_GREEN_RANGE, TOWER_GREEN_COST, TOWER_GREEN_ATK_SPEED)
+
+    def attack(self, target):
+        b = bullet.GreenBullet(self.get_center())
+        b.set_target(target)
+        self.bullets.add(b)
