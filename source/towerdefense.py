@@ -72,6 +72,8 @@ class TowerDefense(game.Game):
                 self.purchaser.paint(surface)
         for tower in self.towers:
             tower.paint(surface)
+        for tower in self.towers:
+            tower.paint_bullets(surface)
             
     def begin_wave(self):
         self.wave += 1
@@ -86,13 +88,16 @@ class TowerDefense(game.Game):
                 self.creeps.add(c)
 
     def game_logic(self, keys, newkeys, mouse_pos, newclicks):
+        dead = set()
         for creep in self.creeps:
             if not creep.has_destination():
                 dest = self.world.next_waypoint(creep.get_visited())
                 if dest is not None:
                     creep.set_destination(self.world.next_waypoint(creep.get_visited()))
                 else:
-                    self.creeps.remove(creep)
+                    dead.add(creep)
+                    creep.health = 0
+        self.creeps -= dead
         if self.sub_state == TD_FOLLOW:
             # if we are placing a tower
             # snap its location to the

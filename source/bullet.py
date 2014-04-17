@@ -45,7 +45,7 @@ class Bullet(rectangle.Rectangle):
     def game_logic(self, keys, newkeys, mouse_pos, newclicks):
         self.move()
         actions = []
-        if self.target is None:
+        if self.target is None or self.target.is_dead():
             actions.append((B_DONE, self))
         elif self.collide(self.target) or self.target.collide(self):
             self.target.hit(self.get_damage())

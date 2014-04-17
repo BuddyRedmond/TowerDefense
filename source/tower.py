@@ -110,6 +110,8 @@ class Tower(rectangle.Rectangle):
      
     def paint(self, surface):
         surface.blit(self.image, self.position)
+
+    def paint_bullets(self, surface):
         for bullet in self.bullets:
             bullet.paint(surface)
         
