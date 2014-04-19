@@ -1,6 +1,6 @@
 # Screen #
 SCREEN_WIDTH = 590
-SCREEN_HEIGHT = 650
+SCREEN_HEIGHT = 700
 MARGIN = 5
 FRAMES_PER_SECOND = 30
 WHITE = (255, 255, 255)
@@ -20,20 +20,21 @@ P_PLACE = 2
 T_SELECTED = 3
 T_FIRE = 4
 B_DONE = 5
-C_DEAD = 6
+B_KILL = 6
+C_DEAD = 7
 
 ## Sub states ##
-TD_IDLE = 7
-TD_FOLLOW = 8
-TD_SHOW = 9
+TD_IDLE = 8
+TD_FOLLOW = 9
+TD_SHOW = 10
 
 ## States ##
-TD_PAUSE = 10
-TD_PLAYING = 11 # wave in progress
-TD_CLEAR = 12 # in between waves
+TD_PAUSE = 11
+TD_PLAYING = 12 # wave in progress
+TD_CLEAR = 13 # in between waves
 
 ## Menu Buttons ##
-BUTTON_NEW_WAVE_MSG = 13
+BUTTON_NEW_WAVE_MSG = 14
 
 ###########
 
@@ -45,10 +46,13 @@ MENU_COLOR = (100, 100, 100)
 MENU_ITEM_MARGIN_X = 10
 MENU_HEIGHT = 50
 
+# Button menu #
+MENU_BUTTON_HEIGHT = 75
+
 # Menu Buttons #
-BUTTON_NEW_WAVE_IMG = "../assets/images/buttons/newWave.png"
-BUTTON_NEW_WAVE_WIDTH = 64
-BUTTON_NEW_WAVE_HEIGHT = 32
+BUTTON_NEW_WAVE_IMG = "../assets/images/buttons/nextWave.png"
+BUTTON_NEW_WAVE_WIDTH = 91
+BUTTON_NEW_WAVE_HEIGHT = 45
 
 # Tower #
 RANGE_COLOR = (50, 255, 50, 125)
@@ -83,7 +87,7 @@ BULLET_GREEN_SPEED = 7
 STARTING_MONEY = 100
 
 # Wave #
-WAVES = [[0], [10]]
+WAVES = [[0], [10], [15], [100]]
 
 # Creep #
 CREEP_COUNT = 1
@@ -92,6 +96,7 @@ CREEP_DEFAULT_SPEED = 2
 CREEP_DEFAULT_IMAGE = "../assets/images/creeps/creep.png"
 CREEP_DEFAULT_WIDTH = 16
 CREEP_DEFAULT_HEIGHT = 16
+CREEP_DEFAULT_VALUE = 10
 
 # World #
 WORLD_DEFAULT_WIDTH = 576

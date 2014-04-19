@@ -12,10 +12,11 @@ from config import *
 import rectangle
 
 class Creep(rectangle.Rectangle):
-    def __init__(self, position, width=CREEP_DEFAULT_WIDTH, height=CREEP_DEFAULT_HEIGHT, image=CREEP_DEFAULT_IMAGE):
+    def __init__(self, position, width=CREEP_DEFAULT_WIDTH, height=CREEP_DEFAULT_HEIGHT, image=CREEP_DEFAULT_IMAGE, value=CREEP_DEFAULT_VALUE):
         rectangle.Rectangle.__init__(self, position, width, height, image)
         self.health = CREEP_DEFAULT_HEALTH
         self.speed = CREEP_DEFAULT_SPEED
+        self.value = value
         self.speed_modifier = 1
         self.destination = None
         self.visited = 0
@@ -23,6 +24,9 @@ class Creep(rectangle.Rectangle):
 
     def hit(self, damage):
         self.health -= damage
+
+    def get_value(self):
+        return self.value
 
     def is_alive(self):
         return self.health > 0

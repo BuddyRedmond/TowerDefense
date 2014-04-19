@@ -127,13 +127,15 @@ class Tower(rectangle.Rectangle):
             for a in bullet_actions:
                 if a is not None:
                     bullets_actions.append(a)
+        actions = []
         for action in bullets_actions:
             if action[0] == B_DONE:
                 self.bullets.remove(action[1])
+            if action[0] == B_KILL:
+                actions.append(action)
         
         # assumes that creeps is a list
         # of objects that have a position
-        actions = []
         if self.is_inside(mouse_pos):
             if MOUSE_LEFT in newclicks:
                 actions.append((T_SELECTED, self))

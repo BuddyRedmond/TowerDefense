@@ -49,6 +49,8 @@ class Bullet(rectangle.Rectangle):
             actions.append((B_DONE, self))
         elif self.collide(self.target) or self.target.collide(self):
             self.target.hit(self.get_damage())
+            if self.target.is_dead():
+                actions.append((B_KILL, self.target.get_value()))
             actions.append((B_DONE, self))
         return actions
 

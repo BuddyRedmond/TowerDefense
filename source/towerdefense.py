@@ -31,12 +31,15 @@ class TowerDefense(game.Game):
         world_pos_y = MARGIN
         self.world = world.World((world_pos_x, world_pos_y), WORLD_DEFAULT_WIDTH, WORLD_DEFAULT_HEIGHT, WORLD1)
 
-        ### Menu setup ###
+        ###  Purchaser menu setup ###
         self.menu = menu.Menu((world_pos_x, world_pos_y + WORLD_DEFAULT_HEIGHT + MARGIN), WORLD_DEFAULT_WIDTH*.5, MENU_HEIGHT, MENU_COLOR)
+
+        ### Button menu setup ###
+        self.b_menu = menu.Menu((world_pos_x, world_pos_y + WORLD_DEFAULT_HEIGHT + 2*MARGIN + self.menu.get_height()), WORLD_DEFAULT_WIDTH*.5, MENU_BUTTON_HEIGHT, MENU_COLOR)
         
-        #self.buttons = [button.NewWave]                      
-        #for btn in self.buttons:
-        #    self.menu.add_button(btn)
+        self.buttons = [button.NewWave]                      
+        for btn in self.buttons:
+            self.b_menu.add_button(btn)
             
         self.towers_types = [tower.Tower, tower.GreenTower]
         for tt in self.towers_types:
@@ -56,6 +59,7 @@ class TowerDefense(game.Game):
         surface.fill(BACKGROUND_COLOR)
         self.world.paint(surface)
         self.menu.paint(surface)
+        self.b_menu.paint(surface)
         for creep in self.creeps:
             creep.paint(surface)
         if self.sub_state == TD_SHOW:
@@ -113,6 +117,11 @@ class TowerDefense(game.Game):
         actions = []
         menu_actions = self.menu.game_logic(keys, newkeys, mouse_pos, newclicks)
         for action in menu_actions:
+            if action is not None:
+                actions.append(action)
+
+        b_menu_actions = self.b_menu.game_logic(keys, newkeys, mouse_pos, newclicks)
+        for action in b_menu_actions:
             if action is not None:
                 actions.append(action)
         
@@ -178,6 +187,10 @@ class TowerDefense(game.Game):
                 self.sub_state = TD_SHOW
             elif action[0] == C_DEAD:
                 self.creeps.remove(action[1])
+            elif action[0] == B_KILL:
+                self.money += action[1]
+            elif action[0] == BUTTON_NEW_WAVE_MSG:
+                self.begin_wave()
         if 1 in newclicks: # left mouse click
             # if we clicked on an empty cell
             # stop showing the previously
@@ -188,6 +201,3 @@ class TowerDefense(game.Game):
                     self.selected.deactivate()
                     self.selected = None
                     self.sub_state = TD_IDLE
-                    
-        if len(self.creeps) == 0:
-            self.begin_wave()
