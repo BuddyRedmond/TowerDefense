@@ -18,6 +18,7 @@ import world
 import tower
 import menu
 import button
+import display
 
 class TowerDefense(game.Game):
     def __init__(self, name, screen_width, screen_height):
@@ -33,6 +34,9 @@ class TowerDefense(game.Game):
 
         ###  Purchaser menu setup ###
         self.menu = menu.Menu((world_pos_x, world_pos_y + WORLD_DEFAULT_HEIGHT + MARGIN), WORLD_DEFAULT_WIDTH*.5, MENU_HEIGHT, MENU_COLOR)
+        self.towers_types = [tower.Tower, tower.GreenTower]
+        for tt in self.towers_types:
+            self.menu.add_purchaser(tt)
 
         ### Button menu setup ###
         self.b_menu = menu.Menu((world_pos_x, world_pos_y + WORLD_DEFAULT_HEIGHT + 2*MARGIN + self.menu.get_height()), WORLD_DEFAULT_WIDTH*.5, MENU_BUTTON_HEIGHT, MENU_COLOR)
@@ -40,10 +44,9 @@ class TowerDefense(game.Game):
         self.buttons = [button.NewWave]                      
         for btn in self.buttons:
             self.b_menu.add_button(btn)
-            
-        self.towers_types = [tower.Tower, tower.GreenTower]
-        for tt in self.towers_types:
-            self.menu.add_purchaser(tt)
+
+        ### Display setup ###
+        self.display = display.Display((world_pos_x + self.menu.get_width() + MARGIN, world_pos_y + WORLD_DEFAULT_HEIGHT + MARGIN), DISPLAY_WIDTH, DISPLAY_HEIGHT, DISPLAY_COLOR)
         
         self.towers = []
         self.money = STARTING_MONEY
@@ -60,6 +63,7 @@ class TowerDefense(game.Game):
         self.world.paint(surface)
         self.menu.paint(surface)
         self.b_menu.paint(surface)
+        self.display.paint(surface)
         for creep in self.creeps:
             creep.paint(surface)
         if self.sub_state == TD_SHOW:
@@ -99,7 +103,10 @@ class TowerDefense(game.Game):
                 if dest is not None:
                     creep.set_destination(self.world.next_waypoint(creep.get_visited()))
                 else:
-                    dead.add(creep)
+                    dest = self.world.next_waypoint(creep.get_visited())
+                if dest is not None:
+                    creep.set_destination(self.world.next_waypoint(creep.get_visited()))
+                else:
                     creep.health = 0
         self.creeps -= dead
         if self.sub_state == TD_FOLLOW:

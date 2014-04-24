@@ -58,6 +58,6 @@ class Menu(rectangle.Rectangle):
 
     def paint(self, surface):
         r = pygame.Rect(self.position, (self.width, self.height))
-        pygame.draw.rect(surface, self.color, r, 3)
+        pygame.draw.rect(surface, self.color, r, MENU_OUTLINE_WIDTH)
         for item in self.items:
             item.paint(surface)
