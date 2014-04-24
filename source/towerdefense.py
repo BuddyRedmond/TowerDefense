@@ -26,27 +26,23 @@ class TowerDefense(game.Game):
         game.Game.__init__(self, name, screen_width, screen_height)
 
         ### World setup ###
-        world_pos_x = (self.width - WORLD_DEFAULT_WIDTH)/2
-        if world_pos_x < 0:
-            world_pos_x = MARGIN
-        world_pos_y = MARGIN
-        self.world = world.World((world_pos_x, world_pos_y), WORLD_DEFAULT_WIDTH, WORLD_DEFAULT_HEIGHT, WORLD1)
+        self.world = world.World((WORLD_X, WORLD_Y), WORLD_WIDTH, WORLD_HEIGHT, WORLD1)
 
         ###  Purchaser menu setup ###
-        self.menu = menu.Menu((world_pos_x, world_pos_y + WORLD_DEFAULT_HEIGHT + MARGIN), WORLD_DEFAULT_WIDTH*.5, MENU_HEIGHT, MENU_COLOR)
+        self.menu = menu.Menu((MENU_P_X, MENU_P_Y), MENU_P_WIDTH, MENU_P_HEIGHT, MENU_P_COLOR)
         self.towers_types = [tower.Tower, tower.GreenTower]
         for tt in self.towers_types:
             self.menu.add_purchaser(tt)
 
         ### Button menu setup ###
-        self.b_menu = menu.Menu((world_pos_x, world_pos_y + WORLD_DEFAULT_HEIGHT + 2*MARGIN + self.menu.get_height()), WORLD_DEFAULT_WIDTH*.5, MENU_BUTTON_HEIGHT, MENU_COLOR)
+        self.b_menu = menu.Menu((MENU_B_X, MENU_B_Y), MENU_B_WIDTH, MENU_B_HEIGHT, MENU_B_COLOR)
         
         self.buttons = [button.NewWave]                      
         for btn in self.buttons:
             self.b_menu.add_button(btn)
 
         ### Display setup ###
-        self.display = display.Display((world_pos_x + self.menu.get_width() + MARGIN, world_pos_y + WORLD_DEFAULT_HEIGHT + MARGIN), DISPLAY_WIDTH, DISPLAY_HEIGHT, DISPLAY_COLOR)
+        self.display = display.Display((DISPLAY_X, DISPLAY_Y), DISPLAY_WIDTH, DISPLAY_HEIGHT, DISPLAY_COLOR)
         
         self.towers = []
         self.money = STARTING_MONEY
@@ -91,7 +87,7 @@ class TowerDefense(game.Game):
             for j in range(WAVES[self.wave][i]):
                 c = self.creep_types[i]((0, 0))
                 x, y = self.world.get_start()
-                c.set_position((-(j+1)*c.get_width(), y))
+                c.set_position((-(j+1)*(c.get_width() + CREEP_GAP), y))
                 c.set_destination(self.world.next_waypoint(0))
                 self.creeps.add(c)
 

@@ -1,7 +1,8 @@
 from config import *
 import pygame
+import rectangle
 
-class Display:
+class Display(rectangle.Rectangle):
     def __init__(self, position, width, height, color):
         self.position = position
         self.width = width

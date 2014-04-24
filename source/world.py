@@ -29,6 +29,18 @@ class World:
             self.load_from_file(layout_file)
         self.start = self.get_cell_top_left(self.loc_to_cell(self.start_cell[0], self.start_cell[1]))
         self.order_waypoints()
+
+    def get_position(self):
+        return self.position
+
+    def get_dims(self):
+        return (self.width, self.height)
+
+    def get_width(self):
+        return self.width
+
+    def get_height(self):
+        return self.height
             
     # attempts to assign a variable called var_name (for debugging)
     # to a value of value but assigns it to value: default

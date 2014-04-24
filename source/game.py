@@ -8,7 +8,10 @@ class Game:
         self.width = width
         self.height = height
         self.on = True
+        self.name = name
+        self.new_screen(width, height)
 
+    def new_screen(self, width, height):
         self.screen = pygame.display.set_mode(
                 # set the size
                 (width, height),
@@ -17,9 +20,12 @@ class Game:
                 pygame.locals.DOUBLEBUF |
 
                 # apply alpha blending
-                pygame.locals.SRCALPHA)
+                pygame.locals.SRCALPHA |
+
+                # allow the window to be resizable
+                pygame.locals.RESIZABLE)
         # set the title of the window
-        pygame.display.set_caption(name)
+        pygame.display.set_caption(self.name)
 
     def game_logic(self, keys, newkeys):
         raise NotImplementedError()
@@ -61,6 +67,11 @@ class Game:
                 # track the mouse's position
                 if e.type == pygame.MOUSEMOTION:
                     mouse_pos = e.pos
+
+                # update window size if resized
+                if e.type == pygame.VIDEORESIZE:
+                    self.new_screen(e.w, e.h)
+                    self.screen.fill(config.BACKGROUND_COLOR)
 
             if self.on:
                 self.game_logic(keys, newkeys, mouse_pos, newclicks)
