@@ -29,20 +29,20 @@ class TowerDefense(game.Game):
         self.world = world.World((WORLD_X, WORLD_Y), WORLD_WIDTH, WORLD_HEIGHT, WORLD1)
 
         ###  Purchaser menu setup ###
-        self.menu = menu.Menu((MENU_P_X, MENU_P_Y), MENU_P_WIDTH, MENU_P_HEIGHT, MENU_P_COLOR)
+        self.menu = menu.Menu((MENU_P_X, MENU_P_Y), MENU_P_WIDTH, MENU_P_HEIGHT, MENU_P_BG_COLOR, MENU_P_O_COLOR)
         self.towers_types = [tower.Tower, tower.GreenTower]
         for tt in self.towers_types:
             self.menu.add_purchaser(tt)
 
         ### Button menu setup ###
-        self.b_menu = menu.Menu((MENU_B_X, MENU_B_Y), MENU_B_WIDTH, MENU_B_HEIGHT, MENU_B_COLOR)
+        self.b_menu = menu.Menu((MENU_B_X, MENU_B_Y), MENU_B_WIDTH, MENU_B_HEIGHT, MENU_B_BG_COLOR, MENU_B_O_COLOR)
         
         self.buttons = [button.NewWave]                      
         for btn in self.buttons:
             self.b_menu.add_button(btn)
 
         ### Display setup ###
-        self.display = display.Display((DISPLAY_X, DISPLAY_Y), DISPLAY_WIDTH, DISPLAY_HEIGHT, DISPLAY_COLOR)
+        self.display = display.Display((DISPLAY_X, DISPLAY_Y), DISPLAY_WIDTH, DISPLAY_HEIGHT, DISPLAY_BG_COLOR, DISPLAY_O_COLOR)
         
         self.towers = []
         self.money = STARTING_MONEY
@@ -55,7 +55,7 @@ class TowerDefense(game.Game):
         self.selected = None
 
     def paint(self, surface):
-        surface.fill(BACKGROUND_COLOR)
+        surface.fill(BG_COLOR)
         self.world.paint(surface)
         self.menu.paint(surface)
         self.b_menu.paint(surface)
@@ -149,6 +149,7 @@ class TowerDefense(game.Game):
                 # keep track of that tower
                 if self.sub_state == TD_SHOW:
                     self.selected.deactivate()
+                    self.display.deactivate() # possible refactoring 2
                     self.selected = None
                 self.sub_state = TD_FOLLOW
                 self.purchaser = action[1]
@@ -168,7 +169,8 @@ class TowerDefense(game.Game):
                             self.towers.append(self.purchaser)
                             self.money -= self.purchaser.get_cost()
                             self.selected = self.purchaser
-                            self.sub_state = TD_SHOW
+                            self.sub_state = TD_SHOW # show new tower
+                            self.display.activate()# possible refactoring 1
                             placed = True
                 if not placed:
                     self.sub_state = TD_IDLE
@@ -184,10 +186,12 @@ class TowerDefense(game.Game):
                     self.purchaser = None
                 if self.selected is not None:
                     self.selected.deactivate()
+                    self.display.deactivate() # possible refactoring 2
                     self.selected = None
                 self.selected = action[1]
                 self.selected.activate()
-                self.sub_state = TD_SHOW
+                self.sub_state = TD_SHOW # show new tower
+                self.display.activate() # possible refactoring 1
             elif action[0] == C_DEAD:
                 self.creeps.remove(action[1])
             elif action[0] == B_KILL:
@@ -204,3 +208,4 @@ class TowerDefense(game.Game):
                     self.selected.deactivate()
                     self.selected = None
                     self.sub_state = TD_IDLE
+                    self.display.deactivate() # possible refactoring 2

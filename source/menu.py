@@ -13,11 +13,12 @@ import pygame
 from config import *
 
 class Menu(rectangle.Rectangle):
-    def __init__(self, position, width, height, color):
+    def __init__(self, position, width, height, b_color = MENU_BG_COLOR, o_color = MENU_O_COLOR):
         self.position = position
         self.width = width
         self.height = height
-        self.color = color
+        self.b_color = b_color
+        self.o_color = o_color
         self.items = []
         self.margin_x = MENU_ITEM_MARGIN_X
         self.margin_y = height/2
@@ -25,18 +26,19 @@ class Menu(rectangle.Rectangle):
     def next_item_position(self, item):
         # calculates the next position in
         # the menu for an item
-        y = self.position[1] + .5*(self.height - item.get_height())
-        x = self.position[0] + self.margin_x
+        y = .5*(self.height - item.get_height())#self.position[1] + .5*(self.height - item.get_height())
+        x = self.margin_x#self.position[0] + self.margin_x
         for item in self.items:
             x += item.get_width() + self.margin_x
         return (x, y)
 
     def game_logic(self, keys, newkeys, mouse_pos, newclicks,):
+        mx, my = mouse_pos[0] - self.position[0], mouse_pos[1] - self.position[1]
         actions = []
         for item in self.items:
             # collect all of the actions of the
             # menu's items
-            item_actions = item.game_logic(keys, newkeys, mouse_pos, newclicks)
+            item_actions = item.game_logic(keys, newkeys, (mx, my), newclicks)
             for action in item_actions:
                 # filter out empty actions (just in case)
                 if action is not None:
@@ -57,7 +59,12 @@ class Menu(rectangle.Rectangle):
         self.items.append(towerpurchaser.TowerPurchaser(pos, towertype, tower.get_width(), tower.get_height()))
 
     def paint(self, surface):
-        r = pygame.Rect(self.position, (self.width, self.height))
-        pygame.draw.rect(surface, self.color, r, MENU_OUTLINE_WIDTH)
+        m_surface = pygame.Surface((self.width, self.height))
+        m_surface.fill(self.b_color)
+        
+        r = pygame.Rect((0, 0), (self.width, self.height))
+        pygame.draw.rect(m_surface, self.o_color, r, MENU_OUTLINE_WIDTH)
         for item in self.items:
-            item.paint(surface)
+            item.paint(m_surface)
+
+        surface.blit(m_surface, self.position)
