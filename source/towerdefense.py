@@ -91,6 +91,22 @@ class TowerDefense(game.Game):
                 c.set_destination(self.world.next_waypoint(0))
                 self.creeps.add(c)
 
+    def calc_snap_loc(self, pos):
+        if self.world.is_inside(pos):
+                cell_num = self.world.get_cell_at(pos)
+                snap_loc = self.world.get_cell_top_left(cell_num)
+        else:
+                snap_loc = pos
+        return snap_loc
+
+    def display_item(self, item):
+        # clear display
+        self.display.deactivate()
+        # setup display
+        self.display.set_image(item.get_image(), item.get_width(), item.get_height())
+        self.display.add_data(item.get_info())
+        self.display.activate()
+
     def game_logic(self, keys, newkeys, mouse_pos, newclicks):
         dead = set()
         for creep in self.creeps:
@@ -109,12 +125,7 @@ class TowerDefense(game.Game):
             # if we are placing a tower
             # snap its location to the
             # cells of the world
-            if self.world.is_inside(mouse_pos):
-                cell_num = self.world.get_cell_at(mouse_pos)
-                snap_loc = self.world.get_cell_top_left(cell_num)
-            else:
-                snap_loc = mouse_pos
-            self.purchaser.set_position(snap_loc)
+            self.purchaser.set_position(self.calc_snap_loc(mouse_pos))
         
         # collect actions for menu
         actions = []
@@ -155,9 +166,12 @@ class TowerDefense(game.Game):
                 self.purchaser = action[1]
                 self.purchaser.activate()
                 pygame.mouse.set_visible(False)
+                self.display_item(self.purchaser)
             elif action[0] == P_PLACE:
+                if self.purchaser is None:
+                    break
                 # verify ability to place tower
-                f_pos = self.purchaser.get_position()
+                f_pos = self.calc_snap_loc(mouse_pos)
                 f_dims = self.purchaser.get_dims()
                 cell_num = self.world.get_cell_at(f_pos)
                 placed = False
@@ -170,7 +184,7 @@ class TowerDefense(game.Game):
                             self.money -= self.purchaser.get_cost()
                             self.selected = self.purchaser
                             self.sub_state = TD_SHOW # show new tower
-                            self.display.activate()# possible refactoring 1
+                            self.display_item(self.selected)
                             placed = True
                 if not placed:
                     self.sub_state = TD_IDLE
@@ -191,7 +205,8 @@ class TowerDefense(game.Game):
                 self.selected = action[1]
                 self.selected.activate()
                 self.sub_state = TD_SHOW # show new tower
-                self.display.activate() # possible refactoring 1
+
+                self.display_item(self.selected)
             elif action[0] == C_DEAD:
                 self.creeps.remove(action[1])
             elif action[0] == B_KILL:
@@ -209,3 +224,11 @@ class TowerDefense(game.Game):
                     self.selected = None
                     self.sub_state = TD_IDLE
                     self.display.deactivate() # possible refactoring 2
+        elif 3 in newclicks: # right mouse click
+            if self.sub_state == TD_FOLLOW:
+                self.purchaser.deactivate()
+                self.purchaser = None
+                self.selected = None
+                self.sub_state = TD_IDLE
+                pygame.mouse.set_visible(True)
+                self.display.deactivate()

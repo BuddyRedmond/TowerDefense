@@ -10,6 +10,7 @@ class Game:
         self.on = True
         self.name = name
         self.new_screen(width, height)
+        pygame.font.init()
 
     def new_screen(self, width, height):
         self.screen = pygame.display.set_mode(
@@ -71,7 +72,7 @@ class Game:
                 # update window size if resized
                 if e.type == pygame.VIDEORESIZE:
                     self.new_screen(e.w, e.h)
-                    self.screen.fill(config.BACKGROUND_COLOR)
+                    self.screen.fill(config.BG_COLOR)
 
             if self.on:
                 self.game_logic(keys, newkeys, mouse_pos, newclicks)

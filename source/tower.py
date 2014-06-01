@@ -35,8 +35,26 @@ class Tower(rectangle.Rectangle):
         self.range_surface_bad = pygame.Surface((self.range*2, self.range*2), pygame.SRCALPHA)
         self.generate_range()
 
+        self.bullet_type = bullet.Bullet
         self.target = None
         self.bullets = set()
+        self.name = "Basic Tower"
+
+    def get_info(self):
+        info = []
+        line = "Tower: %s" %(self.name)
+        info.append(line)
+        line = "Cost: $%s" %(self.cost)
+        info.append(line)
+        line = "Range: %s" %(self.range)
+        info.append(line)
+        line = "AS: %s/sec" %(self.atk_speed)
+        info.append(line)
+        temp_bullet = self.bullet_type((0, 0))
+        line = "Damage: %s" %(temp_bullet.get_damage())
+        info.append(line)
+        del temp_bullet
+        return info
 
     def get_cost(self):
         return self.cost
@@ -104,7 +122,7 @@ class Tower(rectangle.Rectangle):
         return self.fs_last_attack >= float(FRAMES_PER_SECOND)/self.atk_speed
 
     def attack(self, target):
-        b = bullet.Bullet(self.get_center())
+        b = self.bullet_type(self.get_center())
         b.set_target(target)
         self.bullets.add(b)
      
@@ -156,8 +174,5 @@ class Tower(rectangle.Rectangle):
 class GreenTower(Tower):
     def __init__(self, position):
         Tower.__init__(self, position, TOWER_GREEN_WIDTH, TOWER_GREEN_HEIGHT, TOWER_GREEN_IMAGE, TOWER_GREEN_RANGE, TOWER_GREEN_COST, TOWER_GREEN_ATK_SPEED)
-
-    def attack(self, target):
-        b = bullet.GreenBullet(self.get_center())
-        b.set_target(target)
-        self.bullets.add(b)
+        self.bullet_type = bullet.GreenBullet
+        self.name = "Green Tower"
