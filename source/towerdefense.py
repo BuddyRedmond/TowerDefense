@@ -54,12 +54,26 @@ class TowerDefense(game.Game):
         self.purchaser = None
         self.selected = None
 
+        ### setup font ###
+        self.font = pygame.font.SysFont(FONT, FONT_SIZE)
+        self.font_color = FONT_COLOR
+
+        ### setup location for money ###
+        self.money_x = MONEY_X
+        self.money_y = MONEY_Y
+
     def paint(self, surface):
         surface.fill(BG_COLOR)
         self.world.paint(surface)
         self.menu.paint(surface)
         self.b_menu.paint(surface)
         self.display.paint(surface)
+
+        ### show money ###
+        currency = "Current money: $%s" %(self.money)
+        temp_surface = self.font.render(currency, 1, self.font_color)
+        surface.blit(temp_surface, (self.money_x, self.money_y))
+        
         for creep in self.creeps:
             creep.paint(surface)
         if self.sub_state == TD_SHOW:

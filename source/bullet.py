@@ -3,7 +3,7 @@ import rectangle
 import math
 
 class Bullet(rectangle.Rectangle):
-    def __init__(self, position, width=BULLET_BASIC_WIDTH, height=BULLET_BASIC_HEIGHT, image=BULLET_BASIC_IMAGE, dmg=BULLET_BASIC_DAMAGE, speed=BULLET_BASIC_SPEED):
+    def __init__(self, position, width=BULLET_BASIC_WIDTH, height=BULLET_BASIC_HEIGHT, image=BULLET_BASIC_IMAGE, dmg=TOWER_BASIC_DAMAGE, speed=BULLET_BASIC_SPEED):
         rectangle.Rectangle.__init__(self, position, width, height, image)
         self.dmg = dmg
         self.speed = speed
@@ -53,7 +53,3 @@ class Bullet(rectangle.Rectangle):
                 actions.append((B_KILL, self.target.get_value()))
             actions.append((B_DONE, self))
         return actions
-
-class GreenBullet(Bullet):
-    def __init__(self, position):
-        Bullet.__init__(self, position, BULLET_GREEN_WIDTH, BULLET_GREEN_HEIGHT, BULLET_GREEN_IMAGE, BULLET_GREEN_DAMAGE, BULLET_GREEN_SPEED)

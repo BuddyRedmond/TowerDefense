@@ -19,10 +19,18 @@ class Tower(rectangle.Rectangle):
         self.cost = cost
         self.range = rng
         self.active = False
+        self.level = 0
+
+        ### bullet info ###
+        self.bullet_damage = TOWER_BASIC_DAMAGE
+        self.bullet_width = BULLET_BASIC_WIDTH
+        self.bullet_height = BULLET_BASIC_HEIGHT
+        self.bullet_image = BULLET_BASIC_IMAGE
+        self.bullet_speed = BULLET_BASIC_SPEED
         
         self.atk_speed = atk_speed
         # frames since last attack
-        self.fs_last_attack = float(FRAMES_PER_SECOND)/self.atk_speed
+        self.fs_last_attack = float(FRAMES_PER_SECOND)/self.atk_speed[self.level]
 
         # true if the tower is in a good
         # (placable) location, else: false
@@ -31,8 +39,8 @@ class Tower(rectangle.Rectangle):
         # calculate the range once and store the
         # two different surfaces to avoid
         # unnecessary repetitive computation
-        self.range_surface_good = pygame.Surface((self.range*2, self.range*2), pygame.SRCALPHA)
-        self.range_surface_bad = pygame.Surface((self.range*2, self.range*2), pygame.SRCALPHA)
+        self.range_surface_good = pygame.Surface((self.range[self.level]*2, self.range[self.level]*2), pygame.SRCALPHA)
+        self.range_surface_bad = pygame.Surface((self.range[self.level]*2, self.range[self.level]*2), pygame.SRCALPHA)
         self.generate_range()
 
         self.bullet_type = bullet.Bullet
@@ -44,26 +52,29 @@ class Tower(rectangle.Rectangle):
         info = []
         line = "Tower: %s" %(self.name)
         info.append(line)
-        line = "Cost: $%s" %(self.cost)
+        line = "Cost: $%s" %(self.cost[self.level])
         info.append(line)
-        line = "Range: %s" %(self.range)
-        info.append(line)
-        line = "AS: %s/sec" %(self.atk_speed)
-        info.append(line)
-        temp_bullet = self.bullet_type((0, 0))
-        line = "Damage: %s" %(temp_bullet.get_damage())
-        info.append(line)
-        del temp_bullet
+        if self.level >= len(self.bullet_damage)-1:
+            line = "Range: %s" %(self.range[self.level])
+            info.append(line)
+            line = "AS: %s/sec" %(self.atk_speed[self.level])
+            info.append(line)
+            line = "Damage: %s" %(self.bullet_damage[self.level])
+            info.append(line)
+        else:
+            line = "Range: %s (->%s)" %(self.range[self.level], self.range[self.level+1])
+            info.append(line)
+            line = "AS: %s/sec (->%s)" %(self.atk_speed[self.level], self.atk_speed[self.level+1])
+            info.append(line)
+            line = "Damage: %s (->%s)" %(self.bullet_damage[self.level], self.bullet_damage[self.level+1])
+            info.append(line)
         return info
 
     def get_cost(self):
-        return self.cost
-        
-    def set_range(self, new_range):
-        self.range = new_range
+        return self.cost[self.level]
         
     def get_range(self):
-        return self.range
+        return self.range[self.level]
     
     def is_active(self):
         return self.active
@@ -79,7 +90,7 @@ class Tower(rectangle.Rectangle):
         #cx, cy = self.get_position()
         cx, cy = self.get_center()
         distance = math.sqrt((px-cx)**2 + (py-cy)**2)
-        return distance <= self.range
+        return distance <= self.range[self.level]
 
     def generate_range(self, color_good=RANGE_COLOR, color_bad=RANGE_BAD_COLOR):
         self.range_surface_good.fill((255, 255, 255, 0))
@@ -89,7 +100,7 @@ class Tower(rectangle.Rectangle):
         # color if it is inside the range
         # (excludes the corners of the rectangle)
         cx, cy = self.get_center()
-        topleft = (cx - self.range, cy - self.range)
+        topleft = (cx - self.range[self.level], cy - self.range[self.level])
         for i in range(self.range_surface_good.get_width()):
             for j in range(self.range_surface_good.get_height()):
                 if self.is_in_range((i + topleft[0], j + topleft[1])):
@@ -112,17 +123,17 @@ class Tower(rectangle.Rectangle):
             # green if the tower is in a
             # good location, red otherwise
             cx, cy = self.get_center()
-            topleft = (cx - self.range, cy - self.range)
+            topleft = (cx - self.range[self.level], cy - self.range[self.level])
             if self.is_good:
                 surface.blit(self.range_surface_good, topleft)
             else:
                 surface.blit(self.range_surface_bad, topleft)
                 
     def can_attack(self):
-        return self.fs_last_attack >= float(FRAMES_PER_SECOND)/self.atk_speed
+        return self.fs_last_attack >= float(FRAMES_PER_SECOND)/self.atk_speed[self.level]
 
     def attack(self, target):
-        b = self.bullet_type(self.get_center())
+        b = self.bullet_type(self.get_center(), self.bullet_width, self.bullet_height, self.bullet_image, self.bullet_damage[self.level], self.bullet_speed)
         b.set_target(target)
         self.bullets.add(b)
      
@@ -174,5 +185,11 @@ class Tower(rectangle.Rectangle):
 class GreenTower(Tower):
     def __init__(self, position):
         Tower.__init__(self, position, TOWER_GREEN_WIDTH, TOWER_GREEN_HEIGHT, TOWER_GREEN_IMAGE, TOWER_GREEN_RANGE, TOWER_GREEN_COST, TOWER_GREEN_ATK_SPEED)
-        self.bullet_type = bullet.GreenBullet
+        self.bullet_type = bullet.Bullet
         self.name = "Green Tower"
+        ### bullet info ###
+        self.bullet_damage = TOWER_GREEN_DAMAGE
+        self.bullet_width = BULLET_GREEN_WIDTH
+        self.bullet_height = BULLET_GREEN_HEIGHT
+        self.bullet_image = BULLET_GREEN_IMAGE
+        self.bullet_speed = BULLET_GREEN_SPEED
