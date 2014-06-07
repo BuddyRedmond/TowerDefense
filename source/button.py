@@ -20,3 +20,9 @@ class NewWave(Button):
         Button.__init__(self, position, BUTTON_NEW_WAVE_WIDTH, BUTTON_NEW_WAVE_HEIGHT, BUTTON_NEW_WAVE_IMG)
         self.message = BUTTON_NEW_WAVE_MSG
         self.item = None
+
+class Upgrade(Button):
+    def __init__(self, position):
+        Button.__init__(self, position, BUTTON_UPGRADE_WIDTH, BUTTON_UPGRADE_HEIGHT, BUTTON_UPGRADE_IMG)
+        self.message = BUTTON_UPGRADE_MSG
+        self.item = None

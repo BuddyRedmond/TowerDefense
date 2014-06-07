@@ -48,13 +48,42 @@ class Tower(rectangle.Rectangle):
         self.bullets = set()
         self.name = "Basic Tower"
 
+    def can_be_upgraded(self):
+        return self.level+1 < len(self.cost)
+
+    def get_upgrade_cost(self):
+        if self.can_be_upgraded():
+            return self.cost[self.level+1]
+        else:
+            return 0
+
+    def upgrade(self):
+        if self.can_be_upgraded():
+            self.level += 1
+            # recalculate the range areas and surfaces
+            self.range_surface_good = pygame.Surface((self.range[self.level]*2, self.range[self.level]*2), pygame.SRCALPHA)
+            self.range_surface_bad = pygame.Surface((self.range[self.level]*2, self.range[self.level]*2), pygame.SRCALPHA)
+            self.generate_range()
+
     def get_info(self):
         info = []
         line = "Tower: %s" %(self.name)
         info.append(line)
-        line = "Cost: $%s" %(self.cost[self.level])
+        line = "Level: %d" %(self.level+1)
         info.append(line)
-        if self.level >= len(self.bullet_damage)-1:
+
+        # sum up the cost of each level
+        total_cost = 0
+        for i in range(self.level+1):
+            total_cost += self.cost[i]
+        line = "Cost to current level: %s" %(total_cost)
+        info.append(line)
+
+        # only show the stats of the next level
+        # if the tower can be upgraded
+        if not self.can_be_upgraded():
+            line = "Cost to upgrade: N/A"
+            info.append(line)
             line = "Range: %s" %(self.range[self.level])
             info.append(line)
             line = "AS: %s/sec" %(self.atk_speed[self.level])
@@ -62,6 +91,8 @@ class Tower(rectangle.Rectangle):
             line = "Damage: %s" %(self.bullet_damage[self.level])
             info.append(line)
         else:
+            line = "Cost to upgrade: $%s" %(self.cost[self.level+1])
+            info.append(line)
             line = "Range: %s (->%s)" %(self.range[self.level], self.range[self.level+1])
             info.append(line)
             line = "AS: %s/sec (->%s)" %(self.atk_speed[self.level], self.atk_speed[self.level+1])

@@ -27,7 +27,7 @@ class Display(rectangle.Rectangle):
 
     def add_datum(self, datum):
         self.data.append(datum)
-        self.data_ys.append(self.top_margin + len(self.data)*self.font_height)
+        self.data_ys.append(self.top_margin + (len(self.data)-1)*self.font_height)
 
     def activate(self):
         self.active = True
