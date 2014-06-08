@@ -26,3 +26,9 @@ class Upgrade(Button):
         Button.__init__(self, position, BUTTON_UPGRADE_WIDTH, BUTTON_UPGRADE_HEIGHT, BUTTON_UPGRADE_IMG)
         self.message = BUTTON_UPGRADE_MSG
         self.item = None
+
+class Sell(Button):
+    def __init__(self, position):
+        Button.__init__(self, position, BUTTON_SELL_WIDTH, BUTTON_SELL_HEIGHT, BUTTON_SELL_IMG)
+        self.message = BUTTON_SELL_MSG
+        self.item = None

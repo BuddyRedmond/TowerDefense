@@ -40,6 +40,7 @@ TD_CLEAR = 13 # in between waves
 ## Menu Buttons ##
 BUTTON_NEW_WAVE_MSG = 14
 BUTTON_UPGRADE_MSG = 15
+BUTTON_SELL_MSG = 16
 
 ###########
 
@@ -66,7 +67,7 @@ MENU_OUTLINE_WIDTH = 3
 
 # Display #
 DISPLAY_FONT = "helvetica"
-DISPLAY_FONT_SIZE = 14
+DISPLAY_FONT_SIZE = 12
 DISPLAY_FONT_COLOR = (0, 0, 0)
 DISPLAY_X = 300
 DISPLAY_Y = 538
@@ -89,6 +90,9 @@ BUTTON_NEW_WAVE_HEIGHT = 45
 BUTTON_UPGRADE_IMG = "../assets/images/buttons/upgrade.png"
 BUTTON_UPGRADE_WIDTH = 75
 BUTTON_UPGRADE_HEIGHT = 45
+BUTTON_SELL_IMG = "../assets/images/buttons/sell.png"
+BUTTON_SELL_WIDTH = 75
+BUTTON_SELL_HEIGHT = 45
 
 # Tower #
 RANGE_COLOR = (50, 255, 50, 125)

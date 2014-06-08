@@ -37,7 +37,7 @@ class TowerDefense(game.Game):
         ### Button menu setup ###
         self.b_menu = menu.Menu((MENU_B_X, MENU_B_Y), MENU_B_WIDTH, MENU_B_HEIGHT, MENU_B_BG_COLOR, MENU_B_O_COLOR)
         
-        self.buttons = [button.NewWave, button.Upgrade]                      
+        self.buttons = [button.NewWave, button.Upgrade, button.Sell]                      
         for btn in self.buttons:
             self.b_menu.add_button(btn)
 
@@ -236,6 +236,23 @@ class TowerDefense(game.Game):
                                 self.selected.upgrade()
                                 self.money -= cost
                                 self.display_item(self.selected)
+            elif action[0] == BUTTON_SELL_MSG:
+                if self.sub_state == TD_SHOW:
+                    if self.selected is not None:
+                        # return the money
+                        self.money += self.selected.get_sell_amount()
+                        # free the space
+                        self.world.free_area(self.selected.get_position(), self.selected.get_dims())
+                        # delete the tower
+                        for i in range(len(self.towers)):
+                            if self.towers[i].get_position() == self.selected.get_position():
+                                self.towers.pop(i)
+                                break
+                        self.selected = None
+                        # change the game mode
+                        self.sub_state = TD_IDLE
+                        # update display
+                        self.display.deactivate()
         if 1 in newclicks: # left mouse click
             # if we clicked on an empty cell
             # stop showing the previously

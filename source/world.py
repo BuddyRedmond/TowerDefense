@@ -284,6 +284,19 @@ class World:
                 p = (pos[0] + i*self.cell_width, pos[1] + j*self.cell_height)
                 cell_num = self.get_cell_at(p)
                 self.occupy_cell(cell_num)
+
+    def free_cell(self, cell_num):
+        i, j = self.cell_to_loc(cell_num)
+        self.tower_locations[j][i] = 0
+
+    def free_area(self, pos, dims):
+        x_span = dims[0] / self.cell_width
+        y_span = dims[1] / self.cell_height
+        for i in range(x_span):
+            for j in range(y_span):
+                p = (pos[0] + i*self.cell_width, pos[1] + j*self.cell_height)
+                cell_num = self.get_cell_at(p)
+                self.free_cell(cell_num)
     
     def has_cell(self, cell_num):
         if cell_num is None or cell_num >= (self.width/self.cell_width)*(self.height/self.cell_height):

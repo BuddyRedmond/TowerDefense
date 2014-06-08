@@ -52,10 +52,21 @@ class Tower(rectangle.Rectangle):
         return self.level+1 < len(self.cost)
 
     def get_upgrade_cost(self):
+        # sum up each level's cost
         if self.can_be_upgraded():
             return self.cost[self.level+1]
         else:
             return 0
+
+    def get_total_cost(self):
+        total_cost = 0
+        for i in range(self.level+1):
+            total_cost += self.cost[i]
+        return total_cost
+
+    def get_sell_amount(self):
+        rounded = "%.2f" %(self.get_total_cost()*.85)
+        return float(rounded)
 
     def upgrade(self):
         if self.can_be_upgraded():
@@ -72,11 +83,9 @@ class Tower(rectangle.Rectangle):
         line = "Level: %d" %(self.level+1)
         info.append(line)
 
-        # sum up the cost of each level
-        total_cost = 0
-        for i in range(self.level+1):
-            total_cost += self.cost[i]
-        line = "Cost to current level: %s" %(total_cost)
+        line = "Cost to current level: %s" %(self.get_total_cost())
+        info.append(line)
+        line = "Sell value: $%.2f" %(self.get_sell_amount())
         info.append(line)
 
         # only show the stats of the next level
