@@ -8,10 +8,12 @@
 # written by Michael Shawn Redmond
 
 import pygame
+import item
 from config import *
 
-class Rectangle:
-    def __init__(self, position, width, height, image):
+class Rectangle(item.Item):
+    def __init__(self, kind, position, width, height, image):
+        item.Item.__init__(self, kind)
         self.position = position # topleft
         self.image = pygame.image.load(image)
         self.width = width

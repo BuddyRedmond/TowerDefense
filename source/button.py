@@ -4,7 +4,7 @@ import rectangle
 
 class Button(rectangle.Rectangle):
     def __init__(self, position, width, height, image):
-        rectangle.Rectangle.__init__(self, position, width, height, image)
+        rectangle.Rectangle.__init__(self, KIND_BUTTON, position, width, height, image)
         self.message = None
         self.item = None
         

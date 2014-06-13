@@ -18,34 +18,47 @@ MOUSE_MIDDLE = 3
 # enums #
 
 ## game_logic actions ##
-P_IDLE = 0
-P_FOLLOW = 1
-P_PLACE = 2
-T_SELECTED = 3
-T_FIRE = 4
-B_DONE = 5
-B_KILL = 6
-C_DEAD = 7
+P_IDLE = 4
+P_FOLLOW = 5
+P_PLACE = 6
+T_SELECTED = 7
+T_FIRE = 8
+B_DONE = 9
+B_KILL = 10
+C_DEAD = 11
+C_SELECTED = 12
 
 ## Sub states ##
-TD_IDLE = 8
-TD_FOLLOW = 9
-TD_SHOW = 10
+TD_IDLE = 13
+TD_FOLLOW = 14
+TD_SHOW = 15
 
 ## States ##
-TD_PAUSE = 11
-TD_PLAYING = 12 # wave in progress
-TD_CLEAR = 13 # in between waves
+TD_PAUSE = 16
+TD_PLAYING = 17 # wave in progress
+TD_CLEAR = 18 # in between waves
 
 ## Menu Buttons ##
-BUTTON_NEW_WAVE_MSG = 14
-BUTTON_UPGRADE_MSG = 15
-BUTTON_SELL_MSG = 16
-
-###########
+BUTTON_NEW_WAVE_MSG = 19
+BUTTON_UPGRADE_MSG = 20
+BUTTON_SELL_MSG = 21
 
 # instructions #
-P_SNAP_LOC = 11
+P_SNAP_LOC = 22
+
+# kinds #
+KIND_TOWER = 23
+KIND_CREEP = 24
+KIND_TILE = 25
+KIND_BUTTON = 26
+KIND_BULLET = 27
+
+# Healthbar #
+HEALTH_BAR_WIDTH = 20
+HEALTH_BAR_HEIGHT = 5
+HEALTH_BAR_BG_COLOR = (225, 0, 0)
+HEALTH_BAR_COLOR = (0, 225, 0)
+HEALTH_BAR_MARGIN = 3
 
 # Menu #
 MENU_O_COLOR = O_COLOR
@@ -135,6 +148,7 @@ WAVES = [[0], [10], [15], [100]]
 CREEP_GAP = 10
 CREEP_COUNT = 1
 CREEP_DEFAULT_HEALTH = 100
+CREEP_DEFAULT_NAME = "Red Creep"
 CREEP_DEFAULT_SPEED = 2
 CREEP_DEFAULT_IMAGE = "../assets/images/creeps/creep.png"
 CREEP_DEFAULT_WIDTH = 16

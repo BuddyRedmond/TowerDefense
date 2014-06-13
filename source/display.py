@@ -20,6 +20,7 @@ class Display(rectangle.Rectangle):
         self.font = pygame.font.SysFont(DISPLAY_FONT, DISPLAY_FONT_SIZE)
         self.font_height = self.font.get_height()
         self.font_color = DISPLAY_FONT_COLOR
+        self.centered = False
 
     def add_data(self, data): # data is a list: [(key1, val1), (key2, val2)...]
         for datum in data:
@@ -34,12 +35,24 @@ class Display(rectangle.Rectangle):
         if self.item_image is None:
             self.item_image = pygame.image.load("../assets/images/display/no_image.png")
             self.item_image_y = (self.height - DISPLAY_NO_IMG_HEIGHT)/2
+        self.centered = False
 
     def deactivate(self):
         self.active = False
         self.item_image = None
         self.data = []
         self.data_ys = []
+
+
+    def center_y(self):
+        if not self.active or len(self.data) == 0:
+            return
+        text_height = self.data_ys[-1] - self.data_ys[0] + self.font_height
+        top = (self.height - text_height) / 2
+        offset = top - self.data_ys[0]
+        for i in range(len(self.data_ys)):
+            self.data_ys[i] += offset
+        self.centered = True
 
     def set_image(self, image, width, height):
         self.item_image = image
@@ -59,8 +72,8 @@ class Display(rectangle.Rectangle):
             d_surface.blit(self.item_image, (self.item_image_x, self.item_image_y))
 
             # Stats
-##            test = self.font.render("Testing", 1, self.font_color)
-##            d_surface.blit(test, (self.data_x, self.top_margin))
+            if not self.centered:
+                self.center_y()
             for i in range(len(self.data)):
                 temp_surface = self.font.render(self.data[i], 1, self.font_color)
                 d_surface.blit(temp_surface, (self.data_x, self.data_ys[i]))

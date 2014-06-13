@@ -73,23 +73,26 @@ class TowerDefense(game.Game):
         currency = "Current money: $%s" %(self.money)
         temp_surface = self.font.render(currency, 1, self.font_color)
         surface.blit(temp_surface, (self.money_x, self.money_y))
-        
+
+        # paint all of the creeps
         for creep in self.creeps:
             creep.paint(surface)
-        if self.sub_state == TD_SHOW:
-            if self.selected is not None:
-                self.selected.paint_range(surface)
-        elif self.sub_state == TD_FOLLOW:
+
+        # paint health bars of the creeps
+        for creep in self.creeps:
+            creep.paint_health(surface)
+
+        # paint the purchaser if there is one
+        if self.sub_state == TD_FOLLOW:
             if self.purchaser is not None:
-                if not self.world.can_build(self.purchaser.get_position(), self.purchaser.get_dims()):
-                    self.purchaser.bad_pos()
-                    self.purchaser.paint_range(surface)
-                else:
-                    self.purchaser.good_pos()
-                    self.purchaser.paint_range(surface)
                 self.purchaser.paint(surface)
+
+        # paint the selected tower if there is one
+        if self.selected is not None and self.selected.get_kind() == KIND_TOWER:
+            self.selected.paint(surface)
         for tower in self.towers:
-            tower.paint(surface)
+            if not tower.is_active():
+                tower.paint(surface)
         for tower in self.towers:
             tower.paint_bullets(surface)
             
@@ -122,7 +125,33 @@ class TowerDefense(game.Game):
         self.display.activate()
 
     def game_logic(self, keys, newkeys, mouse_pos, newclicks):
-        dead = set()
+        # if we are displaying an object
+        # update the display
+        if self.selected is not None:
+            self.display_item(self.selected)
+        
+        if MOUSE_LEFT in newclicks: # left mouse click
+            # if we clicked on an empty cell
+            # stop showing the previously
+            # selected tower's range
+            cell_num = self.world.get_cell_at(mouse_pos)
+            if self.sub_state == TD_SHOW:
+                if self.world.has_cell(cell_num) and not self.world.is_occupied(cell_num):
+                    if self.selected is not None and self.selected.get_kind() == KIND_TOWER:
+                        self.selected.deactivate()
+                    self.selected = None
+                    self.sub_state = TD_IDLE
+                    self.display.deactivate() # possible refactoring 2
+        elif MOUSE_RIGHT in newclicks: # right mouse click
+            if self.sub_state == TD_FOLLOW:
+                self.purchaser.deactivate()
+                self.purchaser = None
+                self.selected = None
+                self.sub_state = TD_IDLE
+                pygame.mouse.set_visible(True)
+                self.display.deactivate()
+        
+        #dead = set()
         for creep in self.creeps:
             if not creep.has_destination():
                 dest = self.world.next_waypoint(creep.get_visited())
@@ -134,7 +163,7 @@ class TowerDefense(game.Game):
                     creep.set_destination(self.world.next_waypoint(creep.get_visited()))
                 else:
                     creep.health = 0
-        self.creeps -= dead
+        #self.creeps -= dead
         if self.sub_state == TD_FOLLOW:
             # if we are placing a tower
             # snap its location to the
@@ -160,6 +189,7 @@ class TowerDefense(game.Game):
                 if action is not None:
                     actions.append(action)
 
+        # collect actions for creeps
         for creep in self.creeps:
             creep_actions = creep.game_logic(keys, newkeys, mouse_pos, newclicks)
             for action in creep_actions:
@@ -212,16 +242,23 @@ class TowerDefense(game.Game):
                 # range
                 if self.sub_state == TD_FOLLOW:
                     self.purchaser = None
-                if self.selected is not None:
+                if self.selected is not None and self.selected.get_kind() == KIND_TOWER:
                     self.selected.deactivate()
-                    self.display.deactivate() # possible refactoring 2
-                    self.selected = None
+                self.selected = None
                 self.selected = action[1]
                 self.selected.activate()
+                self.display_item(self.selected)
                 self.sub_state = TD_SHOW # show new tower
-
+                self.display_item(self.selected)
+            elif action[0] == C_SELECTED:
+                self.selected = action[1]
+                self.sub_state = TD_SHOW
                 self.display_item(self.selected)
             elif action[0] == C_DEAD:
+                if action[1] == self.selected:
+                    self.display.deactivate()
+                    self.selected = None
+                    self.sub_state = TD_IDLE
                 self.creeps.remove(action[1])
             elif action[0] == B_KILL:
                 self.money += action[1]
@@ -253,22 +290,10 @@ class TowerDefense(game.Game):
                         self.sub_state = TD_IDLE
                         # update display
                         self.display.deactivate()
-        if 1 in newclicks: # left mouse click
-            # if we clicked on an empty cell
-            # stop showing the previously
-            # selected tower's range
-            cell_num = self.world.get_cell_at(mouse_pos)
-            if self.sub_state == TD_SHOW:
-                if self.world.has_cell(cell_num) and not self.world.is_occupied(cell_num):
-                    self.selected.deactivate()
-                    self.selected = None
-                    self.sub_state = TD_IDLE
-                    self.display.deactivate() # possible refactoring 2
-        elif 3 in newclicks: # right mouse click
-            if self.sub_state == TD_FOLLOW:
-                self.purchaser.deactivate()
-                self.purchaser = None
-                self.selected = None
-                self.sub_state = TD_IDLE
-                pygame.mouse.set_visible(True)
-                self.display.deactivate()
+        # update the tower-to-be-placed's range based
+        # on whether or not it can be placed currently
+        if self.purchaser is not None:
+            if not self.world.can_build(self.purchaser.get_position(), self.purchaser.get_dims()):
+                self.purchaser.bad_pos()
+            else:
+                self.purchaser.good_pos()

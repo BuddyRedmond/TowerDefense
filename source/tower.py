@@ -15,7 +15,7 @@ import bullet
 
 class Tower(rectangle.Rectangle):
     def __init__(self, position, width=TOWER_BASIC_WIDTH, height=TOWER_BASIC_HEIGHT, image=TOWER_BASIC_IMAGE, rng=TOWER_BASIC_RANGE, cost=TOWER_BASIC_COST, atk_speed=TOWER_BASIC_ATK_SPEED):
-        rectangle.Rectangle.__init__(self, position, width, height, image)
+        rectangle.Rectangle.__init__(self, KIND_TOWER, position, width, height, image)
         self.cost = cost
         self.range = rng
         self.active = False
@@ -178,6 +178,8 @@ class Tower(rectangle.Rectangle):
         self.bullets.add(b)
      
     def paint(self, surface):
+        if self.is_active():
+            self.paint_range(surface)
         surface.blit(self.image, self.position)
 
     def paint_bullets(self, surface):
