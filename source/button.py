@@ -32,3 +32,15 @@ class Sell(Button):
         Button.__init__(self, position, BUTTON_SELL_WIDTH, BUTTON_SELL_HEIGHT, BUTTON_SELL_IMG)
         self.message = BUTTON_SELL_MSG
         self.item = None
+
+class Play(Button):
+    def __init__(self, position):
+        Button.__init__(self, position, BUTTON_PLAY_WIDTH, BUTTON_PLAY_HEIGHT, BUTTON_PLAY_IMG)
+        self.message = BUTTON_PLAY_MSG
+        self.item = None
+
+class Quit(Button):
+    def __init__(self, position):
+        Button.__init__(self, position, BUTTON_QUIT_WIDTH, BUTTON_QUIT_HEIGHT, BUTTON_QUIT_IMG)
+        self.message = BUTTON_QUIT_MSG
+        self.item = None

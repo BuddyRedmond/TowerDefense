@@ -4,12 +4,16 @@ import pygame.locals
 import config
 
 class Game:
-    def __init__(self, name, width, height):
+    def __init__(self, name, width, height, screen = None):
         self.width = width
         self.height = height
         self.on = True
+        self.quit = False
         self.name = name
-        self.new_screen(width, height)
+        if screen is None:
+            self.new_screen(width, height)
+        else:
+            self.screen = screen
         pygame.font.init()
 
     def new_screen(self, width, height):
@@ -76,6 +80,9 @@ class Game:
 
             if self.on:
                 self.game_logic(keys, newkeys, mouse_pos, newclicks)
+                if self.quit == True:
+                    pygame.quit()
+                    return
                 self.paint(self.screen)
 
             pygame.display.flip()

@@ -1,8 +1,26 @@
 import towerdefense
+import pygame
+import pygame.locals
 from config import *
 
 def main():
-    td = towerdefense.TowerDefense("The Number One Tower Defense Game of Our, or Any, Generation", SCREEN_WIDTH, SCREEN_HEIGHT)
+    # Setup the window
+    screen = pygame.display.set_mode(
+                # set the size
+                (SCREEN_WIDTH, SCREEN_HEIGHT),
+
+                # use double-buffering for smooth animation
+                pygame.locals.DOUBLEBUF |
+
+                # apply alpha blending
+                pygame.locals.SRCALPHA |
+
+                # allow the window to be resizable
+                pygame.locals.RESIZABLE)
+    # set the title of the window
+    pygame.display.set_caption(NAME)
+    
+    td = towerdefense.TowerDefense(NAME, SCREEN_WIDTH, SCREEN_HEIGHT, screen)
     td.main_loop()
 
 main()

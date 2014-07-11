@@ -1,1 +1,2 @@
-- When clicking green tower, then clicking default tower you must then click again twice to actually select the default tower.
+- When clicking green tower, then clicking default tower you must then click again twice to actually select the default tower
+- Towers fire rate is based on time whereas creep movespeed is based on frames

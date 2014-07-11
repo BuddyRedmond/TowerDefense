@@ -32,6 +32,19 @@ class Menu(rectangle.Rectangle):
             x += item.get_width() + self.margin_x
         return (x, y)
 
+    def center_x(self):
+        used_width = 0
+        for item in self.items:
+            used_width += item.get_width()
+        used_width += (len(self.items)-1)*self.margin_x # width used to space buttons
+        starting_x = (self.width-used_width)/2
+        current_x = starting_x
+        for item in self.items:
+            x, y = item.get_position()
+            x = current_x
+            current_x += (item.get_width()+self.margin_x)
+            item.set_position((x, y))
+
     def game_logic(self, keys, newkeys, mouse_pos, newclicks,):
         mx, my = mouse_pos[0] - self.position[0], mouse_pos[1] - self.position[1]
         actions = []

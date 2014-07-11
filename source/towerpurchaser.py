@@ -50,10 +50,13 @@ class TowerPurchaser():
                 # a tower
                 actions.append((P_FOLLOW, self.towertype(self.position)))
                 self.toggle_status()
-            elif self.status == P_FOLLOW :
+            elif self.status == P_FOLLOW:
                 # if we were following a tower and the user
                 # just clicked, tell the game to try and
                 # place the tower
                 actions.append((P_PLACE, None))
+                self.toggle_status()
+        if MOUSE_RIGHT in newclicks:
+            if self.status == P_FOLLOW:
                 self.toggle_status()
         return actions

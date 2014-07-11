@@ -1,4 +1,5 @@
 # Screen #
+NAME = "Tower Defense Game"
 SCREEN_WIDTH = 590
 SCREEN_HEIGHT = 695
 MARGIN = 5
@@ -9,56 +10,8 @@ O_COLOR = (100, 100, 100)
 FONT = "helvetica"
 FONT_SIZE = 14
 FONT_COLOR = (0, 200, 0)
-
-# Mouse Buttons #
-MOUSE_LEFT = 1
-MOUSE_RIGHT = 2
-MOUSE_MIDDLE = 3
-
-# enums #
-
-## game_logic actions ##
-P_IDLE = 4
-P_FOLLOW = 5
-P_PLACE = 6
-T_SELECTED = 7
-T_FIRE = 8
-B_DONE = 9
-B_KILL = 10
-C_DEAD = 11
-C_SELECTED = 12
-
-## Sub states ##
-TD_IDLE = 13
-TD_FOLLOW = 14
-TD_SHOW = 15
-
-## States ##
-TD_PAUSE = 16
-TD_PLAYING = 17 # wave in progress
-TD_CLEAR = 18 # in between waves
-
-## Menu Buttons ##
-BUTTON_NEW_WAVE_MSG = 19
-BUTTON_UPGRADE_MSG = 20
-BUTTON_SELL_MSG = 21
-
-# instructions #
-P_SNAP_LOC = 22
-
-# kinds #
-KIND_TOWER = 23
-KIND_CREEP = 24
-KIND_TILE = 25
-KIND_BUTTON = 26
-KIND_BULLET = 27
-
-# Healthbar #
-HEALTH_BAR_WIDTH = 20
-HEALTH_BAR_HEIGHT = 5
-HEALTH_BAR_BG_COLOR = (225, 0, 0)
-HEALTH_BAR_COLOR = (0, 225, 0)
-HEALTH_BAR_MARGIN = 3
+SELECTED_O_COLOR = (225, 225, 55)
+SELECTED_O_WIDTH = 2
 
 # Menu #
 MENU_O_COLOR = O_COLOR
@@ -77,6 +30,14 @@ MENU_B_O_COLOR = O_COLOR
 MENU_B_BG_COLOR = BG_COLOR
 MENU_ITEM_MARGIN_X = 10
 MENU_OUTLINE_WIDTH = 3
+### Main menu ###
+MM_WIDTH = SCREEN_WIDTH
+MM_HEIGHT = 75
+MM_POS = (0, SCREEN_HEIGHT-MM_HEIGHT)
+MM_BG_COLOR = (10, 201, 15)
+MM_O_COLOR = (221, 198, 89)
+MM_IMG = "../assets/images/splash/logo.png"
+MM_IMG_POS = (0, 0)
 
 # Display #
 DISPLAY_FONT = "helvetica"
@@ -106,6 +67,65 @@ BUTTON_UPGRADE_HEIGHT = 45
 BUTTON_SELL_IMG = "../assets/images/buttons/sell.png"
 BUTTON_SELL_WIDTH = 75
 BUTTON_SELL_HEIGHT = 45
+BUTTON_PLAY_IMG = "../assets/images/buttons/play.png"
+BUTTON_PLAY_WIDTH = 75
+BUTTON_PLAY_HEIGHT = 45
+BUTTON_QUIT_IMG = "../assets/images/buttons/quit.png"
+BUTTON_QUIT_WIDTH = 75
+BUTTON_QUIT_HEIGHT = 45
+
+# Mouse Buttons #
+MOUSE_LEFT = 1
+MOUSE_MIDDLE = 2
+MOUSE_RIGHT = 3
+
+# enums #
+
+## game_logic actions ##
+P_IDLE = 4
+P_FOLLOW = 5
+P_PLACE = 6
+T_SELECTED = 7
+T_FIRE = 8
+B_DONE = 9
+B_KILL = 10
+C_DEAD = 11
+C_SELECTED = 12
+
+## Sub states ##
+TD_IDLE = 13
+TD_FOLLOW = 14
+TD_SHOW = 15
+
+## States ##
+TD_MENU = 16
+TD_PAUSE = 17
+TD_PLAYING = 18 # wave in progress
+TD_CLEAR = 19 # in between waves
+
+## Menu Buttons ##
+BUTTON_NEW_WAVE_MSG = 20
+BUTTON_UPGRADE_MSG = 21
+BUTTON_SELL_MSG = 22
+BUTTON_PLAY_MSG = 23
+BUTTON_QUIT_MSG = 24
+
+# instructions #
+P_SNAP_LOC = 25
+
+# kinds #
+KIND_TOWER = 26
+KIND_CREEP = 27
+KIND_TILE = 28
+KIND_BUTTON = 29
+KIND_BULLET = 30
+
+# Healthbar #
+HEALTH_BAR_WIDTH = 20
+HEALTH_BAR_HEIGHT = 5
+HEALTH_BAR_BG_COLOR = (225, 0, 0)
+HEALTH_BAR_COLOR = (0, 225, 0)
+HEALTH_BAR_MARGIN = 3
 
 # Tower #
 RANGE_COLOR = (50, 255, 50, 125)
@@ -161,6 +181,7 @@ WORLD_Y = 5
 WORLD_WIDTH = 576
 WORLD_HEIGHT = 528
 WORLD1 = "../assets/worlds/world1.txt"
+WORLD2 = "../assets/worlds/world2.txt"
 PATH_IMG = "../assets/images/tiles/path.png"
 GRASS_IMG = "../assets/images/tiles/grass_outlined.png"
 TILE_WIDTH = 16
