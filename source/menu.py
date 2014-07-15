@@ -21,7 +21,7 @@ class Menu(rectangle.Rectangle):
         self.o_color = o_color
         self.items = []
         self.margin_x = MENU_ITEM_MARGIN_X
-        self.margin_y = height/2
+        self.margin_y = MENU_ITEM_MARGIN_Y
 
     def next_item_position(self, item):
         # calculates the next position in
@@ -59,7 +59,7 @@ class Menu(rectangle.Rectangle):
         return actions
         
     def add_button(self, buttontype):
-        btn = buttontype((0, 0))
+        btn = buttontype()
         pos = self.next_item_position(btn)
         btn.set_position(pos)
         self.items.append(btn)
@@ -81,3 +81,65 @@ class Menu(rectangle.Rectangle):
             item.paint(m_surface)
 
         surface.blit(m_surface, self.position)
+
+class VerticalMenu(Menu):
+    def __init__(self, position, width, height, b_color = MENU_BG_COLOR, o_color = MENU_O_COLOR):
+        Menu.__init__(self, position, width, height, b_color, o_color)
+
+        # the banner is an optional image to be place at the top
+        # of the menu. Must have same width and smaller or same
+        # height as the menu
+        self.banner = None
+        self.banner_height = 0
+        ### setup font ###
+        self.font = pygame.font.SysFont(FONT, FONT_SIZE)
+        self.font_color = FONT_COLOR
+
+    def paint(self, surface):
+        m_surface = pygame.Surface((self.width, self.height))
+        m_surface.fill(self.b_color)
+        if self.banner is not None:
+            m_surface.blit(self.banner, (0, 0))
+        r = pygame.Rect((0, 0), (self.width, self.height))
+        pygame.draw.rect(m_surface, self.o_color, r, MENU_OUTLINE_WIDTH)
+        for item in self.items:
+            item.paint(m_surface)
+            ### show description ###
+            description= "%s" %(item.get_description())
+            msg_dims = self.font.size(description)
+            temp_surface = self.font.render(description, 1, self.font_color)
+            item_pos = item.get_position()
+            msg_x = item_pos[0] + item.get_width() + self.margin_x
+            msg_y = item_pos[1] + .5*(item.get_height() - msg_dims[1])
+            m_surface.blit(temp_surface, (msg_x, msg_y))
+        surface.blit(m_surface, self.position)
+        
+    def next_item_position(self, item):
+        # calculates the next position in
+        # the menu for an item
+        x = self.margin_x #.5*(self.width - item.get_width())
+        y = self.margin_y + self.banner_height
+        for item in self.items:
+            y += item.get_height() + self.margin_y
+        return (x, y)
+
+    def set_banner(self, img):
+        self.banner = pygame.image.load(img)
+        if self.banner.get_width() != self.width:
+            self.banner = None
+            return
+        self.banner_height = self.banner.get_height()
+        # reposition items
+
+    def remove_banner(self):
+        self.banner = None
+        self.banner_height = 0
+        # reposition items
+
+    def add_button(self, buttontype, item = None, description = ""):
+        btn = buttontype()
+        btn.set_item(item)
+        btn.set_description(description)
+        pos = self.next_item_position(btn)
+        btn.set_position(pos)
+        self.items.append(btn)

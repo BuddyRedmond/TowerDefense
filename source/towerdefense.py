@@ -19,30 +19,23 @@ import tower
 import menu
 import button
 import display
+from os import path
 
 class TowerDefense(game.Game):
     def __init__(self, name, screen_width, screen_height, screen = None):
         # setup data members and the screen
         game.Game.__init__(self, name, screen_width, screen_height, screen)
 
-        # initialize empty values #
-        self.world = None
+        ### Display setup ###
+        self.display = display.Display((DISPLAY_X, DISPLAY_Y), DISPLAY_WIDTH, DISPLAY_HEIGHT, DISPLAY_BG_COLOR, DISPLAY_O_COLOR)
+
+        self.empty_data()
+
         self.menu = None
         self.towers_types = [tower.Tower, tower.GreenTower]
         self.b_menu = None
         self.buttons = [button.NewWave, button.Upgrade, button.Sell]
-        self.display = None
-        self.towers = []
-        self.money = 0
-        self.wave = 0
         self.creep_types = [creep.Creep]
-        self.creeps = set()
-        self.state = TD_MENU
-        self.sub_state = TD_IDLE
-        self.purchaser = None
-        self.selected = None
-        self.selected_rect = pygame.rect.Rect((0, 0), (0, 0))
-        self.selected_rect_set = False
 
         ### setup font ###
         self.font = pygame.font.SysFont(FONT, FONT_SIZE)
@@ -56,9 +49,24 @@ class TowerDefense(game.Game):
         self.mm.center_x()
         self.mm_img = pygame.image.load(MM_IMG)
 
+        ### Level select setup ###
+        self.ls = menu.VerticalMenu(LS_POS, LS_WIDTH, LS_HEIGHT, LS_BG_COLOR, LS_O_COLOR)
+        self.ls.set_banner(LS_IMG)
+        self.ls_buttons = LEVELS
+        for i in range(len(self.ls_buttons)):
+            self.ls.add_button(button.Level, self.ls_buttons[i][0], self.ls_buttons[i][1])
+
         ### setup location for money ###
         self.money_x = MONEY_X
         self.money_y = MONEY_Y
+
+        ### setup location for lives ###
+        self.lives_x = LIVES_X
+        self.lives_y = LIVES_Y
+
+        ### setup location for wave number ###
+        self.wave_x = WAVE_X
+        self.wave_y = WAVE_Y
 
         ###  Purchaser menu setup ###
         self.menu = menu.Menu((MENU_P_X, MENU_P_Y), MENU_P_WIDTH, MENU_P_HEIGHT, MENU_P_BG_COLOR, MENU_P_O_COLOR)
@@ -68,15 +76,10 @@ class TowerDefense(game.Game):
         ### Button menu setup ###
         self.b_menu = menu.Menu((MENU_B_X, MENU_B_Y), MENU_B_WIDTH, MENU_B_HEIGHT, MENU_B_BG_COLOR, MENU_B_O_COLOR)
         
-        self.buttons = [button.NewWave, button.Upgrade, button.Sell]                      
+        self.buttons = [button.NewWave, button.Upgrade, button.Sell, button.Quit]                      
         for btn in self.buttons:
             self.b_menu.add_button(btn)
         self.b_menu.center_x()
-
-        ### Display setup ###
-        self.display = display.Display((DISPLAY_X, DISPLAY_Y), DISPLAY_WIDTH, DISPLAY_HEIGHT, DISPLAY_BG_COLOR, DISPLAY_O_COLOR)
-
-        #self.load_level(WORLD1)
 
 
     def load_level(self, level):
@@ -85,6 +88,8 @@ class TowerDefense(game.Game):
         self.towers = []
         self.money = STARTING_MONEY
         self.wave = 0
+        self.wave_comp = 0
+        self.lives = STARTING_LIVES
         self.creeps = set()
         self.state = TD_CLEAR
         self.sub_state = TD_IDLE
@@ -92,6 +97,27 @@ class TowerDefense(game.Game):
         self.selected = None
         self.selected_rect = pygame.rect.Rect((0, 0), (0, 0))
         self.selected_rect_set = False
+        self.display.deactivate()
+
+    def empty_data(self):
+        # initialize empty values #
+        self.world = None
+        self.towers = []
+        self.money = 0
+        self.wave = 0
+        self.waves_comp = 0
+        self.lives = 0
+        self.creeps = set()
+        self.state = TD_MENU
+        self.sub_state = TD_IDLE
+        self.purchaser = None
+        self.selected = None
+        self.selected_rect = pygame.rect.Rect((0, 0), (0, 0))
+        self.selected_rect_set = False
+        self.display.deactivate()
+
+    def can_start_wave(self):
+        return self.state == TD_CLEAR and self.wave+1 <= len(WAVES)-1
 
     def set_selected_rect(self):
         if self.selected_rect_set:
@@ -107,6 +133,9 @@ class TowerDefense(game.Game):
         if self.state == TD_MENU:
             surface.blit(self.mm_img, MM_IMG_POS)
             self.mm.paint(surface)
+        elif self.state == TD_LEVEL_SELECT:
+            self.mm.paint(surface)
+            self.ls.paint(surface)
         else:
             self.world.paint(surface)
             self.menu.paint(surface)
@@ -117,6 +146,16 @@ class TowerDefense(game.Game):
             currency = "Current money: $%s" %(self.money)
             temp_surface = self.font.render(currency, 1, self.font_color)
             surface.blit(temp_surface, (self.money_x, self.money_y))
+
+            ### show lives ###
+            lives = "Number of Lives: %d" %(self.lives)
+            temp_surface = self.font.render(lives, 1, self.font_color)
+            surface.blit(temp_surface, (self.lives_x, self.lives_y))
+
+            ### show wave number ###
+            wave = "Waves completed: %d" %(self.waves_comp)
+            temp_surface = self.font.render(wave, 1, self.font_color)
+            surface.blit(temp_surface, (self.wave_x, self.wave_y))
 
             # paint all of the creeps
             for creep in self.creeps:
@@ -145,9 +184,9 @@ class TowerDefense(game.Game):
                 tower.paint_bullets(surface)
             
     def begin_wave(self):
-        self.wave += 1
-        if self.wave > len(WAVES)-1:
+        if not self.can_start_wave():
             return
+        self.wave += 1
         for i in range(CREEP_COUNT):
             for j in range(WAVES[self.wave][i]):
                 c = self.creep_types[i]((0, 0))
@@ -155,6 +194,7 @@ class TowerDefense(game.Game):
                 c.set_position((-(j+1)*(c.get_width() + CREEP_GAP), y))
                 c.set_destination(self.world.next_waypoint(0))
                 self.creeps.add(c)
+        self.state = TD_PLAYING
 
     def calc_snap_loc(self, pos):
         if self.world.is_inside(pos):
@@ -183,11 +223,50 @@ class TowerDefense(game.Game):
             # handle actions #
             for action in actions:
                 if action[0] == BUTTON_PLAY_MSG:
-                    self.load_level(WORLD1)
+                    self.state = TD_LEVEL_SELECT
                 elif action[0] == BUTTON_QUIT_MSG:
                     self.quit = True
                     return
+        elif self.state == TD_LEVEL_SELECT:
+            # collect actions for main menu
+            actions = []
+            mm_actions = self.mm.game_logic(keys, newkeys, mouse_pos, newclicks)
+            for action in mm_actions:
+                if action is not None:
+                    actions.append(action)
+            # collect actions for level select
+            ls_actions = self.ls.game_logic(keys, newkeys, mouse_pos, newclicks)
+            for action in ls_actions:
+                if action is not None:
+                    actions.append(action)
+                    
+            # handle actions #
+            for action in actions:
+                if action[0] == BUTTON_PLAY_MSG:
+                    if len(self.ls_buttons) > 0:
+                        self.load_level(self.ls_buttons[0])
+                    else:
+                        return
+                elif action[0] == BUTTON_QUIT_MSG:
+                    self.quit = True
+                    return
+                elif action[0] == BUTTON_LEVEL_MSG:
+                    self.load_level(action[1])
+        elif self.state == TD_FAILURE or self.state == TD_SUCCESS:
+            self.empty_data()
+        elif self.state == TD_CLEAR and not self.can_start_wave():
+            print "Victory"
+            self.state = TD_SUCCESS
         else:
+            if self.lives <= 0:
+                print "Defeat"
+                self.state = TD_FAILURE
+            # if we finished the wave
+            # change the state
+            if self.state == TD_PLAYING and len(self.creeps) == 0:
+                self.waves_comp += 1
+                self.state = TD_CLEAR
+            
             # if we are displaying an object
             # update the display
             if self.selected is not None:
@@ -214,7 +293,6 @@ class TowerDefense(game.Game):
                     pygame.mouse.set_visible(True)
                     self.display.deactivate()
             
-            #dead = set()
             for creep in self.creeps:
                 if not creep.has_destination():
                     dest = self.world.next_waypoint(creep.get_visited())
@@ -225,8 +303,10 @@ class TowerDefense(game.Game):
                     if dest is not None:
                         creep.set_destination(self.world.next_waypoint(creep.get_visited()))
                     else:
+                        self.lives -= 1
+                        if self.lives <= 0:
+                            self.lives = 0
                         creep.health = 0
-            #self.creeps -= dead
             if self.sub_state == TD_FOLLOW:
                 # if we are placing a tower
                 # snap its location to the
@@ -354,6 +434,8 @@ class TowerDefense(game.Game):
                             self.sub_state = TD_IDLE
                             # update display
                             self.display.deactivate()
+                elif action[0] == BUTTON_QUIT_MSG:
+                    self.empty_data()
             # update the tower-to-be-placed's range based
             # on whether or not it can be placed currently
             if self.purchaser is not None:
