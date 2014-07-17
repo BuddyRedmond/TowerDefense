@@ -19,6 +19,7 @@ import tower
 import menu
 import button
 import display
+import alert
 from os import path
 
 class TowerDefense(game.Game):
@@ -35,7 +36,7 @@ class TowerDefense(game.Game):
         self.towers_types = [tower.Tower, tower.GreenTower]
         self.b_menu = None
         self.buttons = [button.NewWave, button.Upgrade, button.Sell]
-        self.creep_types = [creep.Creep]
+        self.creep_types = [creep.Creep, creep.YellowCreep]
 
         ### setup font ###
         self.font = pygame.font.SysFont(FONT, FONT_SIZE)
@@ -81,6 +82,8 @@ class TowerDefense(game.Game):
             self.b_menu.add_button(btn)
         self.b_menu.center_x()
 
+        self.alerts = []
+
 
     def load_level(self, level):
         ### World setup ###
@@ -93,11 +96,13 @@ class TowerDefense(game.Game):
         self.creeps = set()
         self.state = TD_CLEAR
         self.sub_state = TD_IDLE
+        self.purchaser_tower = None
         self.purchaser = None
         self.selected = None
         self.selected_rect = pygame.rect.Rect((0, 0), (0, 0))
         self.selected_rect_set = False
         self.display.deactivate()
+        self.alerts = []
 
     def empty_data(self):
         # initialize empty values #
@@ -110,11 +115,13 @@ class TowerDefense(game.Game):
         self.creeps = set()
         self.state = TD_MENU
         self.sub_state = TD_IDLE
+        self.purchaser_tower = None
         self.purchaser = None
         self.selected = None
         self.selected_rect = pygame.rect.Rect((0, 0), (0, 0))
         self.selected_rect_set = False
         self.display.deactivate()
+        self.alerts = []
 
     def can_start_wave(self):
         return self.state == TD_CLEAR and self.wave+1 <= len(WAVES)-1
@@ -168,8 +175,8 @@ class TowerDefense(game.Game):
 
             # paint the purchaser if there is one
             if self.sub_state == TD_FOLLOW:
-                if self.purchaser is not None:
-                    self.purchaser.paint(surface)
+                if self.purchaser_tower is not None:
+                    self.purchaser_tower.paint(surface)
 
             for tower in self.towers:
                 if self.selected !=tower:
@@ -182,16 +189,19 @@ class TowerDefense(game.Game):
 
             for tower in self.towers:
                 tower.paint_bullets(surface)
+        for alert in self.alerts:
+            alert.paint(surface)
             
     def begin_wave(self):
         if not self.can_start_wave():
             return
         self.wave += 1
+        x, y = self.world.get_start()
         for i in range(CREEP_COUNT):
             for j in range(WAVES[self.wave][i]):
                 c = self.creep_types[i]((0, 0))
-                x, y = self.world.get_start()
-                c.set_position((-(j+1)*(c.get_width() + CREEP_GAP), y))
+                x -= c.get_width() + CREEP_GAP
+                c.set_position((x, y))
                 c.set_destination(self.world.next_waypoint(0))
                 self.creeps.add(c)
         self.state = TD_PLAYING
@@ -244,7 +254,7 @@ class TowerDefense(game.Game):
             for action in actions:
                 if action[0] == BUTTON_PLAY_MSG:
                     if len(self.ls_buttons) > 0:
-                        self.load_level(self.ls_buttons[0])
+                        self.load_level(self.ls_buttons[0][0])
                     else:
                         return
                 elif action[0] == BUTTON_QUIT_MSG:
@@ -253,14 +263,15 @@ class TowerDefense(game.Game):
                 elif action[0] == BUTTON_LEVEL_MSG:
                     self.load_level(action[1])
         elif self.state == TD_FAILURE or self.state == TD_SUCCESS:
-            self.empty_data()
+            if MOUSE_LEFT in newclicks:
+                self.empty_data()
         elif self.state == TD_CLEAR and not self.can_start_wave():
-            print "Victory"
             self.state = TD_SUCCESS
+            self.alerts.append(alert.Alert(ALERT_SUCCESS_POS, ALERT_SUCCESS_WIDTH, ALERT_SUCCESS_HEIGHT, ALERT_SUCCESS_MESSAGE))
         else:
             if self.lives <= 0:
-                print "Defeat"
                 self.state = TD_FAILURE
+                self.alerts.append(alert.Alert(ALERT_FAILURE_POS, ALERT_FAILURE_WIDTH, ALERT_FAILURE_HEIGHT, ALERT_FAILURE_MESSAGE))
             # if we finished the wave
             # change the state
             if self.state == TD_PLAYING and len(self.creeps) == 0:
@@ -286,8 +297,8 @@ class TowerDefense(game.Game):
                         self.display.deactivate() # possible refactoring 2
             elif MOUSE_RIGHT in newclicks: # right mouse click
                 if self.sub_state == TD_FOLLOW:
-                    self.purchaser.deactivate()
-                    self.purchaser = None
+                    self.purchaser_tower.deactivate()
+                    self.purchaser_tower = None
                     self.selected = None
                     self.sub_state = TD_IDLE
                     pygame.mouse.set_visible(True)
@@ -311,7 +322,7 @@ class TowerDefense(game.Game):
                 # if we are placing a tower
                 # snap its location to the
                 # cells of the world
-                self.purchaser.set_position(self.calc_snap_loc(mouse_pos))
+                self.purchaser_tower.set_position(self.calc_snap_loc(mouse_pos))
             
             # collect actions for menu
             actions = []
@@ -338,6 +349,9 @@ class TowerDefense(game.Game):
                 for action in creep_actions:
                     if action is not None:
                         actions.append(action)
+
+            if self.sub_state != TD_FOLLOW:
+                pygame.mouse.set_visible(True)
             
             # handle actions
             for action in actions:
@@ -351,33 +365,51 @@ class TowerDefense(game.Game):
                         self.display.deactivate() # possible refactoring 2
                         self.selected = None
                     self.sub_state = TD_FOLLOW
-                    self.purchaser = action[1]
-                    self.purchaser.activate()
+                    self.purchaser = action[1][0]
+                    self.purchaser_tower = action[1][1]
+                    self.purchaser_tower.activate()
                     pygame.mouse.set_visible(False)
-                    self.display_item(self.purchaser)
+                    self.display_item(self.purchaser_tower)
                 elif action[0] == P_PLACE:
-                    if self.purchaser is None:
+                    if self.purchaser_tower is None:
                         break
                     # verify ability to place tower
                     f_pos = self.calc_snap_loc(mouse_pos)
-                    f_dims = self.purchaser.get_dims()
+                    f_dims = self.purchaser_tower.get_dims()
                     cell_num = self.world.get_cell_at(f_pos)
                     placed = False
                     if self.world.has_cell(cell_num):
-                        if self.purchaser.get_cost() <= self.money:
+                        if self.purchaser_tower.get_cost() <= self.money:
                             if self.world.can_build(f_pos, f_dims):
                                 self.world.occupy_area(f_pos, f_dims)
-                                self.purchaser.activate()
-                                self.towers.append(self.purchaser)
-                                self.money -= self.purchaser.get_cost()
-                                self.selected = self.purchaser
+                                self.purchaser_tower.activate()
+                                self.towers.append(self.purchaser_tower)
+                                self.money -= self.purchaser_tower.get_cost()
+                                self.selected = self.purchaser_tower
                                 self.sub_state = TD_SHOW # show new tower
                                 self.display_item(self.selected)
                                 placed = True
                     if not placed:
                         self.sub_state = TD_IDLE
-                    self.purchaser = None
-                    pygame.mouse.set_visible(True)
+                    dupe = False
+                    for btn in DUPLICATE_BUTTONS:
+                        if btn in keys:
+                            dupe = True
+                            break
+                    if not dupe:
+                        self.purchaser_tower = None
+                        pygame.mouse.set_visible(True)
+                    else:
+                        if self.selected is not None and self.selected.get_kind() == KIND_TOWER:
+                            self.selected.deactivate()
+                        self.display.deactivate() # possible refactoring 2
+                        self.selected = None
+                        self.sub_state = TD_FOLLOW
+                        self.purchaser_tower = action[1][1]
+                        self.purchaser_tower.activate()
+                        self.purchaser.toggle_status()
+                        pygame.mouse.set_visible(False)
+                        self.display_item(self.purchaser_tower)
                 elif action[0] == T_SELECTED:
                     # if we clicked on a tower
                     # stop showing the range
@@ -385,7 +417,7 @@ class TowerDefense(game.Game):
                     # tower and show this tower's
                     # range
                     if self.sub_state == TD_FOLLOW:
-                        self.purchaser = None
+                        self.purchaser_tower = None
                     if self.selected is not None and self.selected.get_kind() == KIND_TOWER:
                         self.selected.deactivate()
                     self.selected = None
@@ -438,8 +470,8 @@ class TowerDefense(game.Game):
                     self.empty_data()
             # update the tower-to-be-placed's range based
             # on whether or not it can be placed currently
-            if self.purchaser is not None:
-                if not self.world.can_build(self.purchaser.get_position(), self.purchaser.get_dims()):
-                    self.purchaser.bad_pos()
+            if self.purchaser_tower is not None:
+                if not self.world.can_build(self.purchaser_tower.get_position(), self.purchaser_tower.get_dims()):
+                    self.purchaser_tower.bad_pos()
                 else:
-                    self.purchaser.good_pos()
+                    self.purchaser_tower.good_pos()

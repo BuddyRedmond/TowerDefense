@@ -11,18 +11,20 @@ import pygame
 from config import *
 import rectangle
 import healthbar
+import time
 
 class Creep(rectangle.Rectangle):
-    def __init__(self, position, width=CREEP_DEFAULT_WIDTH, height=CREEP_DEFAULT_HEIGHT, image=CREEP_DEFAULT_IMAGE, value=CREEP_DEFAULT_VALUE):
+    def __init__(self, position, health=CREEP_DEFAULT_HEALTH, name=CREEP_DEFAULT_NAME, speed=CREEP_DEFAULT_SPEED, width=CREEP_DEFAULT_WIDTH, height=CREEP_DEFAULT_HEIGHT, image=CREEP_DEFAULT_IMAGE, value=CREEP_DEFAULT_VALUE):
         rectangle.Rectangle.__init__(self, KIND_CREEP, position, width, height, image)
-        self.health = self.max_health = CREEP_DEFAULT_HEALTH
-        self.speed = CREEP_DEFAULT_SPEED
+        self.health = self.max_health = health
+        self.speed = speed
         self.value = value
         self.speed_modifier = 1
         self.destination = None
         self.visited = 0
-        self.name = CREEP_DEFAULT_NAME
-
+        self.name = name
+        self.last_frame = time.time()
+        self.dt = 0
         health_pos = self.position[0] + .5* self.width - .5*HEALTH_BAR_WIDTH, self.position[1] - HEALTH_BAR_HEIGHT - HEALTH_BAR_MARGIN
         self.healthbar = healthbar.Healthbar(health_pos, self.max_health)
         #self.resistances = CREEP_DEFAULT_RESISTANCES
@@ -72,8 +74,8 @@ class Creep(rectangle.Rectangle):
         dy = self.destination[1]-y
         on_left = dx < 0
         above = dy < 0
-        dx = min(abs(dx), self.speed*self.speed_modifier)
-        dy = min(abs(dy), self.speed*self.speed_modifier)
+        dx = min(abs(dx), self.speed*self.speed_modifier*self.dt)
+        dy = min(abs(dy), self.speed*self.speed_modifier*self.dt)
         if on_left:
             dx *= -1
         if above:
@@ -85,6 +87,9 @@ class Creep(rectangle.Rectangle):
         self.set_health_pos()
 
     def game_logic(self, keys, newkeys, mouse_pos, newclicks):
+        t = time.time()
+        self.dt = t - self.last_frame
+        self.last_frame = t
         self.healthbar.update_health(self.health)
         actions = []
         # if the creep was clicked, report it
@@ -95,3 +100,7 @@ class Creep(rectangle.Rectangle):
             actions.append((C_DEAD, self))
         self.move()
         return actions
+
+class YellowCreep(Creep):
+    def __init__(self, position):
+        Creep.__init__(self, position, CREEP_YELLOW_HEALTH, CREEP_YELLOW_NAME, CREEP_YELLOW_SPEED, CREEP_YELLOW_WIDTH, CREEP_YELLOW_HEIGHT, CREEP_YELLOW_IMAGE, CREEP_YELLOW_VALUE)

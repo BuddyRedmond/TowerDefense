@@ -12,6 +12,7 @@ from config import *
 import rectangle
 import math
 import bullet
+import time
 
 class Tower(rectangle.Rectangle):
     def __init__(self, position, width=TOWER_BASIC_WIDTH, height=TOWER_BASIC_HEIGHT, image=TOWER_BASIC_IMAGE, rng=TOWER_BASIC_RANGE, cost=TOWER_BASIC_COST, atk_speed=TOWER_BASIC_ATK_SPEED):
@@ -30,7 +31,7 @@ class Tower(rectangle.Rectangle):
         
         self.atk_speed = atk_speed
         # frames since last attack
-        self.fs_last_attack = float(FRAMES_PER_SECOND)/self.atk_speed[self.level]
+        self.last_attack = self.atk_speed[self.level]
 
         # true if the tower is in a good
         # (placable) location, else: false
@@ -170,12 +171,13 @@ class Tower(rectangle.Rectangle):
                 surface.blit(self.range_surface_bad, topleft)
                 
     def can_attack(self):
-        return self.fs_last_attack >= float(FRAMES_PER_SECOND)/self.atk_speed[self.level]
+        return time.time() - self.last_attack >= 1.0/self.atk_speed[self.level]
 
     def attack(self, target):
         b = self.bullet_type(self.get_center(), self.bullet_width, self.bullet_height, self.bullet_image, self.bullet_damage[self.level], self.bullet_speed)
         b.set_target(target)
         self.bullets.add(b)
+        self.last_attack = time.time()
      
     def paint(self, surface):
         if self.is_active():
@@ -187,8 +189,6 @@ class Tower(rectangle.Rectangle):
             bullet.paint(surface)
         
     def game_logic(self, keys, newkeys, mouse_pos, newclicks, creeps):
-        self.fs_last_attack += 1 # frame count since last attack
-
         if self.target is not None and self.target.is_dead():
             self.target = None
 
@@ -214,7 +214,6 @@ class Tower(rectangle.Rectangle):
         if self.can_attack():
             if self.target is not None and self.is_in_range(self.target.get_center()):
                 self.attack(self.target)
-                self.fs_last_attack = 0
             else:
                 for creep in creeps:
                     if self.is_in_range(creep.get_center()):

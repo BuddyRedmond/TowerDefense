@@ -1,9 +1,5 @@
 - Add castle or something that the creeps reach when a life is lost
 
-- Success/Failure screens
-
-- Fix creep movement (should be time based, not frame based)
-
 - Add creeps
 
 - Add towers
@@ -15,3 +11,5 @@
 - Traps on path (mud or something)
 
 - Unbuildable areas
+
+- Possibly have level specific starting money and towers.
