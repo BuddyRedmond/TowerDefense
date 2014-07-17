@@ -13,3 +13,9 @@
 - Unbuildable areas
 
 - Possibly have level specific starting money and towers.
+
+- Clean up
+
+- Clean up
+
+- Clean up!

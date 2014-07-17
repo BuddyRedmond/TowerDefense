@@ -13,10 +13,7 @@ def main():
                 pygame.locals.DOUBLEBUF |
 
                 # apply alpha blending
-                pygame.locals.SRCALPHA |
-
-                # allow the window to be resizable
-                pygame.locals.RESIZABLE)
+                pygame.locals.SRCALPHA)
     # set the title of the window
     pygame.display.set_caption(NAME)
     

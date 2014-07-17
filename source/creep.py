@@ -14,6 +14,7 @@ import healthbar
 import time
 
 class Creep(rectangle.Rectangle):
+    ident = "".join(CREEP_DEFAULT_NAME.split()).lower()
     def __init__(self, position, health=CREEP_DEFAULT_HEALTH, name=CREEP_DEFAULT_NAME, speed=CREEP_DEFAULT_SPEED, width=CREEP_DEFAULT_WIDTH, height=CREEP_DEFAULT_HEIGHT, image=CREEP_DEFAULT_IMAGE, value=CREEP_DEFAULT_VALUE):
         rectangle.Rectangle.__init__(self, KIND_CREEP, position, width, height, image)
         self.health = self.max_health = health
@@ -101,6 +102,12 @@ class Creep(rectangle.Rectangle):
         self.move()
         return actions
 
+class RedCreep(Creep):
+    ident = "".join(CREEP_RED_NAME.split()).lower()
+    def __init__(self, position):
+        Creep.__init__(self, position, CREEP_RED_HEALTH, CREEP_RED_NAME, CREEP_RED_SPEED, CREEP_RED_WIDTH, CREEP_RED_HEIGHT, CREEP_RED_IMAGE, CREEP_RED_VALUE)
+
 class YellowCreep(Creep):
+    ident = "".join(CREEP_YELLOW_NAME.split()).lower()
     def __init__(self, position):
         Creep.__init__(self, position, CREEP_YELLOW_HEALTH, CREEP_YELLOW_NAME, CREEP_YELLOW_SPEED, CREEP_YELLOW_WIDTH, CREEP_YELLOW_HEIGHT, CREEP_YELLOW_IMAGE, CREEP_YELLOW_VALUE)

@@ -72,6 +72,9 @@ class World:
         f = open(layout_file, 'rb')
         fin = [line.strip() for line in f.readlines()]
         f.close()
+        fin = fin[1:]
+        skip = int(fin[0])
+        fin = fin[skip+1:]
         data = fin[0].split()
         dim = [0, 0]
         try:
@@ -249,7 +252,9 @@ class World:
         
     def get_start(self):
         return self.start
-        #return self.loc_to_cell(self.start_cell[0], self.start_cell[1])
+
+    def get_end(self):
+        return self.waypoints[-1]
 
     def loc_to_cell(self, i, j):
         # where i is the column, j is the row

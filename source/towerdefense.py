@@ -36,7 +36,7 @@ class TowerDefense(game.Game):
         self.towers_types = [tower.Tower, tower.GreenTower]
         self.b_menu = None
         self.buttons = [button.NewWave, button.Upgrade, button.Sell]
-        self.creep_types = [creep.Creep, creep.YellowCreep]
+        self.creep_types = [creep.Creep, creep.RedCreep, creep.YellowCreep]
 
         ### setup font ###
         self.font = pygame.font.SysFont(FONT, FONT_SIZE)
@@ -82,8 +82,13 @@ class TowerDefense(game.Game):
             self.b_menu.add_button(btn)
         self.b_menu.center_x()
 
-        self.alerts = []
+        self.alerts = set()
 
+    def get_creep_number(self, identifier):
+        for i in range(len(self.creep_types)):
+            if identifier == self.creep_types[i].ident:
+                return i
+        return 0
 
     def load_level(self, level):
         ### World setup ###
@@ -102,7 +107,33 @@ class TowerDefense(game.Game):
         self.selected_rect = pygame.rect.Rect((0, 0), (0, 0))
         self.selected_rect_set = False
         self.display.deactivate()
-        self.alerts = []
+        self.alerts = set()
+
+        # calculate the life lost alert position
+        x = self.width - 2*MARGIN - ALERT_LIFE_LOST_WIDTH
+        y = MARGIN
+        self.alert_life_lost_pos = (x, y)
+
+        self.waves = [None]
+        # open and read the world file
+        f = open(level, 'rb')
+        fin = [line.strip() for line in f.readlines()]
+        f.close()
+        # retrieve money value
+        self.money = float(fin[0])
+        fin = fin[1:]
+        # parse waves
+        num_waves = int(fin[0])
+        fin = fin[1:num_waves+1]
+        for line in fin:
+            wave = []
+            for c in self.creep_types:
+                wave.append(0)
+            line = line.split()
+            for identifier in line:
+                creep_number = self.get_creep_number(identifier)
+                wave[creep_number] += 1
+            self.waves.append(wave)
 
     def empty_data(self):
         # initialize empty values #
@@ -121,10 +152,12 @@ class TowerDefense(game.Game):
         self.selected_rect = pygame.rect.Rect((0, 0), (0, 0))
         self.selected_rect_set = False
         self.display.deactivate()
-        self.alerts = []
+        self.alerts = set()
+        self.alert_life_lost_pos = (0, 0)
+        self.waves = [None]
 
     def can_start_wave(self):
-        return self.state == TD_CLEAR and self.wave+1 <= len(WAVES)-1
+        return self.state == TD_CLEAR and self.wave+1 <= len(self.waves)-1
 
     def set_selected_rect(self):
         if self.selected_rect_set:
@@ -145,24 +178,6 @@ class TowerDefense(game.Game):
             self.ls.paint(surface)
         else:
             self.world.paint(surface)
-            self.menu.paint(surface)
-            self.b_menu.paint(surface)
-            self.display.paint(surface)
-
-            ### show money ###
-            currency = "Current money: $%s" %(self.money)
-            temp_surface = self.font.render(currency, 1, self.font_color)
-            surface.blit(temp_surface, (self.money_x, self.money_y))
-
-            ### show lives ###
-            lives = "Number of Lives: %d" %(self.lives)
-            temp_surface = self.font.render(lives, 1, self.font_color)
-            surface.blit(temp_surface, (self.lives_x, self.lives_y))
-
-            ### show wave number ###
-            wave = "Waves completed: %d" %(self.waves_comp)
-            temp_surface = self.font.render(wave, 1, self.font_color)
-            surface.blit(temp_surface, (self.wave_x, self.wave_y))
 
             # paint all of the creeps
             for creep in self.creeps:
@@ -189,6 +204,24 @@ class TowerDefense(game.Game):
 
             for tower in self.towers:
                 tower.paint_bullets(surface)
+            self.menu.paint(surface)
+            self.display.paint(surface)
+            self.b_menu.paint(surface)
+
+            ### show money ###
+            currency = "Current money: $%s" %(self.money)
+            temp_surface = self.font.render(currency, 1, self.font_color)
+            surface.blit(temp_surface, (self.money_x, self.money_y))
+
+            ### show lives ###
+            lives = "Number of Lives: %d" %(self.lives)
+            temp_surface = self.font.render(lives, 1, self.font_color)
+            surface.blit(temp_surface, (self.lives_x, self.lives_y))
+
+            ### show wave number ###
+            wave = "Waves completed: %d" %(self.waves_comp)
+            temp_surface = self.font.render(wave, 1, self.font_color)
+            surface.blit(temp_surface, (self.wave_x, self.wave_y))
         for alert in self.alerts:
             alert.paint(surface)
             
@@ -198,7 +231,7 @@ class TowerDefense(game.Game):
         self.wave += 1
         x, y = self.world.get_start()
         for i in range(CREEP_COUNT):
-            for j in range(WAVES[self.wave][i]):
+            for j in range(self.waves[self.wave][i]):
                 c = self.creep_types[i]((0, 0))
                 x -= c.get_width() + CREEP_GAP
                 c.set_position((x, y))
@@ -223,6 +256,17 @@ class TowerDefense(game.Game):
         self.display.activate()
 
     def game_logic(self, keys, newkeys, mouse_pos, newclicks):
+        # collect actions for alerts
+        alerts_actions = []
+        for a in self.alerts:
+            alert_actions = a.game_logic(keys, newkeys, mouse_pos, newclicks)
+            for action in alert_actions:
+                if action is not None:
+                    alerts_actions.append(action)
+        for action in alerts_actions:
+            if action[0] == ALERT_EXP_MESSAGE:
+                self.alerts.remove(action[1])
+        
         if self.state == TD_MENU:
             # collect actions for main menu
             actions = []
@@ -267,11 +311,11 @@ class TowerDefense(game.Game):
                 self.empty_data()
         elif self.state == TD_CLEAR and not self.can_start_wave():
             self.state = TD_SUCCESS
-            self.alerts.append(alert.Alert(ALERT_SUCCESS_POS, ALERT_SUCCESS_WIDTH, ALERT_SUCCESS_HEIGHT, ALERT_SUCCESS_MESSAGE))
+            self.alerts.add(alert.Alert(ALERT_SUCCESS_POS, ALERT_SUCCESS_WIDTH, ALERT_SUCCESS_HEIGHT, ALERT_SUCCESS_MESSAGE))
         else:
             if self.lives <= 0:
                 self.state = TD_FAILURE
-                self.alerts.append(alert.Alert(ALERT_FAILURE_POS, ALERT_FAILURE_WIDTH, ALERT_FAILURE_HEIGHT, ALERT_FAILURE_MESSAGE))
+                self.alerts.add(alert.Alert(ALERT_FAILURE_POS, ALERT_FAILURE_WIDTH, ALERT_FAILURE_HEIGHT, ALERT_FAILURE_MESSAGE))
             # if we finished the wave
             # change the state
             if self.state == TD_PLAYING and len(self.creeps) == 0:
@@ -314,10 +358,13 @@ class TowerDefense(game.Game):
                     if dest is not None:
                         creep.set_destination(self.world.next_waypoint(creep.get_visited()))
                     else:
+                        # a creep has made it through the level
                         self.lives -= 1
                         if self.lives <= 0:
                             self.lives = 0
                         creep.health = 0
+                        message = ALERT_LIFE_LOST_MESSAGE %(self.lives)
+                        self.alerts.add(alert.Alert(self.alert_life_lost_pos, ALERT_LIFE_LOST_WIDTH, ALERT_LIFE_LOST_HEIGHT, message, True, ALERT_LIFE_LOST_DURATION))
             if self.sub_state == TD_FOLLOW:
                 # if we are placing a tower
                 # snap its location to the
@@ -410,6 +457,33 @@ class TowerDefense(game.Game):
                         self.purchaser.toggle_status()
                         pygame.mouse.set_visible(False)
                         self.display_item(self.purchaser_tower)
+                elif action[0] == P_HOVER:
+                    alert_w, alert_h = ALERT_P_HOVER_WIDTH, ALERT_P_HOVER_HEIGHT
+                    # grab the purchaser's position relative
+                    # to the menu
+                    x, y = action[1][0]
+                    # grab the menu's position
+                    mx, my = self.menu.get_position()
+                    # use the menu and purchaser positions
+                    # to properly place the alert
+                    w, h = action[1][1], action[1][2]
+                    x += mx - .5*ALERT_P_HOVER_WIDTH + .5*w
+                    y = my - ALERT_P_HOVER_HEIGHT
+                    # if the alert is off of the screen
+                    # move it to the edge
+                    if x < 0:
+                        x = 0
+                    if x+alert_w > self.width:
+                        x = self.width - alert_w
+                    if y < 0:
+                        y = 0
+                    if y+alert_h > self.height:
+                        y = self.height - alert_h
+                    # substitute the dollar amount of the tower
+                    # into the alert's message
+                    message = ALERT_P_HOVER_MESSAGE %(action[1][3])
+                    a = alert.Alert((x, y), alert_w, alert_h, message, True, ALERT_P_HOVER_DURATION)
+                    self.alerts.add(a)
                 elif action[0] == T_SELECTED:
                     # if we clicked on a tower
                     # stop showing the range
