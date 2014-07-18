@@ -30,11 +30,14 @@ class TowerDefense(game.Game):
         ### Display setup ###
         self.display = display.Display((DISPLAY_X, DISPLAY_Y), DISPLAY_WIDTH, DISPLAY_HEIGHT, DISPLAY_BG_COLOR, DISPLAY_O_COLOR)
 
-        self.empty_data()
+        ###  Purchaser menu setup ###
+        self.menu = menu.Menu((MENU_P_X, MENU_P_Y), MENU_P_WIDTH, MENU_P_HEIGHT, MENU_P_BG_COLOR, MENU_P_O_COLOR)
+            
+        self.tower_types = [tower.Tower, tower.RedTower, tower.GreenTower]
 
-        self.menu = None
-        self.towers_types = [tower.Tower, tower.GreenTower]
-        self.b_menu = None
+        ### Button menu setup ###
+        self.b_menu = menu.Menu((MENU_B_X, MENU_B_Y), MENU_B_WIDTH, MENU_B_HEIGHT, MENU_B_BG_COLOR, MENU_B_O_COLOR)
+        
         self.buttons = [button.NewWave, button.Upgrade, button.Sell]
         self.creep_types = [creep.Creep, creep.RedCreep, creep.YellowCreep]
 
@@ -68,14 +71,6 @@ class TowerDefense(game.Game):
         ### setup location for wave number ###
         self.wave_x = WAVE_X
         self.wave_y = WAVE_Y
-
-        ###  Purchaser menu setup ###
-        self.menu = menu.Menu((MENU_P_X, MENU_P_Y), MENU_P_WIDTH, MENU_P_HEIGHT, MENU_P_BG_COLOR, MENU_P_O_COLOR)
-        for tt in self.towers_types:
-            self.menu.add_purchaser(tt)
-
-        ### Button menu setup ###
-        self.b_menu = menu.Menu((MENU_B_X, MENU_B_Y), MENU_B_WIDTH, MENU_B_HEIGHT, MENU_B_BG_COLOR, MENU_B_O_COLOR)
         
         self.buttons = [button.NewWave, button.Upgrade, button.Sell, button.Quit]                      
         for btn in self.buttons:
@@ -83,10 +78,17 @@ class TowerDefense(game.Game):
         self.b_menu.center_x()
 
         self.alerts = set()
+        self.empty_data()
 
     def get_creep_number(self, identifier):
         for i in range(len(self.creep_types)):
             if identifier == self.creep_types[i].ident:
+                return i
+        return 0
+
+    def get_tower_number(self, identifier):
+        for i in range(len(self.tower_types)):
+            if identifier == self.tower_types[i].ident:
                 return i
         return 0
 
@@ -114,14 +116,25 @@ class TowerDefense(game.Game):
         y = MARGIN
         self.alert_life_lost_pos = (x, y)
 
-        self.waves = [None]
         # open and read the world file
         f = open(level, 'rb')
         fin = [line.strip() for line in f.readlines()]
         f.close()
+        
         # retrieve money value
         self.money = float(fin[0])
-        fin = fin[1:]
+        self.lives = int(fin[1])
+
+        # setup towers
+        self.menu.clear()
+        towers = fin[2].split()
+        for identifier in towers:
+            tower_number = self.get_tower_number(identifier)
+            self.menu.add_purchaser(self.tower_types[tower_number])
+        fin = fin[3:]
+
+        # setup waves
+        self.waves = [None]
         # parse waves
         num_waves = int(fin[0])
         fin = fin[1:num_waves+1]
@@ -155,6 +168,7 @@ class TowerDefense(game.Game):
         self.alerts = set()
         self.alert_life_lost_pos = (0, 0)
         self.waves = [None]
+        self.menu.clear()
 
     def can_start_wave(self):
         return self.state == TD_CLEAR and self.wave+1 <= len(self.waves)-1

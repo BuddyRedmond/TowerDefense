@@ -4,7 +4,7 @@ import math
 import time
 
 class Bullet(rectangle.Rectangle):
-    def __init__(self, position, width=BULLET_BASIC_WIDTH, height=BULLET_BASIC_HEIGHT, image=BULLET_BASIC_IMAGE, dmg=TOWER_BASIC_DAMAGE, speed=BULLET_BASIC_SPEED):
+    def __init__(self, position, width=BULLET_DEFAULT_WIDTH, height=BULLET_DEFAULT_HEIGHT, image=BULLET_DEFAULT_IMAGE, dmg=TOWER_DEFAULT_DAMAGE, speed=BULLET_DEFAULT_SPEED):
         rectangle.Rectangle.__init__(self, KIND_BULLET, position, width, height, image)
         self.dmg = dmg
         self.speed = speed

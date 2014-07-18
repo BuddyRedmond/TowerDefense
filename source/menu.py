@@ -23,6 +23,9 @@ class Menu(rectangle.Rectangle):
         self.margin_x = MENU_ITEM_MARGIN_X
         self.margin_y = MENU_ITEM_MARGIN_Y
 
+    def clear(self):
+        self.items = []
+
     def next_item_position(self, item):
         # calculates the next position in
         # the menu for an item

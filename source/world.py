@@ -72,7 +72,7 @@ class World:
         f = open(layout_file, 'rb')
         fin = [line.strip() for line in f.readlines()]
         f.close()
-        fin = fin[1:]
+        fin = fin[3:] # skips money, lives, and towers
         skip = int(fin[0])
         fin = fin[skip+1:]
         data = fin[0].split()

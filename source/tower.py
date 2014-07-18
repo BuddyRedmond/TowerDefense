@@ -15,7 +15,8 @@ import bullet
 import time
 
 class Tower(rectangle.Rectangle):
-    def __init__(self, position, width=TOWER_BASIC_WIDTH, height=TOWER_BASIC_HEIGHT, image=TOWER_BASIC_IMAGE, rng=TOWER_BASIC_RANGE, cost=TOWER_BASIC_COST, atk_speed=TOWER_BASIC_ATK_SPEED):
+    ident = "".join(TOWER_DEFAULT_NAME.split()).lower()
+    def __init__(self, position, width=TOWER_DEFAULT_WIDTH, height=TOWER_DEFAULT_HEIGHT, image=TOWER_DEFAULT_IMAGE, name=TOWER_DEFAULT_NAME, rng=TOWER_DEFAULT_RANGE, cost=TOWER_DEFAULT_COST, atk_speed=TOWER_DEFAULT_ATK_SPEED):
         rectangle.Rectangle.__init__(self, KIND_TOWER, position, width, height, image)
         self.cost = cost
         self.range = rng
@@ -23,11 +24,11 @@ class Tower(rectangle.Rectangle):
         self.level = 0
 
         ### bullet info ###
-        self.bullet_damage = TOWER_BASIC_DAMAGE
-        self.bullet_width = BULLET_BASIC_WIDTH
-        self.bullet_height = BULLET_BASIC_HEIGHT
-        self.bullet_image = BULLET_BASIC_IMAGE
-        self.bullet_speed = BULLET_BASIC_SPEED
+        self.bullet_damage = TOWER_DEFAULT_DAMAGE
+        self.bullet_width = BULLET_DEFAULT_WIDTH
+        self.bullet_height = BULLET_DEFAULT_HEIGHT
+        self.bullet_image = BULLET_DEFAULT_IMAGE
+        self.bullet_speed = BULLET_DEFAULT_SPEED
         
         self.atk_speed = atk_speed
         # frames since last attack
@@ -47,7 +48,7 @@ class Tower(rectangle.Rectangle):
         self.bullet_type = bullet.Bullet
         self.target = None
         self.bullets = set()
-        self.name = "Basic Tower"
+        self.name = name
 
     def can_be_upgraded(self):
         return self.level+1 < len(self.cost)
@@ -222,12 +223,24 @@ class Tower(rectangle.Rectangle):
                         self.fs_last_attack = 0
                         break # only attack one creep at a time
         return actions
-        
-class GreenTower(Tower):
+
+class RedTower(Tower):
+    ident = "".join(TOWER_RED_NAME.split()).lower()
     def __init__(self, position):
-        Tower.__init__(self, position, TOWER_GREEN_WIDTH, TOWER_GREEN_HEIGHT, TOWER_GREEN_IMAGE, TOWER_GREEN_RANGE, TOWER_GREEN_COST, TOWER_GREEN_ATK_SPEED)
+        Tower.__init__(self, position, TOWER_RED_WIDTH, TOWER_RED_HEIGHT, TOWER_RED_IMAGE, TOWER_RED_NAME, TOWER_RED_RANGE, TOWER_RED_COST, TOWER_RED_ATK_SPEED)
         self.bullet_type = bullet.Bullet
-        self.name = "Green Tower"
+        ### bullet info ###
+        self.bullet_damage = TOWER_RED_DAMAGE
+        self.bullet_width = BULLET_RED_WIDTH
+        self.bullet_height = BULLET_RED_HEIGHT
+        self.bullet_image = BULLET_RED_IMAGE
+        self.bullet_speed = BULLET_RED_SPEED
+   
+class GreenTower(Tower):
+    ident = "".join(TOWER_GREEN_NAME.split()).lower()
+    def __init__(self, position):
+        Tower.__init__(self, position, TOWER_GREEN_WIDTH, TOWER_GREEN_HEIGHT, TOWER_GREEN_IMAGE, TOWER_GREEN_NAME, TOWER_GREEN_RANGE, TOWER_GREEN_COST, TOWER_GREEN_ATK_SPEED)
+        self.bullet_type = bullet.Bullet
         ### bullet info ###
         self.bullet_damage = TOWER_GREEN_DAMAGE
         self.bullet_width = BULLET_GREEN_WIDTH
