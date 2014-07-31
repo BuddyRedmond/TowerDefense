@@ -122,9 +122,11 @@ class World:
                 tile = layout[j][i]
                 if tile == '0':
                     img = GRASS_IMG
+                elif tile == '1':
+                    img = ROCK_IMG
                 else:
                     img = PATH_IMG
-                    if tile == '2':
+                    if tile == str(WAYPOINT):
                         waypoints.append((i, j))
                 x = self.position[0] + (i)*self.cell_width
                 y = self.position[1] + (j)*self.cell_height
@@ -145,7 +147,7 @@ class World:
         # a cell is a middle path if
         # if is surrounded by ONLY
         # path cells (diagonals included)
-        if self.tile_types[j][i] == 2:
+        if self.tile_types[j][i] == WAYPOINT:
             return True
         can_top = j > 0
         can_left = i > 0
@@ -213,7 +215,7 @@ class World:
                 if neighbor not in prev:
                     next_prev.append((i, j))
                     i, j = neighbor
-                    if self.tile_types[j][i] == 2:
+                    if self.tile_types[j][i] == WAYPOINT:
                         count += 1
                         ordered_waypoints.append(self.get_cell_top_left(self.loc_to_cell(i, j)))
             prev = next_prev[:]
@@ -275,7 +277,11 @@ class World:
 
     def cell_is_path(self, cell_num):
         i, j = self.cell_to_loc(cell_num)
-        return self.tile_types[j][i] != 0
+        return self.tile_types[j][i] == PATH or self.tile_types[j][i] == WAYPOINT
+
+    def cell_is_rock(self, cell_num):
+        i, j = self.cell_to_loc(cell_num)
+        return self.tile_types[j][i] == ROCK
         
     def occupy_cell(self, cell_num):
         i, j = self.cell_to_loc(cell_num)
@@ -320,7 +326,7 @@ class World:
             for j in range(y_span):
                 p = (pos[0] + i*self.cell_width, pos[1] + j*self.cell_height)
                 cell_num = self.get_cell_at(p)
-                if not self.has_cell(cell_num) or self.cell_is_path(cell_num) or self.is_occupied(cell_num):
+                if not self.has_cell(cell_num) or self.cell_is_path(cell_num) or self.is_occupied(cell_num) or self.cell_is_rock(cell_num):
                     return False
         return True
 

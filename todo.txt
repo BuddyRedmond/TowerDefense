@@ -1,3 +1,11 @@
+- Sound effects / music
+
+- Unbuildable areas
+
+- Traps on path (mud or something)
+
+- Add creep defenses/resistances
+
 - Add castle or something that the creeps reach when a life is lost
 
 - Add creeps
@@ -5,14 +13,6 @@
 - Add towers
 
 - Balance towers, creeps, money
-
-- Add creep defenses/resistances
-
-- Traps on path (mud or something)
-
-- Unbuildable areas
-
-- Possibly have level specific starting money and towers.
 
 - Clean up
 
