@@ -1,3 +1,1 @@
 - When clicking green tower, then clicking default tower you must then click again twice to actually select the default tower
-
-- When failing to place a tower, the tower remains in the display until something else is selected

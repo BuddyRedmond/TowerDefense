@@ -65,16 +65,24 @@ class World:
     # attempts to open the world file and store the information
     # does nothing if the file was invalid in any way
     def load_from_file(self, layout_file):
+        # locate the file
         if not os.path.exists(layout_file):
             print "Error loading world file " + layout_file + ": File was not found."
             print "File will not be loaded"
             return
+
+        # open and read the file
         f = open(layout_file, 'rb')
         fin = [line.strip() for line in f.readlines()]
         f.close()
+
+        # skip past the non-world data
         fin = fin[3:] # skips money, lives, and towers
         skip = int(fin[0])
         fin = fin[skip+1:]
+
+        # grab the dimensions of the world and the starting
+        # tile of the path
         data = fin[0].split()
         dim = [0, 0]
         try:
@@ -83,6 +91,8 @@ class World:
             if len(data) != 4:
                 raise Exception("Invalid layout description\n" + str(dim))
             self.start_cell = (int(data[2]), int(data[3]))
+
+            # verify dimensions
             layout = []
             fin = fin[1:]
             for line in fin:
@@ -100,6 +110,8 @@ class World:
             print "Error loading world file " + layout_file + ": Invalid formatting"
             print e
             return False
+
+        # fills remaining tiles to fill world size
         row_size = self.width/self.cell_width
         col_size = self.height/self.cell_height
         filled_rows = int(dim[0])
@@ -107,11 +119,13 @@ class World:
         empty_rows = row_size - filled_rows
         empty_cols = col_size - filled_cols
         for i in range(len(layout)):
-            fill = empty_rows*'0'
+            fill = empty_rows*str(GRASS)
             layout[i] = layout[i] + fill
         for i in range(empty_cols):
-            fill = row_size*'0'
+            fill = row_size*str(GRASS)
             layout.append(fill)
+
+        # records each tile and its type
         self.layout = []
         waypoints = []
         for j in range(len(layout)):
@@ -120,9 +134,9 @@ class World:
             t_locations = []
             for i in range(len(layout[j])):
                 tile = layout[j][i]
-                if tile == '0':
+                if tile == str(GRASS):
                     img = GRASS_IMG
-                elif tile == '1':
+                elif tile == str(ROCK):
                     img = ROCK_IMG
                 else:
                     img = PATH_IMG
@@ -142,13 +156,16 @@ class World:
         for point in waypoints:
             self.waypoints.append(self.get_cell_top_left(self.loc_to_cell(point[0], point[1])))
         return True
-        
+
+    # a cell is a middle path if
+    # it is surrounded by ONLY
+    # path cells (diagonals included) 
     def cell_is_middle_path(self, i, j):
-        # a cell is a middle path if
-        # if is surrounded by ONLY
-        # path cells (diagonals included)
+        # waypoints are assumed to be placed correctly
         if self.tile_types[j][i] == WAYPOINT:
             return True
+
+        # looks in each direction
         can_top = j > 0
         can_left = i > 0
         can_right = i < self.width - 1
@@ -181,6 +198,7 @@ class World:
             return False
         return True
 
+    # finds the possible neighbors to a middle path cell
     def get_path_neighbors(self, i, j): # diagonals not included
         neighbors = []
         # check for bounds
@@ -198,10 +216,10 @@ class World:
             neighbors.append((i, j+1))
         return neighbors
 
+    # orders the waypoints in the order
+    # that they would be reached when
+    # walking the path
     def order_waypoints(self):
-        # orders the waypoints in the order
-        # that they would be reached when
-        # walking the path
         ordered_waypoints = []
         i, j = self.start_cell
         count = 0
@@ -229,10 +247,10 @@ class World:
         dx, dy = (last[0]-p[0], last[1]-p[1])
         end = (last[0]+dx*2, last[1]+dy*2)
         self.waypoints.append(end)
-        
+
+    # given how many waypoints have been reached
+    # returns the next waypoint's position
     def next_waypoint(self, num_visited):
-        # where prevs is a list of previously
-        # visited waypoints
         if num_visited > len(self.waypoints):
             return None
         elif num_visited == 0:
@@ -245,6 +263,8 @@ class World:
             for cell in row:
                 cell.paint(surface)
 
+    # returns the cell number of a cell containing
+    # a certain position
     def get_cell_at(self, position):
         for j in range(len(self.layout)):
             for i in range(len(self.layout[0])):
@@ -258,35 +278,45 @@ class World:
     def get_end(self):
         return self.waypoints[-1]
 
+    # returns the cell number corresponding to given coordinates
     def loc_to_cell(self, i, j):
         # where i is the column, j is the row
         return j*(self.width/self.cell_width) + i
 
+    # returns the coordinates corresponding to a given cell number
     def cell_to_loc(self, cell_num):
         i = cell_num%(self.width/self.cell_width)
         j = cell_num/(self.width/self.cell_width)
         return i, j
 
+    # returns the position of the top left corner
+    # of a cell specified by a given cell number
     def get_cell_top_left(self, cell_num):
         i, j = self.cell_to_loc(cell_num)
         return self.layout[j][i].get_position()
-        
+
+    # returns the position of the center of a
+    # cell specified by a given cell number
     def get_cell_center(self, cell_num):
         i, j = self.cell_to_loc(cell_num)
         return self.layout[j][i].get_center()
 
+    # returns if a given cell is a path cell
     def cell_is_path(self, cell_num):
         i, j = self.cell_to_loc(cell_num)
         return self.tile_types[j][i] == PATH or self.tile_types[j][i] == WAYPOINT
 
+    # returns if a given cell is a rock cell
     def cell_is_rock(self, cell_num):
         i, j = self.cell_to_loc(cell_num)
         return self.tile_types[j][i] == ROCK
-        
+
+    # records that a given cell is occupied 
     def occupy_cell(self, cell_num):
         i, j = self.cell_to_loc(cell_num)
         self.tower_locations[j][i] = 1
-    
+
+    # records that a group of cells is occupied
     def occupy_area(self, pos, dims):
         x_span = dims[0] / self.cell_width
         y_span = dims[1] / self.cell_height
@@ -296,10 +326,12 @@ class World:
                 cell_num = self.get_cell_at(p)
                 self.occupy_cell(cell_num)
 
+    # records that a cell is free
     def free_cell(self, cell_num):
         i, j = self.cell_to_loc(cell_num)
         self.tower_locations[j][i] = 0
 
+    # records that an group of cells is free
     def free_area(self, pos, dims):
         x_span = dims[0] / self.cell_width
         y_span = dims[1] / self.cell_height
@@ -308,16 +340,20 @@ class World:
                 p = (pos[0] + i*self.cell_width, pos[1] + j*self.cell_height)
                 cell_num = self.get_cell_at(p)
                 self.free_cell(cell_num)
-    
+
+    # returns whether or not a given cell number exists
     def has_cell(self, cell_num):
         if cell_num is None or cell_num >= (self.width/self.cell_width)*(self.height/self.cell_height):
             return False
         return True
-    
+
+    # returns whether or not a given cell is occupied
     def is_occupied(self, cell_num):
         i, j = self.cell_to_loc(cell_num)
         return self.tower_locations[j][i] == 1
 
+    # returns whether or not the cells in a
+    # certain area are buildable
     def can_build(self, pos, dims):
         # assumes that the object's size is a whole amount of tiles
         x_span = dims[0] / self.cell_width
@@ -330,12 +366,14 @@ class World:
                     return False
         return True
 
+    # returns whether or not a position is inside the world
     def is_inside(self, position):
         if position[0] >= self.position[0] and position[0] < self.position[0] + self.width:
             if position[1] >= self.position[1] and position[1] < self.position[1] + self.height:
                 return True
         return False
 
+    # prints the world to the screen in text format
     def __str__(self):
         board = ""
         for row in self.layout:

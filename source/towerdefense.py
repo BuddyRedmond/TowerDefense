@@ -30,7 +30,7 @@ class TowerDefense(game.Game):
         ### Display setup ###
         self.display = display.Display((DISPLAY_X, DISPLAY_Y), DISPLAY_WIDTH, DISPLAY_HEIGHT, DISPLAY_BG_COLOR, DISPLAY_O_COLOR)
 
-        ###  Purchaser menu setup ###
+        ### Purchaser menu setup ###
         self.menu = menu.Menu((MENU_P_X, MENU_P_Y), MENU_P_WIDTH, MENU_P_HEIGHT, MENU_P_BG_COLOR, MENU_P_O_COLOR)
             
         self.tower_types = [tower.Tower, tower.RedTower, tower.GreenTower]
@@ -80,21 +80,28 @@ class TowerDefense(game.Game):
         self.alerts = set()
         self.empty_data()
 
+    # given a creep identifier, find the index
+    # of that creep type in self.creep_types
     def get_creep_number(self, identifier):
         for i in range(len(self.creep_types)):
             if identifier == self.creep_types[i].ident:
                 return i
         return 0
 
+    # given a tower identifier, find the index
+    # of that tower type in self.tower_types
     def get_tower_number(self, identifier):
         for i in range(len(self.tower_types)):
             if identifier == self.tower_types[i].ident:
                 return i
         return 0
 
+    # reset data members for a new game
     def load_level(self, level):
         ### World setup ###
         self.world = world.World((WORLD_X, WORLD_Y), WORLD_WIDTH, WORLD_HEIGHT, level)
+
+        # reset data members
         self.towers = []
         self.money = STARTING_MONEY
         self.wave = 0
@@ -170,26 +177,46 @@ class TowerDefense(game.Game):
         self.waves = [None]
         self.menu.clear()
 
+    # waves can be started while playing, another
+    # wave exists, and the field is clear
     def can_start_wave(self):
         return self.state == TD_CLEAR and self.wave+1 <= len(self.waves)-1
 
+    # setup a rectangle to be drawn around the
+    # currently selected object
     def set_selected_rect(self):
         if self.selected_rect_set:
             return
+
+        # calculate the dimensions and the
+        # position of the selected rectangle
         dims = self.selected.get_dims()
         dims = (dims[0] + SELECTED_O_WIDTH*2, dims[1] + SELECTED_O_WIDTH*2)
         pos = self.selected.get_position()
         pos = (pos[0] - SELECTED_O_WIDTH, pos[1] - SELECTED_O_WIDTH)
         self.selected_rect = pygame.rect.Rect(pos, dims)
 
+    # paints all of the objects of the game
     def paint(self, surface):
+        # fill the screen with the background color
         surface.fill(BG_COLOR)
+
+        # if the state is set to menu
+        # draw the main menu
         if self.state == TD_MENU:
             surface.blit(self.mm_img, MM_IMG_POS)
             self.mm.paint(surface)
+
+        # if the state is set to level select
+        # draw the main menu and the level
+        # select screen
         elif self.state == TD_LEVEL_SELECT:
             self.mm.paint(surface)
             self.ls.paint(surface)
+
+        # if the game is being played
+        # draw the world, creeps, towers,
+        # and menus
         else:
             self.world.paint(surface)
 
@@ -207,15 +234,19 @@ class TowerDefense(game.Game):
                 if self.purchaser_tower is not None:
                     self.purchaser_tower.paint(surface)
 
+            # paint all of the towers
             for tower in self.towers:
-                if self.selected !=tower:
+                if self.selected != tower:
                     tower.paint(surface)
 
+            # paint the selected object and
+            # the selected rectangle
             if self.selected is not None:
                 self.selected.paint(surface)
                 self.set_selected_rect()
                 pygame.draw.rect(surface, SELECTED_O_COLOR, self.selected_rect, SELECTED_O_WIDTH)
 
+            # paint the bullets, display, and menu
             for tower in self.towers:
                 tower.paint_bullets(surface)
             self.menu.paint(surface)
@@ -236,13 +267,19 @@ class TowerDefense(game.Game):
             wave = "Waves completed: %d" %(self.waves_comp)
             temp_surface = self.font.render(wave, 1, self.font_color)
             surface.blit(temp_surface, (self.wave_x, self.wave_y))
+
+        # paint all of the alerts
         for alert in self.alerts:
             alert.paint(surface)
-            
+
+    # creates and places all of the creeps
+    # and changes the state
     def begin_wave(self):
         if not self.can_start_wave():
             return
         self.wave += 1
+
+        # create and place the creeps
         x, y = self.world.get_start()
         for i in range(CREEP_COUNT):
             for j in range(self.waves[self.wave][i]):
@@ -251,9 +288,15 @@ class TowerDefense(game.Game):
                 c.set_position((x, y))
                 c.set_destination(self.world.next_waypoint(0))
                 self.creeps.add(c)
+        
         self.state = TD_PLAYING
 
+    # returns the top-left position
+    # of the tile that the given
+    # position is on, if any
     def calc_snap_loc(self, pos):
+        # if the position is in the world
+        # find the top-left of the cell it's in
         if self.world.is_inside(pos):
                 cell_num = self.world.get_cell_at(pos)
                 snap_loc = self.world.get_cell_top_left(cell_num)
@@ -269,6 +312,8 @@ class TowerDefense(game.Game):
         self.display.add_data(item.get_info())
         self.display.activate()
 
+    # handles all of the logic of the game and
+    # its pieces
     def game_logic(self, keys, newkeys, mouse_pos, newclicks):
         # collect actions for alerts
         alerts_actions = []
@@ -278,9 +323,11 @@ class TowerDefense(game.Game):
                 if action is not None:
                     alerts_actions.append(action)
         for action in alerts_actions:
+            # if the alert expired, remove it
             if action[0] == ALERT_EXP_MESSAGE:
                 self.alerts.remove(action[1])
-        
+
+        # only collect actions from the menu if needed
         if self.state == TD_MENU:
             # collect actions for main menu
             actions = []
@@ -295,6 +342,9 @@ class TowerDefense(game.Game):
                 elif action[0] == BUTTON_QUIT_MSG:
                     self.quit = True
                     return
+
+        # only collect actions from the level select
+        # if needed
         elif self.state == TD_LEVEL_SELECT:
             # collect actions for main menu
             actions = []
@@ -310,6 +360,7 @@ class TowerDefense(game.Game):
                     
             # handle actions #
             for action in actions:
+                # load the level according to which button was pressed
                 if action[0] == BUTTON_PLAY_MSG:
                     if len(self.ls_buttons) > 0:
                         self.load_level(self.ls_buttons[0][0])
@@ -320,13 +371,20 @@ class TowerDefense(game.Game):
                     return
                 elif action[0] == BUTTON_LEVEL_MSG:
                     self.load_level(action[1])
+
+        # end the game upon failure or success
         elif self.state == TD_FAILURE or self.state == TD_SUCCESS:
             if MOUSE_LEFT in newclicks:
                 self.empty_data()
+
+        # report success if all waves were cleared
         elif self.state == TD_CLEAR and not self.can_start_wave():
             self.state = TD_SUCCESS
             self.alerts.add(alert.Alert(ALERT_SUCCESS_POS, ALERT_SUCCESS_WIDTH, ALERT_SUCCESS_HEIGHT, ALERT_SUCCESS_MESSAGE))
+
+        # continue the game
         else:
+            # report failure when all lives are lost
             if self.lives <= 0:
                 self.state = TD_FAILURE
                 self.alerts.add(alert.Alert(ALERT_FAILURE_POS, ALERT_FAILURE_WIDTH, ALERT_FAILURE_HEIGHT, ALERT_FAILURE_MESSAGE))
@@ -334,6 +392,8 @@ class TowerDefense(game.Game):
             # change the state
             if self.state == TD_PLAYING and len(self.creeps) == 0:
                 self.waves_comp += 1
+                message = ALERT_WAVE_CLEARED_MESSAGE %(self.waves_comp)
+                self.alerts.add(alert.Alert(ALERT_WAVE_CLEARED_POS, ALERT_WAVE_CLEARED_WIDTH, ALERT_WAVE_CLEARED_HEIGHT, message, True, ALERT_WAVE_CLEARED_DURATION))
                 self.state = TD_CLEAR
             
             # if we are displaying an object
@@ -352,8 +412,10 @@ class TowerDefense(game.Game):
                             self.selected.deactivate()
                         self.selected = None
                         self.sub_state = TD_IDLE
-                        self.display.deactivate() # possible refactoring 2
-            elif MOUSE_RIGHT in newclicks: # right mouse click
+                        self.display.deactivate()
+
+            # stops a tower placement
+            elif MOUSE_RIGHT in newclicks:
                 if self.sub_state == TD_FOLLOW:
                     self.purchaser_tower.deactivate()
                     self.purchaser_tower = None
@@ -361,7 +423,8 @@ class TowerDefense(game.Game):
                     self.sub_state = TD_IDLE
                     pygame.mouse.set_visible(True)
                     self.display.deactivate()
-            
+
+            # moves the creeps and handles life losing
             for creep in self.creeps:
                 if not creep.has_destination():
                     dest = self.world.next_waypoint(creep.get_visited())
@@ -379,10 +442,11 @@ class TowerDefense(game.Game):
                         creep.health = 0
                         message = ALERT_LIFE_LOST_MESSAGE %(self.lives)
                         self.alerts.add(alert.Alert(self.alert_life_lost_pos, ALERT_LIFE_LOST_WIDTH, ALERT_LIFE_LOST_HEIGHT, message, True, ALERT_LIFE_LOST_DURATION))
+
+            # if we are placing a tower
+            # snap its location to the
+            # cells of the world
             if self.sub_state == TD_FOLLOW:
-                # if we are placing a tower
-                # snap its location to the
-                # cells of the world
                 self.purchaser_tower.set_position(self.calc_snap_loc(mouse_pos))
             
             # collect actions for menu
@@ -411,6 +475,7 @@ class TowerDefense(game.Game):
                     if action is not None:
                         actions.append(action)
 
+            # when not placing a tower, the cursor is visible
             if self.sub_state != TD_FOLLOW:
                 pygame.mouse.set_visible(True)
             
@@ -452,6 +517,11 @@ class TowerDefense(game.Game):
                                 placed = True
                     if not placed:
                         self.sub_state = TD_IDLE
+                        self.display.deactivate()
+
+                    # handles placing the same type of tower
+                    # multiple times when pressing certain
+                    # buttons
                     dupe = False
                     for btn in DUPLICATE_BUTTONS:
                         if btn in keys:
@@ -463,7 +533,10 @@ class TowerDefense(game.Game):
                     else:
                         if self.selected is not None and self.selected.get_kind() == KIND_TOWER:
                             self.selected.deactivate()
-                        self.display.deactivate() # possible refactoring 2
+
+                        # creates another, identical purchaser
+                        # of the last placed tower
+                        self.display.deactivate()
                         self.selected = None
                         self.sub_state = TD_FOLLOW
                         self.purchaser_tower = action[1][1]
@@ -471,6 +544,9 @@ class TowerDefense(game.Game):
                         self.purchaser.toggle_status()
                         pygame.mouse.set_visible(False)
                         self.display_item(self.purchaser_tower)
+
+                # shows prices of each tower in the
+                # purchaser menu
                 elif action[0] == P_HOVER:
                     alert_w, alert_h = ALERT_P_HOVER_WIDTH, ALERT_P_HOVER_HEIGHT
                     # grab the purchaser's position relative
@@ -498,12 +574,11 @@ class TowerDefense(game.Game):
                     message = ALERT_P_HOVER_MESSAGE %(action[1][3])
                     a = alert.Alert((x, y), alert_w, alert_h, message, True, ALERT_P_HOVER_DURATION)
                     self.alerts.add(a)
+
+                # if we clicked on a tower stop showing the range
+                # of the previously selected tower and show this
+                # tower's range
                 elif action[0] == T_SELECTED:
-                    # if we clicked on a tower
-                    # stop showing the range
-                    # of the previously selected
-                    # tower and show this tower's
-                    # range
                     if self.sub_state == TD_FOLLOW:
                         self.purchaser_tower = None
                     if self.selected is not None and self.selected.get_kind() == KIND_TOWER:
@@ -514,20 +589,31 @@ class TowerDefense(game.Game):
                     self.display_item(self.selected)
                     self.sub_state = TD_SHOW # show new tower
                     self.display_item(self.selected)
+
+                # if a creep was clicked, display it
                 elif action[0] == C_SELECTED:
                     self.selected = action[1]
                     self.sub_state = TD_SHOW
                     self.display_item(self.selected)
+
+                # if a creep died, remove it from the game
                 elif action[0] == C_DEAD:
                     if action[1] == self.selected:
                         self.display.deactivate()
                         self.selected = None
                         self.sub_state = TD_IDLE
                     self.creeps.remove(action[1])
+
+                # if a bullet got a kill, collect the money
                 elif action[0] == B_KILL:
                     self.money += action[1]
+
+                # start a new wave when the new wave button is clicked
                 elif action[0] == BUTTON_NEW_WAVE_MSG:
                     self.begin_wave()
+
+                # upgrade the selected tower, if any, when
+                # the upgrade button is clicked
                 elif action[0] == BUTTON_UPGRADE_MSG:
                     if self.sub_state == TD_SHOW:
                         if self.selected is not None:
@@ -537,6 +623,9 @@ class TowerDefense(game.Game):
                                     self.selected.upgrade()
                                     self.money -= cost
                                     self.display_item(self.selected)
+
+                # sell the selected tower, if any, when
+                # the sell button is clicked
                 elif action[0] == BUTTON_SELL_MSG:
                     if self.sub_state == TD_SHOW:
                         if self.selected is not None:
@@ -554,8 +643,12 @@ class TowerDefense(game.Game):
                             self.sub_state = TD_IDLE
                             # update display
                             self.display.deactivate()
+
+                # reset the data when the quit button
+                # is clicked
                 elif action[0] == BUTTON_QUIT_MSG:
                     self.empty_data()
+                    
             # update the tower-to-be-placed's range based
             # on whether or not it can be placed currently
             if self.purchaser_tower is not None:

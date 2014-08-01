@@ -14,8 +14,10 @@ X Unbuildable areas
 
 - Balance towers, creeps, money
 
+- Possibly reorganize tower placing procedure to make the towerdefense game logic do the work. Purchaser only reports clicks
+
 X Clean up
 
-- Clean up (towerdefense.py and world.py)
+X Clean up (towerdefense.py and world.py)
 
 - Clean up!
