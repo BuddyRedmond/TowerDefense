@@ -18,14 +18,18 @@ class Rectangle(item.Item):
         self.image = pygame.image.load(image)
         self.width = width
         self.height = height
-        
+
+    # returns whether or not two rectangles are overlapping
     def collide(self, other):
+        # calculate the points of the other rectangle
         other_pos = other.get_position()
         other_width, other_height = other.get_dims()
         c1 = other_pos
         c2 = (other_pos[0] + other_width, other_pos[1])
         c3 = (other_pos[0] + other_width, other_pos[1] + other_height)
         c4 = (other_pos[0], other_pos[1] + other_height)
+
+        # test each corner to see if it is inside the rectangle
         if self.is_inside(c1) or self.is_inside(c2) or self.is_inside(c3) or self.is_inside(c4):
             return True
         return False

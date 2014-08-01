@@ -1,3 +1,14 @@
+# Healthbar class
+#
+# Displays the health of an object
+# with a red rectangle, representing
+# the total health, under a green
+# rectangle, representing the current
+# health
+#
+# 2014/6/12
+# written by Michael Shawn Redmond
+
 import pygame
 from config import *
 
@@ -13,10 +24,14 @@ class Healthbar:
         self.color = HEALTH_BAR_COLOR
         self.place_bar()
 
+    # creates the rectangles that represent the health
     def place_bar(self):
         self.bg = pygame.rect.Rect(self.position, (self.width, self.height))
         self.current = pygame.rect.Rect(self.position, (self.current_width, self.height))
 
+    # updates the current healthbar's width
+    # to show the appropriate percentage
+    # of health remaining
     def update_health(self, value):
         if self.current_health != value:
             self.current_health = value

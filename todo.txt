@@ -1,6 +1,6 @@
 - Sound effects / music
 
-- Unbuildable areas
+X Unbuildable areas
 
 - Traps on path (mud or something)
 
@@ -14,8 +14,8 @@
 
 - Balance towers, creeps, money
 
-- Clean up
+X Clean up
 
-- Clean up
+- Clean up (towerdefense.py and world.py)
 
 - Clean up!

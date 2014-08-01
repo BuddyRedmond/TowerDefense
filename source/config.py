@@ -185,6 +185,8 @@ KIND_BULLET = 35
 # alert #
 ALERT_EXP_MESSAGE = 36
 
+################
+
 # Healthbar #
 HEALTH_BAR_WIDTH = 20
 HEALTH_BAR_HEIGHT = 5
@@ -195,6 +197,7 @@ HEALTH_BAR_MARGIN = 3
 # Tower #
 RANGE_COLOR = (50, 255, 50, 125)
 RANGE_BAD_COLOR = (255, 50, 50, 125)
+TOWER_SELL_RATE = .85
 
 TOWER_RED_IMAGE = TOWER_PATH + "basic.png"
 TOWER_RED_NAME = "Red Tower"

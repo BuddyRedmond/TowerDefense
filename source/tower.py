@@ -15,7 +15,9 @@ import bullet
 import time
 
 class Tower(rectangle.Rectangle):
+    # tower identifier used for reading map file
     ident = "".join(TOWER_DEFAULT_NAME.split()).lower()
+    
     def __init__(self, position, width=TOWER_DEFAULT_WIDTH, height=TOWER_DEFAULT_HEIGHT, image=TOWER_DEFAULT_IMAGE, name=TOWER_DEFAULT_NAME, rng=TOWER_DEFAULT_RANGE, cost=TOWER_DEFAULT_COST, atk_speed=TOWER_DEFAULT_ATK_SPEED):
         rectangle.Rectangle.__init__(self, KIND_TOWER, position, width, height, image)
         self.cost = cost
@@ -67,7 +69,7 @@ class Tower(rectangle.Rectangle):
         return total_cost
 
     def get_sell_amount(self):
-        rounded = "%.2f" %(self.get_total_cost()*.85)
+        rounded = "%.2f" %(self.get_total_cost()*TOWER_SELL_RATE)
         return float(rounded)
 
     def upgrade(self):
@@ -174,6 +176,7 @@ class Tower(rectangle.Rectangle):
     def can_attack(self):
         return time.time() - self.last_attack >= 1.0/self.atk_speed[self.level]
 
+    # create a bullet and set its target
     def attack(self, target):
         b = self.bullet_type(self.get_center(), self.bullet_width, self.bullet_height, self.bullet_image, self.bullet_damage[self.level], self.bullet_speed)
         b.set_target(target)
@@ -190,9 +193,12 @@ class Tower(rectangle.Rectangle):
             bullet.paint(surface)
         
     def game_logic(self, keys, newkeys, mouse_pos, newclicks, creeps):
+        # if the target no longer exists, forget about it
         if self.target is not None and self.target.is_dead():
             self.target = None
 
+        # call the tower's bullets' game logic methods
+        # and collect the actions
         bullets_actions = []
         for bullet in self.bullets:
             bullet_actions = bullet.game_logic(keys, newkeys, mouse_pos, newclicks)
@@ -206,12 +212,13 @@ class Tower(rectangle.Rectangle):
             if action[0] == B_KILL:
                 actions.append(action)
         
-        # assumes that creeps is a list
-        # of objects that have a position
         if self.is_inside(mouse_pos):
             if MOUSE_LEFT in newclicks:
                 actions.append((T_SELECTED, self))
 
+        # attacks a target, finds a target if none exist
+        # assumes that creeps is a list
+        # of objects that have a position
         if self.can_attack():
             if self.target is not None and self.is_in_range(self.target.get_center()):
                 self.attack(self.target)
@@ -224,6 +231,8 @@ class Tower(rectangle.Rectangle):
                         break # only attack one creep at a time
         return actions
 
+# Tower specific child classes
+# Only changes needed are dimensions, name, range, image, cost and attack speed
 class RedTower(Tower):
     ident = "".join(TOWER_RED_NAME.split()).lower()
     def __init__(self, position):
