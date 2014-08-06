@@ -1,6 +1,7 @@
 200
 15
 redtower greentower
+mud
 3
 redcreep redcreep redcreep  redcreep  redcreep  redcreep  redcreep  redcreep  redcreep  redcreep  yellowcreep yellowcreep yellowcreep
 redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep  redcreep  redcreep  redcreep  redcreep  redcreep  redcreep  redcreep  yellowcreep yellowcreep yellowcreep yellowcreep yellowcreep yellowcreep yellowcreep

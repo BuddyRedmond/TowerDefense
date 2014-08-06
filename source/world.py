@@ -20,7 +20,7 @@ class World:
         self.height = self.safe_assign("Height", height, int, WORLD_DEFAULT_HEIGHT)
         self.cell_width = TILE_WIDTH
         self.cell_height = TILE_HEIGHT
-        self.tower_locations = []
+        self.occupied_locations = []
         self.layout = []
         self.tile_types = []
         self.waypoints = []
@@ -77,7 +77,7 @@ class World:
         f.close()
 
         # skip past the non-world data
-        fin = fin[3:] # skips money, lives, and towers
+        fin = fin[4:] # skips money, lives, and towers
         skip = int(fin[0])
         fin = fin[skip+1:]
 
@@ -152,7 +152,7 @@ class World:
                 r_row.append(rectangle.Rectangle(KIND_TILE, (x, y), self.cell_width, self.cell_height, img))
             self.layout.append(r_row)
             self.tile_types.append(t_row)
-            self.tower_locations.append(t_locations)
+            self.occupied_locations.append(t_locations)
         for point in waypoints:
             self.waypoints.append(self.get_cell_top_left(self.loc_to_cell(point[0], point[1])))
         return True
@@ -314,7 +314,7 @@ class World:
     # records that a given cell is occupied 
     def occupy_cell(self, cell_num):
         i, j = self.cell_to_loc(cell_num)
-        self.tower_locations[j][i] = 1
+        self.occupied_locations[j][i] = 1
 
     # records that a group of cells is occupied
     def occupy_area(self, pos, dims):
@@ -329,7 +329,7 @@ class World:
     # records that a cell is free
     def free_cell(self, cell_num):
         i, j = self.cell_to_loc(cell_num)
-        self.tower_locations[j][i] = 0
+        self.occupied_locations[j][i] = 0
 
     # records that an group of cells is free
     def free_area(self, pos, dims):
@@ -350,11 +350,11 @@ class World:
     # returns whether or not a given cell is occupied
     def is_occupied(self, cell_num):
         i, j = self.cell_to_loc(cell_num)
-        return self.tower_locations[j][i] == 1
+        return self.occupied_locations[j][i] == 1
 
     # returns whether or not the cells in a
     # certain area are buildable
-    def can_build(self, pos, dims):
+    def can_build_tower(self, pos, dims):
         # assumes that the object's size is a whole amount of tiles
         x_span = dims[0] / self.cell_width
         y_span = dims[1] / self.cell_height
@@ -363,6 +363,21 @@ class World:
                 p = (pos[0] + i*self.cell_width, pos[1] + j*self.cell_height)
                 cell_num = self.get_cell_at(p)
                 if not self.has_cell(cell_num) or self.cell_is_path(cell_num) or self.is_occupied(cell_num) or self.cell_is_rock(cell_num):
+                    return False
+        return True
+
+    def can_build_trap(self, pos, dims):
+        # assumes that the object's size is a whole amount of tiles
+        x_span = dims[0] / self.cell_width
+        y_span = dims[1] / self.cell_height
+        for i in range(x_span):
+            for j in range(y_span):
+                p = (pos[0] + i*self.cell_width, pos[1] + j*self.cell_height)
+                cell_num = self.get_cell_at(p)
+                if not self.has_cell(cell_num):
+                    return False
+                i, j = self.cell_to_loc(cell_num)
+                if not self.cell_is_middle_path(i, j) or self.is_occupied(cell_num) or self.cell_is_rock(cell_num):
                     return False
         return True
 

@@ -58,7 +58,12 @@ class Creep(rectangle.Rectangle):
         info.append(line)
         line = "Value: $%s" %(self.value)
         info.append(line)
+        line = "Speed: %.2f" %(self.speed*self.speed_modifier)
+        info.append(line)
         return info
+
+    def slow(self, amount):
+        self.speed_modifier *= amount
 
     # handles collision
     def hit(self, damage):
@@ -128,6 +133,7 @@ class Creep(rectangle.Rectangle):
         if self.health <= 0:
             actions.append((C_DEAD, self))
         self.move()
+        self.speed_modifier = 1
         return actions
 
 # Creep specific child classes

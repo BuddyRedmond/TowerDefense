@@ -7,7 +7,7 @@
 # written by Michael Shawn Redmond
 
 import rectangle
-import towerpurchaser
+import purchaser
 import button
 import pygame
 from config import *
@@ -79,7 +79,7 @@ class Menu(rectangle.Rectangle):
         # of type purchaser
         tower = towertype((0, 0))
         pos = self.next_item_position(tower)
-        self.items.append(towerpurchaser.TowerPurchaser(pos, towertype, tower.get_width(), tower.get_height()))
+        self.items.append(purchaser.Purchaser(pos, towertype, tower.get_width(), tower.get_height()))
 
     def paint(self, surface):
         # create a surface for the menu and fill

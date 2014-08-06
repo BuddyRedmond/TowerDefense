@@ -2,7 +2,7 @@
 
 X Unbuildable areas
 
-- Traps on path (mud or something)
+X Traps on path (mud or something)
 
 - Add creep defenses/resistances
 

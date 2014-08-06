@@ -16,6 +16,7 @@ import game
 import creep
 import world
 import tower
+import trap
 import menu
 import button
 import display
@@ -35,6 +36,11 @@ class TowerDefense(game.Game):
             
         self.tower_types = [tower.Tower, tower.RedTower, tower.GreenTower]
 
+        ### Trap menu setup ###
+        self.trap_menu = menu.Menu((MENU_TRAP_X, MENU_TRAP_Y), MENU_TRAP_WIDTH, MENU_TRAP_HEIGHT, MENU_TRAP_BG_COLOR, MENU_TRAP_O_COLOR)
+
+        self.trap_types = [trap.Mud]
+        
         ### Button menu setup ###
         self.b_menu = menu.Menu((MENU_B_X, MENU_B_Y), MENU_B_WIDTH, MENU_B_HEIGHT, MENU_B_BG_COLOR, MENU_B_O_COLOR)
         
@@ -96,6 +102,14 @@ class TowerDefense(game.Game):
                 return i
         return 0
 
+    # given a trap identifier, find the index
+    # of that trap type in self.trap_types
+    def get_trap_number(self, identifier):
+        for i in range(len(self.trap_types)):
+            if identifier == self.trap_types[i].ident:
+                return i
+        return 0
+
     # reset data members for a new game
     def load_level(self, level):
         ### World setup ###
@@ -103,6 +117,7 @@ class TowerDefense(game.Game):
 
         # reset data members
         self.towers = []
+        self.traps = []
         self.money = STARTING_MONEY
         self.wave = 0
         self.wave_comp = 0
@@ -110,7 +125,7 @@ class TowerDefense(game.Game):
         self.creeps = set()
         self.state = TD_CLEAR
         self.sub_state = TD_IDLE
-        self.purchaser_tower = None
+        self.purchaser_object = None
         self.purchaser = None
         self.selected = None
         self.selected_rect = pygame.rect.Rect((0, 0), (0, 0))
@@ -140,6 +155,14 @@ class TowerDefense(game.Game):
             self.menu.add_purchaser(self.tower_types[tower_number])
         fin = fin[3:]
 
+        # setup traps
+        self.trap_menu.clear()
+        traps = fin[0].split()
+        for identifier in traps:
+            trap_number = self.get_trap_number(identifier)
+            self.trap_menu.add_purchaser(self.trap_types[trap_number])
+        fin = fin[1:]
+
         # setup waves
         self.waves = [None]
         # parse waves
@@ -159,6 +182,7 @@ class TowerDefense(game.Game):
         # initialize empty values #
         self.world = None
         self.towers = []
+        self.traps = []
         self.money = 0
         self.wave = 0
         self.waves_comp = 0
@@ -166,7 +190,7 @@ class TowerDefense(game.Game):
         self.creeps = set()
         self.state = TD_MENU
         self.sub_state = TD_IDLE
-        self.purchaser_tower = None
+        self.purchaser_object = None
         self.purchaser = None
         self.selected = None
         self.selected_rect = pygame.rect.Rect((0, 0), (0, 0))
@@ -220,6 +244,11 @@ class TowerDefense(game.Game):
         else:
             self.world.paint(surface)
 
+            # paint all of the traps
+            for trap in self.traps:
+                if self.selected != trap:
+                    trap.paint(surface)
+            
             # paint all of the creeps
             for creep in self.creeps:
                 if self.selected != creep:
@@ -231,8 +260,8 @@ class TowerDefense(game.Game):
 
             # paint the purchaser if there is one
             if self.sub_state == TD_FOLLOW:
-                if self.purchaser_tower is not None:
-                    self.purchaser_tower.paint(surface)
+                if self.purchaser_object is not None:
+                    self.purchaser_object.paint(surface)
 
             # paint all of the towers
             for tower in self.towers:
@@ -250,6 +279,7 @@ class TowerDefense(game.Game):
             for tower in self.towers:
                 tower.paint_bullets(surface)
             self.menu.paint(surface)
+            self.trap_menu.paint(surface)
             self.display.paint(surface)
             self.b_menu.paint(surface)
 
@@ -417,8 +447,8 @@ class TowerDefense(game.Game):
             # stops a tower placement
             elif MOUSE_RIGHT in newclicks:
                 if self.sub_state == TD_FOLLOW:
-                    self.purchaser_tower.deactivate()
-                    self.purchaser_tower = None
+                    self.purchaser_object.deactivate()
+                    self.purchaser_object = None
                     self.selected = None
                     self.sub_state = TD_IDLE
                     pygame.mouse.set_visible(True)
@@ -447,12 +477,18 @@ class TowerDefense(game.Game):
             # snap its location to the
             # cells of the world
             if self.sub_state == TD_FOLLOW:
-                self.purchaser_tower.set_position(self.calc_snap_loc(mouse_pos))
+                self.purchaser_object.set_position(self.calc_snap_loc(mouse_pos))
             
-            # collect actions for menu
+            # collect actions for tower menu
             actions = []
             menu_actions = self.menu.game_logic(keys, newkeys, mouse_pos, newclicks)
             for action in menu_actions:
+                if action is not None:
+                    actions.append(action)
+
+            # collect actions for trap menu
+            trap_menu_actions = self.trap_menu.game_logic(keys, newkeys, mouse_pos, newclicks)
+            for action in trap_menu_actions:
                 if action is not None:
                     actions.append(action)
 
@@ -475,6 +511,13 @@ class TowerDefense(game.Game):
                     if action is not None:
                         actions.append(action)
 
+            # collect actions for traps
+            for trap in self.traps:
+                trap_actions = trap.game_logic(keys, newkeys, mouse_pos, newclicks, self.creeps)
+                for action in trap_actions:
+                    if action is not None:
+                        actions.append(action)
+
             # when not placing a tower, the cursor is visible
             if self.sub_state != TD_FOLLOW:
                 pygame.mouse.set_visible(True)
@@ -488,33 +531,55 @@ class TowerDefense(game.Game):
                     if self.sub_state == TD_SHOW:
                         if self.selected is not None and self.selected.get_kind() == KIND_TOWER:
                             self.selected.deactivate()
-                        self.display.deactivate() # possible refactoring 2
+                        self.display.deactivate()
                         self.selected = None
                     self.sub_state = TD_FOLLOW
                     self.purchaser = action[1][0]
-                    self.purchaser_tower = action[1][1]
-                    self.purchaser_tower.activate()
+                    self.purchaser_object = action[1][1]
+                    self.purchaser_object.activate()
                     pygame.mouse.set_visible(False)
-                    self.display_item(self.purchaser_tower)
+                    self.display_item(self.purchaser_object)
                 elif action[0] == P_PLACE:
-                    if self.purchaser_tower is None:
+                    if self.purchaser_object is None:
                         break
-                    # verify ability to place tower
-                    f_pos = self.calc_snap_loc(mouse_pos)
-                    f_dims = self.purchaser_tower.get_dims()
-                    cell_num = self.world.get_cell_at(f_pos)
+
                     placed = False
-                    if self.world.has_cell(cell_num):
-                        if self.purchaser_tower.get_cost() <= self.money:
-                            if self.world.can_build(f_pos, f_dims):
-                                self.world.occupy_area(f_pos, f_dims)
-                                self.purchaser_tower.activate()
-                                self.towers.append(self.purchaser_tower)
-                                self.money -= self.purchaser_tower.get_cost()
-                                self.selected = self.purchaser_tower
-                                self.sub_state = TD_SHOW # show new tower
-                                self.display_item(self.selected)
-                                placed = True
+                    # placing a tower
+                    if self.purchaser_object.kind == KIND_TOWER:
+                        # verify ability to place tower
+                        f_pos = self.calc_snap_loc(mouse_pos)
+                        f_dims = self.purchaser_object.get_dims()
+                        cell_num = self.world.get_cell_at(f_pos)
+                        if self.world.has_cell(cell_num):
+                            if self.purchaser_object.get_cost() <= self.money:
+                                if self.world.can_build_tower(f_pos, f_dims):
+                                    self.world.occupy_area(f_pos, f_dims)
+                                    self.purchaser_object.activate()
+                                    self.towers.append(self.purchaser_object)
+                                    self.money -= self.purchaser_object.get_cost()
+                                    self.selected = self.purchaser_object
+                                    self.sub_state = TD_SHOW # show new tower
+                                    self.display_item(self.selected)
+                                    placed = True
+
+                    # placing a trap
+                    elif self.purchaser_object.kind == KIND_TRAP:
+                        # verify ability to place tower
+                        f_pos = self.calc_snap_loc(mouse_pos)
+                        f_dims = self.purchaser_object.get_dims()
+                        cell_num = self.world.get_cell_at(f_pos)
+                        if self.world.has_cell(cell_num):
+                            if self.purchaser_object.get_cost() <= self.money:
+                                if self.world.can_build_trap(f_pos, f_dims):
+                                    self.world.occupy_area(f_pos, f_dims)
+                                    self.purchaser_object.activate()
+                                    self.traps.append(self.purchaser_object)
+                                    self.money -= self.purchaser_object.get_cost()
+                                    self.selected = self.purchaser_object
+                                    self.sub_state = TD_SHOW # show new trap
+                                    self.display_item(self.selected)
+                                    placed = True
+                        
                     if not placed:
                         self.sub_state = TD_IDLE
                         self.display.deactivate()
@@ -528,7 +593,7 @@ class TowerDefense(game.Game):
                             dupe = True
                             break
                     if not dupe:
-                        self.purchaser_tower = None
+                        self.purchaser_object = None
                         pygame.mouse.set_visible(True)
                     else:
                         if self.selected is not None and self.selected.get_kind() == KIND_TOWER:
@@ -539,13 +604,13 @@ class TowerDefense(game.Game):
                         self.display.deactivate()
                         self.selected = None
                         self.sub_state = TD_FOLLOW
-                        self.purchaser_tower = action[1][1]
-                        self.purchaser_tower.activate()
+                        self.purchaser_object = action[1][1]
+                        self.purchaser_object.activate()
                         self.purchaser.toggle_status()
                         pygame.mouse.set_visible(False)
-                        self.display_item(self.purchaser_tower)
+                        self.display_item(self.purchaser_object)
 
-                # shows prices of each tower in the
+                # shows prices of each object in the
                 # purchaser menu
                 elif action[0] == P_HOVER:
                     alert_w, alert_h = ALERT_P_HOVER_WIDTH, ALERT_P_HOVER_HEIGHT
@@ -553,7 +618,10 @@ class TowerDefense(game.Game):
                     # to the menu
                     x, y = action[1][0]
                     # grab the menu's position
-                    mx, my = self.menu.get_position()
+                    if action[1][4] == KIND_TRAP:
+                        mx, my = self.trap_menu.get_position()
+                    else:
+                        mx, my = self.menu.get_position()
                     # use the menu and purchaser positions
                     # to properly place the alert
                     w, h = action[1][1], action[1][2]
@@ -580,7 +648,7 @@ class TowerDefense(game.Game):
                 # tower's range
                 elif action[0] == T_SELECTED:
                     if self.sub_state == TD_FOLLOW:
-                        self.purchaser_tower = None
+                        self.purchaser_object = None
                     if self.selected is not None and self.selected.get_kind() == KIND_TOWER:
                         self.selected.deactivate()
                     self.selected = None
@@ -651,8 +719,14 @@ class TowerDefense(game.Game):
                     
             # update the tower-to-be-placed's range based
             # on whether or not it can be placed currently
-            if self.purchaser_tower is not None:
-                if not self.world.can_build(self.purchaser_tower.get_position(), self.purchaser_tower.get_dims()):
-                    self.purchaser_tower.bad_pos()
-                else:
-                    self.purchaser_tower.good_pos()
+            if self.purchaser_object is not None:
+                if self.purchaser_object.kind == KIND_TOWER:
+                    if not self.world.can_build_tower(self.purchaser_object.get_position(), self.purchaser_object.get_dims()):
+                        self.purchaser_object.bad_pos()
+                    else:
+                        self.purchaser_object.good_pos()
+                elif self.purchaser_object.kind == KIND_TRAP:
+                    if not self.world.can_build_trap(self.purchaser_object.get_position(), self.purchaser_object.get_dims()):
+                        self.purchaser_object.bad_pos()
+                    else:
+                        self.purchaser_object.good_pos()
