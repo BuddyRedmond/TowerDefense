@@ -50,9 +50,9 @@ class Alert():
         # and keep doing so until all pieces will fit
         while self.font.size(messages[-1])[0] > self.width - 2*self.margin_x:
             # m1 is the next line to be added
-            m1 = messages[-1][:-1]
+            m1 = messages[-1][:]
             # m2 is anything left over after m1 is removed
-            m2 = messages[-1][-1]
+            m2 = ""
 
             # while we have room on the line, take a character
             # from m2 and place it in m1

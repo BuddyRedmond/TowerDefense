@@ -19,12 +19,12 @@ class Display(rectangle.Rectangle):
         self.o_color = o_color
         self.data = []
         self.active = False
-        self.left_margin = DISPLAY_MARGIN_LEFT
-        self.top_margin = DISPLAY_MARGIN_TOP
+        self.margin_x = DISPLAY_MARGIN_LEFT
+        self.margin_y = DISPLAY_MARGIN_TOP
 
         # data members for the item's display information
         self.item_image = None
-        self.item_image_x = self.left_margin
+        self.item_image_x = self.margin_x
         self.item_image_y = 0
         self.data_x = self.width/3
 
@@ -33,14 +33,45 @@ class Display(rectangle.Rectangle):
         self.font_color = DISPLAY_FONT_COLOR
         self.centered = False
 
-    def add_data(self, data): # data is a list: [(key1, val1), (key2, val2)...]
+    def format_datum(self, datum):
+        lines = [datum]
+        width = self.width - self.data_x - self.margin_x
+        # format the details to fit in the display area
+        while self.font.size(lines[-1])[0] > width:
+            # m1 is the next line to be added
+            m1 = lines[-1][:]
+            # m2 is anything left over after m1 is removed
+            m2 = ""
+
+            # while we have room on the line, take a character
+            # from m2 and place it in m1
+            while self.font.size(m1)[0] > width:
+                word = m1[-1]
+                m1 = m1[:-1]
+
+                # remove "words" to avoid multi-line words
+                # "words" are determined by whitespace
+                while not m1[-1].isspace():
+                    word = m1[-1] + word
+                    m1 = m1[:-1]
+                    if len(m1) == 0:
+                        break
+                m2 = word + ' ' + m2
+                m1 = m1[:-1]
+            lines[-1] = m1
+            lines.append(m2)
+        return lines
+
+    def add_data(self, data):
         for datum in data:
-            self.add_datum(datum)
+            lines = self.format_datum(datum)
+            for line in lines:
+                self.add_datum(line)
 
     # adds one piece of data at a time, calculating its positon
     def add_datum(self, datum):
         self.data.append(datum)
-        self.data_ys.append(self.top_margin + (len(self.data)-1)*self.font_height)
+        self.data_ys.append(self.margin_y + (len(self.data)-1)*self.font_height)
 
     # begins showing the item
     def activate(self):

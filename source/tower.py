@@ -82,36 +82,36 @@ class Tower(rectangle.Rectangle):
 
     def get_info(self):
         info = []
-        line = "Tower: %s" %(self.name)
+        line = "%s" %(self.name)
         info.append(line)
         line = "Level: %d" %(self.level+1)
         info.append(line)
 
-        line = "Cost to current level: %s" %(self.get_total_cost())
-        info.append(line)
-        line = "Sell value: $%.2f" %(self.get_sell_amount())
-        info.append(line)
+##        line = "Cost to current level: %s" %(self.get_total_cost())
+##        info.append(line)
 
         # only show the stats of the next level
         # if the tower can be upgraded
         if not self.can_be_upgraded():
-            line = "Cost to upgrade: N/A"
+            line = "Damage: %s" %(self.bullet_damage[self.level])
             info.append(line)
             line = "Range: %s" %(self.range[self.level])
             info.append(line)
             line = "AS: %s/sec" %(self.atk_speed[self.level])
             info.append(line)
-            line = "Damage: %s" %(self.bullet_damage[self.level])
+            line = "Cost to upgrade: N/A"
             info.append(line)
         else:
-            line = "Cost to upgrade: $%s" %(self.cost[self.level+1])
+            line = "Damage: %s (->%s)" %(self.bullet_damage[self.level], self.bullet_damage[self.level+1])
             info.append(line)
             line = "Range: %s (->%s)" %(self.range[self.level], self.range[self.level+1])
             info.append(line)
             line = "AS: %s/sec (->%s)" %(self.atk_speed[self.level], self.atk_speed[self.level+1])
             info.append(line)
-            line = "Damage: %s (->%s)" %(self.bullet_damage[self.level], self.bullet_damage[self.level+1])
+            line = "Cost to upgrade: $%s" %(self.cost[self.level+1])
             info.append(line)
+        line = "Sell value: $%.2f" %(self.get_sell_amount())
+        info.append(line)
         return info
 
     def get_cost(self):

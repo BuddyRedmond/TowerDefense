@@ -14,7 +14,7 @@ X Traps on path (mud or something)
 
 - Balance towers, creeps, money
 
-- Possibly reorganize tower placing procedure to make the towerdefense game logic do the work. Purchaser only reports clicks
+- Give the creeps the list of destinations to increase movement efficiency
 
 X Clean up
 

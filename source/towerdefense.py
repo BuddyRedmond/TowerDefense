@@ -244,6 +244,29 @@ class TowerDefense(game.Game):
         else:
             self.world.paint(surface)
 
+            # paint the bullets, display, and menu
+            for tower in self.towers:
+                tower.paint_bullets(surface)
+            self.menu.paint(surface)
+            self.trap_menu.paint(surface)
+            self.display.paint(surface)
+            self.b_menu.paint(surface)
+
+            ### show money ###
+            currency = "Current money: $%s" %(self.money)
+            temp_surface = self.font.render(currency, 1, self.font_color)
+            surface.blit(temp_surface, (self.money_x, self.money_y))
+
+            ### show lives ###
+            lives = "Number of Lives: %d" %(self.lives)
+            temp_surface = self.font.render(lives, 1, self.font_color)
+            surface.blit(temp_surface, (self.lives_x, self.lives_y))
+
+            ### show wave number ###
+            wave = "Waves completed: %d" %(self.waves_comp)
+            temp_surface = self.font.render(wave, 1, self.font_color)
+            surface.blit(temp_surface, (self.wave_x, self.wave_y))
+
             # paint all of the traps
             for trap in self.traps:
                 if self.selected != trap:
@@ -274,29 +297,6 @@ class TowerDefense(game.Game):
                 self.selected.paint(surface)
                 self.set_selected_rect()
                 pygame.draw.rect(surface, SELECTED_O_COLOR, self.selected_rect, SELECTED_O_WIDTH)
-
-            # paint the bullets, display, and menu
-            for tower in self.towers:
-                tower.paint_bullets(surface)
-            self.menu.paint(surface)
-            self.trap_menu.paint(surface)
-            self.display.paint(surface)
-            self.b_menu.paint(surface)
-
-            ### show money ###
-            currency = "Current money: $%s" %(self.money)
-            temp_surface = self.font.render(currency, 1, self.font_color)
-            surface.blit(temp_surface, (self.money_x, self.money_y))
-
-            ### show lives ###
-            lives = "Number of Lives: %d" %(self.lives)
-            temp_surface = self.font.render(lives, 1, self.font_color)
-            surface.blit(temp_surface, (self.lives_x, self.lives_y))
-
-            ### show wave number ###
-            wave = "Waves completed: %d" %(self.waves_comp)
-            temp_surface = self.font.render(wave, 1, self.font_color)
-            surface.blit(temp_surface, (self.wave_x, self.wave_y))
 
         # paint all of the alerts
         for alert in self.alerts:
@@ -481,16 +481,24 @@ class TowerDefense(game.Game):
             
             # collect actions for tower menu
             actions = []
+            # separate list for placing items
+            actions_placing = []
             menu_actions = self.menu.game_logic(keys, newkeys, mouse_pos, newclicks)
             for action in menu_actions:
                 if action is not None:
-                    actions.append(action)
+                    if action[0] == P_PLACE:
+                        actions_placing.append(action)
+                    else:
+                        actions.append(action)
 
             # collect actions for trap menu
             trap_menu_actions = self.trap_menu.game_logic(keys, newkeys, mouse_pos, newclicks)
             for action in trap_menu_actions:
                 if action is not None:
-                    actions.append(action)
+                    if action[0] == P_PLACE:
+                        actions_placing.append(action)
+                    else:
+                        actions.append(action)
 
             b_menu_actions = self.b_menu.game_logic(keys, newkeys, mouse_pos, newclicks)
             for action in b_menu_actions:
@@ -523,6 +531,76 @@ class TowerDefense(game.Game):
                 pygame.mouse.set_visible(True)
             
             # handle actions
+            for action in actions_placing:
+                if self.purchaser_object is None:
+                        break
+                placed = False
+                # placing a tower
+                if self.purchaser_object.kind == KIND_TOWER:
+                    # verify ability to place tower
+                    f_pos = self.calc_snap_loc(mouse_pos)
+                    f_dims = self.purchaser_object.get_dims()
+                    cell_num = self.world.get_cell_at(f_pos)
+                    if self.world.has_cell(cell_num):
+                        if self.purchaser_object.get_cost() <= self.money:
+                            if self.world.can_build_tower(f_pos, f_dims):
+                                self.world.occupy_area(f_pos, f_dims)
+                                self.purchaser_object.activate()
+                                self.towers.append(self.purchaser_object)
+                                self.money -= self.purchaser_object.get_cost()
+                                self.selected = self.purchaser_object
+                                self.sub_state = TD_SHOW # show new tower
+                                self.display_item(self.selected)
+                                placed = True
+
+                # placing a trap
+                elif self.purchaser_object.kind == KIND_TRAP:
+                    # verify ability to place tower
+                    f_pos = self.calc_snap_loc(mouse_pos)
+                    f_dims = self.purchaser_object.get_dims()
+                    cell_num = self.world.get_cell_at(f_pos)
+                    if self.world.has_cell(cell_num):
+                        if self.purchaser_object.get_cost() <= self.money:
+                            if self.world.can_build_trap(f_pos, f_dims):
+                                self.world.occupy_area(f_pos, f_dims)
+                                self.purchaser_object.activate()
+                                self.traps.append(self.purchaser_object)
+                                self.money -= self.purchaser_object.get_cost()
+                                self.selected = self.purchaser_object
+                                self.sub_state = TD_SHOW # show new trap
+                                self.display_item(self.selected)
+                                placed = True
+                    
+                if not placed:
+                    self.sub_state = TD_IDLE
+                    self.display.deactivate()
+
+                # handles placing the same type of tower
+                # multiple times when pressing certain
+                # buttons
+                dupe = False
+                for btn in DUPLICATE_BUTTONS:
+                    if btn in keys:
+                        dupe = True
+                        break
+                if not dupe:
+                    self.purchaser_object = None
+                    pygame.mouse.set_visible(True)
+                else:
+                    if self.selected is not None and self.selected.get_kind() == KIND_TOWER:
+                        self.selected.deactivate()
+
+                    # creates another, identical purchaser
+                    # of the last placed tower
+                    self.display.deactivate()
+                    self.selected = None
+                    self.sub_state = TD_FOLLOW
+                    self.purchaser_object = action[1][1]
+                    self.purchaser_object.activate()
+                    self.purchaser.toggle_status()
+                    pygame.mouse.set_visible(False)
+                    self.display_item(self.purchaser_object)
+                
             for action in actions:
                 if action[0] == P_FOLLOW:
                     # if we clicked on a menu item
@@ -539,76 +617,6 @@ class TowerDefense(game.Game):
                     self.purchaser_object.activate()
                     pygame.mouse.set_visible(False)
                     self.display_item(self.purchaser_object)
-                elif action[0] == P_PLACE:
-                    if self.purchaser_object is None:
-                        break
-
-                    placed = False
-                    # placing a tower
-                    if self.purchaser_object.kind == KIND_TOWER:
-                        # verify ability to place tower
-                        f_pos = self.calc_snap_loc(mouse_pos)
-                        f_dims = self.purchaser_object.get_dims()
-                        cell_num = self.world.get_cell_at(f_pos)
-                        if self.world.has_cell(cell_num):
-                            if self.purchaser_object.get_cost() <= self.money:
-                                if self.world.can_build_tower(f_pos, f_dims):
-                                    self.world.occupy_area(f_pos, f_dims)
-                                    self.purchaser_object.activate()
-                                    self.towers.append(self.purchaser_object)
-                                    self.money -= self.purchaser_object.get_cost()
-                                    self.selected = self.purchaser_object
-                                    self.sub_state = TD_SHOW # show new tower
-                                    self.display_item(self.selected)
-                                    placed = True
-
-                    # placing a trap
-                    elif self.purchaser_object.kind == KIND_TRAP:
-                        # verify ability to place tower
-                        f_pos = self.calc_snap_loc(mouse_pos)
-                        f_dims = self.purchaser_object.get_dims()
-                        cell_num = self.world.get_cell_at(f_pos)
-                        if self.world.has_cell(cell_num):
-                            if self.purchaser_object.get_cost() <= self.money:
-                                if self.world.can_build_trap(f_pos, f_dims):
-                                    self.world.occupy_area(f_pos, f_dims)
-                                    self.purchaser_object.activate()
-                                    self.traps.append(self.purchaser_object)
-                                    self.money -= self.purchaser_object.get_cost()
-                                    self.selected = self.purchaser_object
-                                    self.sub_state = TD_SHOW # show new trap
-                                    self.display_item(self.selected)
-                                    placed = True
-                        
-                    if not placed:
-                        self.sub_state = TD_IDLE
-                        self.display.deactivate()
-
-                    # handles placing the same type of tower
-                    # multiple times when pressing certain
-                    # buttons
-                    dupe = False
-                    for btn in DUPLICATE_BUTTONS:
-                        if btn in keys:
-                            dupe = True
-                            break
-                    if not dupe:
-                        self.purchaser_object = None
-                        pygame.mouse.set_visible(True)
-                    else:
-                        if self.selected is not None and self.selected.get_kind() == KIND_TOWER:
-                            self.selected.deactivate()
-
-                        # creates another, identical purchaser
-                        # of the last placed tower
-                        self.display.deactivate()
-                        self.selected = None
-                        self.sub_state = TD_FOLLOW
-                        self.purchaser_object = action[1][1]
-                        self.purchaser_object.activate()
-                        self.purchaser.toggle_status()
-                        pygame.mouse.set_visible(False)
-                        self.display_item(self.purchaser_object)
 
                 # shows prices of each object in the
                 # purchaser menu
@@ -684,7 +692,7 @@ class TowerDefense(game.Game):
                 # the upgrade button is clicked
                 elif action[0] == BUTTON_UPGRADE_MSG:
                     if self.sub_state == TD_SHOW:
-                        if self.selected is not None:
+                        if self.selected is not None and self.selected.kind == KIND_TOWER:
                             if self.selected.can_be_upgraded():
                                 cost = self.selected.get_upgrade_cost()
                                 if self.money >= cost:
@@ -701,11 +709,19 @@ class TowerDefense(game.Game):
                             self.money += self.selected.get_sell_amount()
                             # free the space
                             self.world.free_area(self.selected.get_position(), self.selected.get_dims())
-                            # delete the tower
-                            for i in range(len(self.towers)):
-                                if self.towers[i].get_position() == self.selected.get_position():
-                                    self.towers.pop(i)
-                                    break
+                            if self.selected.kind == KIND_TOWER:
+                                # delete the tower
+                                for i in range(len(self.towers)):
+                                    if self.towers[i].get_position() == self.selected.get_position():
+                                        self.towers.pop(i)
+                                        break
+
+                            elif self.selected.kind == KIND_TRAP:
+                                # delete the trap
+                                for i in range(len(self.traps)):
+                                    if self.traps[i].get_position() == self.selected.get_position():
+                                        self.traps.pop(i)
+                                        break
                             self.selected = None
                             # change the game mode
                             self.sub_state = TD_IDLE

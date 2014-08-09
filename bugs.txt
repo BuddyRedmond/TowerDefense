@@ -1,1 +1,1 @@
-- When clicking green tower, then clicking default tower you must then click again twice to actually select the default tower
+X When clicking green tower, then clicking default tower you must then click again twice to actually select the default tower

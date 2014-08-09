@@ -44,7 +44,7 @@ class Trap(rectangle.Rectangle):
     def on_step(self, creep):
         raise NotImplementedError()
 
-    def get_details(self):
+    def get_details(self, width):
         return ""
 
     def get_sell_amount(self):
@@ -101,7 +101,7 @@ class Mud(Trap):
         self.speed_mod = TRAP_MUD_SPEED_MOD
 
     def get_details(self):
-        lines = TRAP_MUD_DETAILS
+        lines = TRAP_MUD_DETAILS        
         return lines
 
     def on_step(self, creep):
