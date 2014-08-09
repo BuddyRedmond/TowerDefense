@@ -624,15 +624,15 @@ class TowerDefense(game.Game):
                     alert_w, alert_h = ALERT_P_HOVER_WIDTH, ALERT_P_HOVER_HEIGHT
                     # grab the purchaser's position relative
                     # to the menu
-                    x, y = action[1][0]
+                    x, y = action[1].get_position()
                     # grab the menu's position
-                    if action[1][4] == KIND_TRAP:
+                    if action[1].kind == KIND_TRAP:
                         mx, my = self.trap_menu.get_position()
                     else:
                         mx, my = self.menu.get_position()
                     # use the menu and purchaser positions
                     # to properly place the alert
-                    w, h = action[1][1], action[1][2]
+                    w, h = action[1].get_dims()
                     x += mx - .5*ALERT_P_HOVER_WIDTH + .5*w
                     y = my - ALERT_P_HOVER_HEIGHT
                     # if the alert is off of the screen
@@ -647,7 +647,8 @@ class TowerDefense(game.Game):
                         y = self.height - alert_h
                     # substitute the dollar amount of the tower
                     # into the alert's message
-                    message = ALERT_P_HOVER_MESSAGE %(action[1][3])
+                    message = action[1].get_hover_message()
+                    #ALERT_P_HOVER_MESSAGE %(action[1][3])
                     a = alert.Alert((x, y), alert_w, alert_h, message, True, ALERT_P_HOVER_DURATION)
                     self.alerts.add(a)
 

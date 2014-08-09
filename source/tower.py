@@ -80,6 +80,15 @@ class Tower(rectangle.Rectangle):
             self.range_surface_bad = pygame.Surface((self.range[self.level]*2, self.range[self.level]*2), pygame.SRCALPHA)
             self.generate_range()
 
+    def get_hover_message(self):
+        message = ""
+        message += "%s" %(self.name)
+        message += "\nDamage: %.2f" %(self.bullet_damage[self.level])
+        message += "\nRange: %.2f" %(self.range[self.level])
+        message += "\nAS: %.2f/sec" %(self.atk_speed[self.level])
+        message += "\nCost: $%.2f" %(self.cost[self.level])
+        return message
+
     def get_info(self):
         info = []
         line = "%s" %(self.name)
@@ -93,22 +102,22 @@ class Tower(rectangle.Rectangle):
         # only show the stats of the next level
         # if the tower can be upgraded
         if not self.can_be_upgraded():
-            line = "Damage: %s" %(self.bullet_damage[self.level])
+            line = "Damage: %.2f" %(self.bullet_damage[self.level])
             info.append(line)
-            line = "Range: %s" %(self.range[self.level])
+            line = "Range: %.2f" %(self.range[self.level])
             info.append(line)
-            line = "AS: %s/sec" %(self.atk_speed[self.level])
+            line = "AS: %.2f/sec" %(self.atk_speed[self.level])
             info.append(line)
             line = "Cost to upgrade: N/A"
             info.append(line)
         else:
-            line = "Damage: %s (->%s)" %(self.bullet_damage[self.level], self.bullet_damage[self.level+1])
+            line = "Damage: %.2f (->%.2f)" %(self.bullet_damage[self.level], self.bullet_damage[self.level+1])
             info.append(line)
-            line = "Range: %s (->%s)" %(self.range[self.level], self.range[self.level+1])
+            line = "Range: %.2f (->%.2f)" %(self.range[self.level], self.range[self.level+1])
             info.append(line)
-            line = "AS: %s/sec (->%s)" %(self.atk_speed[self.level], self.atk_speed[self.level+1])
+            line = "AS: %.2f/sec (->%.2f)" %(self.atk_speed[self.level], self.atk_speed[self.level+1])
             info.append(line)
-            line = "Cost to upgrade: $%s" %(self.cost[self.level+1])
+            line = "Cost to upgrade: $%.2f" %(self.cost[self.level+1])
             info.append(line)
         line = "Sell value: $%.2f" %(self.get_sell_amount())
         info.append(line)

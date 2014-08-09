@@ -45,7 +45,7 @@ class Purchaser():
         actions = []
         hover = self.obj.is_inside(mouse_pos)
         if hover:
-            actions.append((P_HOVER, (self.position, self.obj.get_width(), self.obj.get_height(), self.obj.get_cost(), self.obj.kind)))
+            actions.append((P_HOVER, self.obj))
         if MOUSE_LEFT in newclicks:
             if self.status == P_IDLE and hover:
                 # if we were idle but the obj was clicked

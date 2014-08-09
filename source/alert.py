@@ -42,37 +42,42 @@ class Alert():
         # seperate the whole message into pieces
         # that fit within the width of the
         # given area
-
         # messages is a list of each line that will be displayed
         messages = [message]
 
         # break the last message in messages up if it is too big
         # and keep doing so until all pieces will fit
-        while self.font.size(messages[-1])[0] > self.width - 2*self.margin_x:
-            # m1 is the next line to be added
-            m1 = messages[-1][:]
-            # m2 is anything left over after m1 is removed
-            m2 = ""
+        width = self.width - 2*self.margin_x
+        while self.font.size(messages[-1])[0] > width:
+            # next line
+            m1 = ""
+            # rest
+            m2 = messages[-1]
 
-            # while we have room on the line, take a character
-            # from m2 and place it in m1
-            while self.font.size(m1)[0] > self.width - 2*self.margin_x:
-                word = m1[-1]
-                m1 = m1[:-1]
-
-                # remove "words" to avoid multi-line words
-                # "words" are determined by whitespace
-                while not m1[-1].isspace():
-                    word = m1[-1] + word
-                    m1 = m1[:-1]
-                    if len(m1) == 0:
+            while True:
+                # take a word from m2 and add it to m1
+                word = ""
+                while not m2[0].isspace():
+                    word += m2[0]
+                    m2 = m2[1:]
+                    if len(m2) == 0:
                         break
-                m2 = word + ' ' + m2
-                m1 = m1[:-1]
+                cand = m1 + ' ' + word
+                if self.font.size(cand.strip())[0] <= width:
+                    m1 = cand.strip()
+                    if m2[0] == '\n':
+                        m2 = m2.strip()
+                        break
+                    else:
+                        m2 = m2.strip()
+                else:
+                    m2 = word + m2
+                    break
             messages[-1] = m1
-            messages.append(m2)
+            if len(m2) > 0:
+                messages.append(m2)
         self.messages = messages
-
+        
         # store the sizes of each piece
         message_sizes = []
         for message in self.messages:

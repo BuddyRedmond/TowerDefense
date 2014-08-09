@@ -50,6 +50,13 @@ class Trap(rectangle.Rectangle):
     def get_sell_amount(self):
         return self.cost*TRAP_SELL_RATE
 
+    def get_hover_message(self):
+        message = ""
+        message += "%s" %(self.name)
+        message += "\nSlows creeps that walk over this trap."
+        message += "\nCost: $%.2f" %(self.cost)
+        return message
+
     def get_info(self):
         info = []
         line = "Trap: %s" %(self.name)
