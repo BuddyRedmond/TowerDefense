@@ -1,13 +1,13 @@
-150
+100
 10
 greentower
 mud
 5
-redcreep redcreep redcreep redcreep redcreep yellowcreep yellowcreep yellowcreep
-redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep yellowcreep yellowcreep yellowcreep yellowcreep yellowcreep
-redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep 
-yellowcreep yellowcreep yellowcreep yellowcreep yellowcreep yellowcreep yellowcreep yellowcreep yellowcreep yellowcreep yellowcreep yellowcreep yellowcreep yellowcreep yellowcreep yellowcreep yellowcreep yellowcreep yellowcreep yellowcreep yellowcreep
-redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep yellowcreep yellowcreep yellowcreep yellowcreep yellowcreep yellowcreep yellowcreep yellowcreep yellowcreep yellowcreep yellowcreep yellowcreep yellowcreep yellowcreep yellowcreep yellowcreep yellowcreep yellowcreep yellowcreep yellowcreep yellowcreep yellowcreep yellowcreep yellowcreep yellowcreep yellowcreep yellowcreep yellowcreep yellowcreep yellowcreep yellowcreep yellowcreep yellowcreep yellowcreep yellowcreep yellowcreep yellowcreep yellowcreep yellowcreep yellowcreep yellowcreep yellowcreep yellowcreep yellowcreep yellowcreep
+1 redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep
+2 redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep
+3 redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep
+4 redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep
+5 redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep
 36 33 0 21
 000000000000000000000000000000000000
 000000000000000000000000000000000000

@@ -45,7 +45,7 @@ class TowerDefense(game.Game):
         self.b_menu = menu.Menu((MENU_B_X, MENU_B_Y), MENU_B_WIDTH, MENU_B_HEIGHT, MENU_B_BG_COLOR, MENU_B_O_COLOR)
         
         self.buttons = [button.NewWave, button.Upgrade, button.Sell]
-        self.creep_types = [creep.Creep, creep.RedCreep, creep.YellowCreep]
+        self.creep_types = [creep.Creep, creep.RedCreep, creep.YellowCreep, creep.BlueCreep]
 
         ### setup font ###
         self.font = pygame.font.SysFont(FONT, FONT_SIZE)
@@ -173,10 +173,12 @@ class TowerDefense(game.Game):
             for c in self.creep_types:
                 wave.append(0)
             line = line.split()
+            mod = float(line[0])
+            line = line[1:]
             for identifier in line:
                 creep_number = self.get_creep_number(identifier)
                 wave[creep_number] += 1
-            self.waves.append(wave)
+            self.waves.append((mod, wave))
 
     def empty_data(self):
         # initialize empty values #
@@ -311,9 +313,12 @@ class TowerDefense(game.Game):
 
         # create and place the creeps
         x, y = self.world.get_start()
+        mod = self.waves[self.wave][0]
+        wave = self.waves[self.wave][1]
         for i in range(CREEP_COUNT):
-            for j in range(self.waves[self.wave][i]):
+            for j in range(wave[i]):
                 c = self.creep_types[i]((0, 0))
+                c.set_mod(mod)
                 x -= c.get_width() + CREEP_GAP
                 c.set_position((x, y))
                 c.set_destination(self.world.next_waypoint(0))
@@ -705,7 +710,7 @@ class TowerDefense(game.Game):
                 # the sell button is clicked
                 elif action[0] == BUTTON_SELL_MSG:
                     if self.sub_state == TD_SHOW:
-                        if self.selected is not None:
+                        if self.selected is not None and self.selected.kind == KIND_TOWER:
                             # return the money
                             self.money += self.selected.get_sell_amount()
                             # free the space

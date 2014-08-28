@@ -37,9 +37,12 @@ class Creep(rectangle.Rectangle):
         self.dt = 0
 
         # health bar data
+        self.setup_healthbar()
+        #self.resistances = CREEP_DEFAULT_RESISTANCES
+
+    def setup_healthbar(self):
         health_pos = self.position[0] + .5* self.width - .5*HEALTH_BAR_WIDTH, self.position[1] - HEALTH_BAR_HEIGHT - HEALTH_BAR_MARGIN
         self.healthbar = healthbar.Healthbar(health_pos, self.max_health)
-        #self.resistances = CREEP_DEFAULT_RESISTANCES
 
     def paint_health(self, surface):
         self.healthbar.paint(surface)
@@ -61,6 +64,13 @@ class Creep(rectangle.Rectangle):
         line = "Speed: %.2f" %(self.speed*self.speed_modifier)
         info.append(line)
         return info
+
+    # scales the creep's attributes
+    def set_mod(self, mod):
+        self.max_health *= mod
+        self.health = self.max_health
+        self.setup_healthbar()
+        self.value *= mod
 
     def slow(self, amount):
         self.speed_modifier *= amount
@@ -147,3 +157,8 @@ class YellowCreep(Creep):
     ident = "".join(CREEP_YELLOW_NAME.split()).lower()
     def __init__(self, position):
         Creep.__init__(self, position, CREEP_YELLOW_HEALTH, CREEP_YELLOW_NAME, CREEP_YELLOW_SPEED, CREEP_YELLOW_WIDTH, CREEP_YELLOW_HEIGHT, CREEP_YELLOW_IMAGE, CREEP_YELLOW_VALUE)
+
+class BlueCreep(Creep):
+    ident = "".join(CREEP_BLUE_NAME.split()).lower()
+    def __init__(self, position):
+        Creep.__init__(self, position, CREEP_BLUE_HEALTH, CREEP_BLUE_NAME, CREEP_BLUE_SPEED, CREEP_BLUE_WIDTH, CREEP_BLUE_HEIGHT, CREEP_BLUE_IMAGE, CREEP_BLUE_VALUE)
