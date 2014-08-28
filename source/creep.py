@@ -38,6 +38,12 @@ class Creep(rectangle.Rectangle):
 
         # health bar data
         self.setup_healthbar()
+
+        # handles burns
+        self.burning = False
+        self.burn_damage = 0.0
+        self.burn_time = time.time()
+        self.burn_duration = 0.0
         #self.resistances = CREEP_DEFAULT_RESISTANCES
 
     def setup_healthbar(self):
@@ -65,6 +71,12 @@ class Creep(rectangle.Rectangle):
         info.append(line)
         return info
 
+    def get_current_health(self):
+        return self.health
+
+    def get_max_health(self):
+        return self.max_health
+
     # scales the creep's attributes
     def set_mod(self, mod):
         self.max_health *= mod
@@ -74,6 +86,11 @@ class Creep(rectangle.Rectangle):
 
     def slow(self, amount):
         self.speed_modifier *= amount
+
+    def burn(self, damage, time):
+        self.burning = True
+        self.burn_damage = damage
+        self.burn_duration = time
 
     # handles collision
     def hit(self, damage):
@@ -130,6 +147,16 @@ class Creep(rectangle.Rectangle):
         self.dt = t - self.last_frame
         self.last_frame = t
 
+        # apply burn
+        if self.burning and (t - self.burn_time) >= 1:
+            self.hit(self.burn_damage)
+            self.burn_duration -= 1.0
+            self.burn_time = t
+        # remove burn if expired
+        if self.burning and self.burn_duration <= 0:
+            self.burning = False
+            self.burn_duration = 0
+        
         # update the health bar
         self.healthbar.update_health(self.health)
         self.set_health_pos()

@@ -1,7 +1,7 @@
 200
 15
 redtower greentower
-mud
+mudtrap lavatrap
 4
 1 redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep
 1 redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep yellowcreep

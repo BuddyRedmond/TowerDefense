@@ -39,7 +39,7 @@ class TowerDefense(game.Game):
         ### Trap menu setup ###
         self.trap_menu = menu.Menu((MENU_TRAP_X, MENU_TRAP_Y), MENU_TRAP_WIDTH, MENU_TRAP_HEIGHT, MENU_TRAP_BG_COLOR, MENU_TRAP_O_COLOR)
 
-        self.trap_types = [trap.Mud]
+        self.trap_types = [trap.Mud, trap.Lava]
         
         ### Button menu setup ###
         self.b_menu = menu.Menu((MENU_B_X, MENU_B_Y), MENU_B_WIDTH, MENU_B_HEIGHT, MENU_B_BG_COLOR, MENU_B_O_COLOR)
@@ -710,7 +710,7 @@ class TowerDefense(game.Game):
                 # the sell button is clicked
                 elif action[0] == BUTTON_SELL_MSG:
                     if self.sub_state == TD_SHOW:
-                        if self.selected is not None and self.selected.kind == KIND_TOWER:
+                        if self.selected is not None and self.selected.kind != KIND_CREEP:
                             # return the money
                             self.money += self.selected.get_sell_amount()
                             # free the space

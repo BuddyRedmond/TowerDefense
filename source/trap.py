@@ -19,6 +19,7 @@ class Trap(rectangle.Rectangle):
         self.cost = cost
         self.active = False
         self.name = name
+        self.description = ""
         self.is_good = True
         self.bad_image = pygame.image.load(bad_image)
 
@@ -52,8 +53,8 @@ class Trap(rectangle.Rectangle):
 
     def get_hover_message(self):
         message = ""
-        message += "%s" %(self.name)
-        message += "\nSlows creeps that walk over this trap."
+        message += "%s\n" %(self.name)
+        message += self.description
         message += "\nCost: $%.2f" %(self.cost)
         return message
 
@@ -106,6 +107,7 @@ class Mud(Trap):
     def __init__(self, position):
         Trap.__init__(self, position, TRAP_MUD_WIDTH, TRAP_MUD_HEIGHT, TRAP_MUD_IMAGE, TRAP_MUD_BAD_IMAGE, TRAP_MUD_COST, TRAP_MUD_NAME)
         self.speed_mod = TRAP_MUD_SPEED_MOD
+        self.description = TRAP_MUD_DETAILS[0]
 
     def get_details(self):
         lines = TRAP_MUD_DETAILS        
@@ -113,3 +115,67 @@ class Mud(Trap):
 
     def on_step(self, creep):
         creep.slow(self.speed_mod)
+
+    def get_info(self):
+        info = []
+        line = "Trap: %s" %(self.name)
+        info.append(line)
+
+        # slow info
+        line = "Slow percent: %.2f" %(self.speed_mod*100)
+        info.append(line)
+
+        line = "Cost: %s" %(self.cost)
+        info.append(line)
+        line = "Sell value: $%.2f" %(self.get_sell_amount())
+        info.append(line)
+
+        # add info for the specific trap
+        lines = self.get_details()
+        for line in lines:
+            info.append(line)
+
+        return info
+
+class Lava(Trap):
+    ident = "".join(TRAP_LAVA_NAME.split()).lower()
+
+    def __init__(self, position):
+        Trap.__init__(self, position, TRAP_LAVA_WIDTH, TRAP_LAVA_HEIGHT, TRAP_LAVA_IMAGE, TRAP_LAVA_BAD_IMAGE, TRAP_LAVA_COST, TRAP_LAVA_NAME)
+        self.damage = TRAP_LAVA_DAMAGE
+        self.perc_damage = TRAP_LAVA_PERCENT
+        self.duration = TRAP_LAVA_DURATION
+        self.description = TRAP_LAVA_DETAILS[0]
+
+    def get_details(self):
+        lines = TRAP_LAVA_DETAILS        
+        return lines
+
+    def on_step(self, creep):
+        percent = creep.get_max_health()*self.perc_damage
+        creep.burn(max(self.damage, percent), self.duration)
+
+    def get_info(self):
+        info = []
+        line = "Trap: %s" %(self.name)
+        info.append(line)
+
+        # burn info
+        line = "DPS: %.2f" %(self.damage)
+        info.append(line)
+        line = "Min. Damage: %.2f percent" %(self.perc_damage*100)
+        info.append(line)
+        line = "Duration: %.2fs" %(self.duration)
+        info.append(line)
+
+        line = "Cost: %s" %(self.cost)
+        info.append(line)
+        line = "Sell value: $%.2f" %(self.get_sell_amount())
+        info.append(line)
+
+        # add info for the specific trap
+        lines = self.get_details()
+        for line in lines:
+            info.append(line)
+
+        return info
