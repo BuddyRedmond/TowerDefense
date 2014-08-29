@@ -1,0 +1,25 @@
+Steps to complete to add a tower to the game
+Tower:
+- Assets:
+- - An image of the tower
+- - Add the tower name to worlds it should be on
+
+- Code:
+
+- - config.py:
+- - - image path
+- - - name
+- - - width
+- - - height
+- - - cost
+- - - range
+- - - attack speed
+- - - damage
+
+- - tower.py:
+- - - Add a child class of tower.Tower:
+- - - - Use specific data for the parent class constructor and bullet info
+
+- - towerdefense.py:
+- - - Add the new tower to self.tower_types in the __init__ method
+------------------------------------------------------

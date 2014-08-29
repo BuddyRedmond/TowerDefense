@@ -1,6 +1,6 @@
 200
 15
-redtower greentower
+redtower greentower bluetower
 mudtrap lavatrap
 4
 1 redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep redcreep

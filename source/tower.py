@@ -265,3 +265,15 @@ class GreenTower(Tower):
         self.bullet_height = BULLET_GREEN_HEIGHT
         self.bullet_image = BULLET_GREEN_IMAGE
         self.bullet_speed = BULLET_GREEN_SPEED
+
+class BlueTower(Tower):
+    ident = "".join(TOWER_BLUE_NAME.split()).lower()
+    def __init__(self, position):
+        Tower.__init__(self, position, TOWER_BLUE_WIDTH, TOWER_BLUE_HEIGHT, TOWER_BLUE_IMAGE, TOWER_BLUE_NAME, TOWER_BLUE_RANGE, TOWER_BLUE_COST, TOWER_BLUE_ATK_SPEED)
+        self.bullet_type = bullet.Bullet
+        ### bullet info ###
+        self.bullet_damage = TOWER_BLUE_DAMAGE
+        self.bullet_width = BULLET_GREEN_WIDTH
+        self.bullet_height = BULLET_GREEN_HEIGHT
+        self.bullet_image = BULLET_GREEN_IMAGE
+        self.bullet_speed = BULLET_GREEN_SPEED

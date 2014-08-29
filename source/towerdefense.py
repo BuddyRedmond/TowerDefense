@@ -34,7 +34,7 @@ class TowerDefense(game.Game):
         ### Purchaser menu setup ###
         self.menu = menu.Menu((MENU_P_X, MENU_P_Y), MENU_P_WIDTH, MENU_P_HEIGHT, MENU_P_BG_COLOR, MENU_P_O_COLOR)
             
-        self.tower_types = [tower.Tower, tower.RedTower, tower.GreenTower]
+        self.tower_types = [tower.Tower, tower.RedTower, tower.GreenTower, tower.BlueTower]
 
         ### Trap menu setup ###
         self.trap_menu = menu.Menu((MENU_TRAP_X, MENU_TRAP_Y), MENU_TRAP_WIDTH, MENU_TRAP_HEIGHT, MENU_TRAP_BG_COLOR, MENU_TRAP_O_COLOR)
@@ -684,11 +684,8 @@ class TowerDefense(game.Game):
                         self.display.deactivate()
                         self.selected = None
                         self.sub_state = TD_IDLE
+                    self.money += action[1].get_value()
                     self.creeps.remove(action[1])
-
-                # if a bullet got a kill, collect the money
-                elif action[0] == B_KILL:
-                    self.money += action[1]
 
                 # start a new wave when the new wave button is clicked
                 elif action[0] == BUTTON_NEW_WAVE_MSG:
