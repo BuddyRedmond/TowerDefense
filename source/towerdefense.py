@@ -475,6 +475,7 @@ class TowerDefense(game.Game):
                         if self.lives <= 0:
                             self.lives = 0
                         creep.health = 0
+                        creep.set_mod(0.0)
                         message = ALERT_LIFE_LOST_MESSAGE %(self.lives)
                         self.alerts.add(alert.Alert(self.alert_life_lost_pos, ALERT_LIFE_LOST_WIDTH, ALERT_LIFE_LOST_HEIGHT, message, True, ALERT_LIFE_LOST_DURATION))
 
