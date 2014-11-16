@@ -25,7 +25,8 @@ class Creep(rectangle.Rectangle):
         self.value = value
         self.speed_modifier = 1
 
-        self.destination = None
+        #self.destination = None
+        self.destinations = []
 
         # tracks the number of destinations reached
         self.visited = 0
@@ -101,12 +102,12 @@ class Creep(rectangle.Rectangle):
 
     def is_alive(self):
         return self.health > 0
-        
-    def set_destination(self, position):
-        self.destination = position
+
+    def set_destinations(self, destinations):
+        self.destinations = destinations
         
     def has_destination(self):
-        return self.destination is not None
+        return self.visited < len(self.destinations)
 
     def get_visited(self):
         return self.visited
@@ -114,32 +115,34 @@ class Creep(rectangle.Rectangle):
     def is_dead(self):
         return self.health <= 0
 
-    # moves the creep to a destination if one is available    
+    # moves the creep to a destination, step by step, if one is available
     def move(self):
-        if not self.has_destination():
-            return
+        # how many steps to take
+        steps = self.speed*self.speed_modifier*self.dt
+        while steps > 0 and self.has_destination():
+            # grab our position and the destination to step toward
+            x, y = self.position
+            destination = self.destinations[self.visited]
+            # visit the destination if it was reached
+            if self.position == destination:
+                self.visited += 1
+                continue
+            sign_x = -1
+            if destination[0] > x:
+                sign_x = 1
+            elif destination[0] == x:
+                sign_x = 0
+            sign_y = -1
+            if destination[1] > y:
+                sign_y = 1
+            elif destination[1] == y:
+                sign_y = 0
 
-        # if we have a destination, calculate its
-        # difference in position with the creep
-        x, y = self.position
-        dx = self.destination[0]-x
-        dy = self.destination[1]-y
-        on_left = dx < 0
-        above = dy < 0
-        # move as much as possible to the destination
-        # without passing it
-        dx = min(abs(dx), self.speed*self.speed_modifier*self.dt)
-        dy = min(abs(dy), self.speed*self.speed_modifier*self.dt)
-        if on_left:
-            dx *= -1
-        if above:
-            dy *= -1
-        self.position = (x + dx, y + dy)
-
-        # visit the destination if it was reached
-        if self.position == self.destination:
-            self.visited += 1
-            self.destination = None
+            # step toward the destination
+            x += sign_x
+            y += sign_y
+            self.position = (x, y)
+            steps -= 1
 
     def game_logic(self, keys, newkeys, mouse_pos, newclicks):
         # frame rate independend calculations

@@ -62,11 +62,11 @@ MENU_O_COLOR = O_COLOR
 MENU_BG_COLOR = BG_COLOR
 MENU_P_X = 7
 MENU_P_Y = 538
-MENU_P_WIDTH = (348 - MARGIN) / 2.0
+MENU_P_WIDTH = (351 - MARGIN) / 2.0
 MENU_P_HEIGHT = 50
 MENU_TRAP_O_COLOR = O_COLOR
 MENU_TRAP_BG_COLOR = BG_COLOR
-MENU_TRAP_X = 181
+MENU_TRAP_X = 184
 MENU_TRAP_Y = 538
 MENU_TRAP_WIDTH = (348 - MARGIN) / 2.0
 MENU_TRAP_HEIGHT = 50
@@ -138,6 +138,10 @@ BUTTON_QUIT_IMG = BUTTON_PATH + "quit.png"
 BUTTON_QUIT_HOVER_IMG = BUTTON_PATH + "quit_hover.png"
 BUTTON_QUIT_WIDTH = 75
 BUTTON_QUIT_HEIGHT = 45
+BUTTON_HELP_IMG = BUTTON_PATH + "help.png"
+BUTTON_HELP_HOVER_IMG = BUTTON_PATH + "help_hover.png"
+BUTTON_HELP_WIDTH = 75
+BUTTON_HELP_HEIGHT = 45
 BUTTON_LEVEL_IMG = BUTTON_PATH + "level.png"
 BUTTON_LEVEL_HOVER_IMG = BUTTON_PATH + "level_hover.png"
 BUTTON_LEVEL_WIDTH = 75
@@ -171,33 +175,35 @@ TD_SHOW = 16
 ## States ##
 TD_MENU = 17
 TD_LEVEL_SELECT = 18
-TD_PAUSE = 19
-TD_PLAYING = 20 # wave in progress
-TD_CLEAR = 21 # in between waves
-TD_FAILURE = 22
-TD_SUCCESS = 23
+TD_TUTORIAL = 19
+TD_PAUSE = 20
+TD_PLAYING = 21 # wave in progress
+TD_CLEAR = 22 # in between waves
+TD_FAILURE = 23
+TD_SUCCESS = 24
 
 ## Menu Buttons ##
-BUTTON_NEW_WAVE_MSG = 24
-BUTTON_UPGRADE_MSG = 25
-BUTTON_SELL_MSG = 26
-BUTTON_PLAY_MSG = 27
-BUTTON_QUIT_MSG = 28
-BUTTON_LEVEL_MSG = 29
+BUTTON_NEW_WAVE_MSG = 25
+BUTTON_UPGRADE_MSG = 26
+BUTTON_SELL_MSG = 27
+BUTTON_PLAY_MSG = 28
+BUTTON_QUIT_MSG = 29
+BUTTON_HELP_MSG = 30
+BUTTON_LEVEL_MSG = 31
 
 # instructions #
-P_SNAP_LOC = 30
+P_SNAP_LOC = 32
 
 # kinds #
-KIND_TOWER = 31
-KIND_CREEP = 32
-KIND_TILE = 33
-KIND_BUTTON = 34
-KIND_BULLET = 35
-KIND_TRAP = 36
+KIND_TOWER = 33
+KIND_CREEP = 34
+KIND_TILE = 35
+KIND_BUTTON = 36
+KIND_BULLET = 37
+KIND_TRAP = 38
 
 # alert #
-ALERT_EXP_MESSAGE = 37
+ALERT_EXP_MESSAGE = 39
 
 ################
 
@@ -342,6 +348,128 @@ TRAP_LAVA_PERCENT = .03
 TRAP_LAVA_DURATION = 3
 TRAP_LAVA_COST = 75.0
 TRAP_LAVA_DETAILS = ["Damages creeps that pass over the lava over time"]
+
+# Tutorial #
+TUTORIAL_PATH = WORLD_PATH + "tutorial.txt"
+### Welcome ###
+TWELCOME_WIDTH = 400
+TWELCOME_HEIGHT = 70
+TWELCOME_POS = ((SCREEN_WIDTH - TWELCOME_WIDTH)/2.0, (SCREEN_HEIGHT - TWELCOME_HEIGHT)/3.0)
+TWELCOME_MESSAGE = "Welcome to the Tower Defense tutorial\n\
+                    Left-click to move to the next message\n\
+                    Right-click to move the the previous message"
+### Objective ###
+TOBJECTIVE_WIDTH = 400
+TOBJECTIVE_HEIGHT = 70
+TOBJECTIVE_POS = ((SCREEN_WIDTH - TOBJECTIVE_WIDTH)/2.0, (SCREEN_HEIGHT - TOBJECTIVE_HEIGHT)/3.0)
+TOBJECTIVE_MESSAGE = "The objective of the game is to place towers and traps\
+                            strategically to prevent the creeps from making it\
+                            through the level."
+### Controls ###
+TCONTROLS_WIDTH = 400
+TCONTROLS_HEIGHT = 150
+TCONTROLS_POS = ((SCREEN_WIDTH - TCONTROLS_WIDTH)/2.0, (SCREEN_HEIGHT - TCONTROLS_HEIGHT)/3.0)
+TCONTROLS_MESSAGE = "Here are the controls for the game:\n\
+                        Left-click - Select an object, build a tower/trap,\
+                        or press a button\n\
+                        Right-click - Deselect an object\n\
+                        Shift-Left-click - When building a tower/trap and holding the shift key, builds the object and goes back to building mode for fast placing"
+### Tiles ###
+TTILES_WIDTH = 400
+TTILES_HEIGHT = 70
+TTILES_POS = ((SCREEN_WIDTH - TTILES_WIDTH)/2.0, (SCREEN_HEIGHT - TTILES_HEIGHT)/3.0)
+TTILES_MESSAGE = "The world is made up of tiles: Grass, Rocks, and Path\n\
+                    Grass tiles are green, Rocks are green with gray specs,\
+                    and Path tiles are tan"
+### Money ###
+TMONEY_WIDTH = 400
+TMONEY_HEIGHT = 70
+TMONEY_POS = (MONEY_X, MONEY_Y - TMONEY_HEIGHT - MARGIN)
+TMONEY_MESSAGE = "Money is displayed here in the bottom left corner\n\
+                    Money is earned by killing creeps and is used to purchase\
+                    towers, traps, and upgrades"
+### Lives ###
+TLIVES_WIDTH = 400
+TLIVES_HEIGHT = 70
+TLIVES_POS = ((SCREEN_WIDTH - TLIVES_WIDTH)/2.0, LIVES_Y - TLIVES_HEIGHT - MARGIN)
+TLIVES_MESSAGE = "Lives are displayed here on the bottom of the screen\n\
+                    Lives are lost when a creep makes it through the level\
+                    When all lives are lost, you lose the game"
+### Wave ###
+TWAVE_WIDTH = 400
+TWAVE_HEIGHT = 50
+TWAVE_POS = (SCREEN_WIDTH - MARGIN - TWAVE_WIDTH, WAVE_Y - TWAVE_HEIGHT - MARGIN)
+TWAVE_MESSAGE = "The number of complete waves is displayed here in the \
+                    bottom right corner"
+### Towers ###
+TTOWERS1_WIDTH = 200
+TTOWERS1_HEIGHT = 25
+TTOWERS1_POS = (MENU_P_X, MENU_P_Y - TTOWERS1_HEIGHT - MARGIN)
+TTOWERS1_MESSAGE = "This is the tower menu (left)"
+TTOWERS2_WIDTH = 300
+TTOWERS2_HEIGHT = 70
+TTOWERS2_POS = (MENU_P_X, MENU_P_Y - TTOWERS2_HEIGHT - MARGIN)
+TTOWERS2_MESSAGE = "Hovering over a tower will display its stats\
+                    Left click a tower to select it. The tower\
+                    will then be moved by the mouse"
+TTOWERS3_WIDTH = 300
+TTOWERS3_HEIGHT = 90
+TTOWERS3_POS = (MENU_P_X, MENU_P_Y - TTOWERS3_HEIGHT - MARGIN)
+TTOWERS3_MESSAGE = "When a tower is selected you can deselect\
+                        it by right clicking or you can buy\
+                        and place the tower by left clicking\
+                        on a buildable area (grass)"
+### Traps ###
+TTRAPS_WIDTH = 300
+TTRAPS_HEIGHT = 90
+TTRAPS_POS = (MENU_TRAP_X, MENU_TRAP_Y - TTRAPS_HEIGHT - MARGIN)
+TTRAPS_MESSAGE = "This is the trap menu. Traps behave\
+                    similarly to towers with two differences\
+                    Traps are placed on path tiles and they\
+                    affect creeps that walk over them."
+### Display ###
+TDISPLAY_WIDTH = 300
+TDISPLAY_HEIGHT = 50
+TDISPLAY_POS = (SCREEN_WIDTH - TDISPLAY_WIDTH - MARGIN, DISPLAY_Y - TDISPLAY_HEIGHT - MARGIN)
+TDISPLAY_MESSAGE = "This is the display area. When a trap, creep, or tower is clicked it shows its stats"
+### Buttons ###
+TBUTTONS_WIDTH = 400
+TBUTTONS_HEIGHT = 110
+TBUTTONS_POS = (MENU_B_X, MENU_B_Y - TBUTTONS_HEIGHT - MARGIN)
+TBUTTONS_MESSAGE = "These buttons help you interact with the game.\n\
+                        The first button begins a wave.\n\
+                        The second upgrades a selected tower.\n\
+                        The third sells a selected tower or trap.\n\
+                        And the fourth returns to the main menu."
+### Creeps ###
+TCREEPS_WIDTH = 400
+TCREEPS_HEIGHT = 110
+TCREEPS_POS = (110, 90)
+TCREEPS_MESSAGE = "These red things are creeps.\n Creeps come in different\
+                    sizes, shapes, colors, speeds, and strengths.\n\
+                    Creeps walk the path until they reach the end.\n\
+                    If they reach the end, you lose a life."
+### Done ###
+TDONE_WIDTH = 400
+TDONE_HEIGHT = 50
+TDONE_POS = ((SCREEN_WIDTH - TDONE_WIDTH)/2.0, (SCREEN_HEIGHT - TDONE_HEIGHT)/3.0)
+TDONE_MESSAGE = "This is the end of the tutorial, click to go back\
+                    to the main menu and start playing"
+TUTORIAL_ALERTS = [(TWELCOME_POS, TWELCOME_WIDTH, TWELCOME_HEIGHT, TWELCOME_MESSAGE),
+                   (TOBJECTIVE_POS, TOBJECTIVE_WIDTH, TOBJECTIVE_HEIGHT, TOBJECTIVE_MESSAGE),
+                   (TCONTROLS_POS, TCONTROLS_WIDTH, TCONTROLS_HEIGHT, TCONTROLS_MESSAGE),
+                   (TTILES_POS, TTILES_WIDTH, TTILES_HEIGHT, TTILES_MESSAGE),
+                   (TMONEY_POS, TMONEY_WIDTH, TMONEY_HEIGHT, TMONEY_MESSAGE),
+                   (TLIVES_POS, TLIVES_WIDTH, TLIVES_HEIGHT, TLIVES_MESSAGE),
+                   (TWAVE_POS, TWAVE_WIDTH, TWAVE_HEIGHT, TWAVE_MESSAGE),
+                   (TTOWERS1_POS, TTOWERS1_WIDTH, TTOWERS1_HEIGHT, TTOWERS1_MESSAGE),
+                   (TTOWERS2_POS, TTOWERS2_WIDTH, TTOWERS2_HEIGHT, TTOWERS2_MESSAGE),
+                   (TTOWERS3_POS, TTOWERS3_WIDTH, TTOWERS3_HEIGHT, TTOWERS3_MESSAGE),
+                   (TTRAPS_POS, TTRAPS_WIDTH, TTRAPS_HEIGHT, TTRAPS_MESSAGE),
+                   (TDISPLAY_POS, TDISPLAY_WIDTH, TDISPLAY_HEIGHT, TDISPLAY_MESSAGE),
+                   (TBUTTONS_POS, TBUTTONS_WIDTH, TBUTTONS_HEIGHT, TBUTTONS_MESSAGE),
+                   (TCREEPS_POS, TCREEPS_WIDTH, TCREEPS_HEIGHT, TCREEPS_MESSAGE),
+                   (TDONE_POS, TDONE_WIDTH, TDONE_HEIGHT, TDONE_MESSAGE)]
 
 # World #
 WORLD_X = 7

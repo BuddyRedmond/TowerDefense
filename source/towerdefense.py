@@ -53,7 +53,7 @@ class TowerDefense(game.Game):
 
         ### Main menu setup ###
         self.mm = menu.Menu(MM_POS, MM_WIDTH, MM_HEIGHT, MM_BG_COLOR, MM_O_COLOR)
-        self.mm_buttons = [button.Play, button.Quit]
+        self.mm_buttons = [button.Play, button.Help, button.Quit]
         for btn in self.mm_buttons:
             self.mm.add_button(btn)
         self.mm.center_x()
@@ -82,6 +82,9 @@ class TowerDefense(game.Game):
         for btn in self.buttons:
             self.b_menu.add_button(btn)
         self.b_menu.center_x()
+
+        # tracks progress through tutorial
+        self.tut_progress = -1
 
         self.alerts = set()
         self.empty_data()
@@ -321,7 +324,8 @@ class TowerDefense(game.Game):
                 c.set_mod(mod)
                 x -= c.get_width() + CREEP_GAP
                 c.set_position((x, y))
-                c.set_destination(self.world.next_waypoint(0))
+                destinations = [self.world.get_start()] + self.world.get_waypoints()
+                c.set_destinations(destinations)
                 self.creeps.add(c)
         
         self.state = TD_PLAYING
@@ -374,6 +378,20 @@ class TowerDefense(game.Game):
             for action in actions:
                 if action[0] == BUTTON_PLAY_MSG:
                     self.state = TD_LEVEL_SELECT
+                elif action[0] == BUTTON_HELP_MSG:
+                    self.load_level(TUTORIAL_PATH)
+                    self.state = TD_TUTORIAL
+                    self.tut_progress = -1
+                    # create and place some creeps
+                    x, y = self.world.get_waypoints()[0]
+                    c = self.creep_types[0]((0, 0))
+                    for j in range(5):
+                        y += c.get_height() + CREEP_GAP
+                        c.set_position((x, y))
+                        self.creeps.add(c)
+                        c = self.creep_types[0]((0, 0))
+                    self.display_item(c)
+                    return
                 elif action[0] == BUTTON_QUIT_MSG:
                     self.quit = True
                     return
@@ -402,10 +420,28 @@ class TowerDefense(game.Game):
                     else:
                         return
                 elif action[0] == BUTTON_QUIT_MSG:
-                    self.quit = True
+                    self.state = TD_MENU
                     return
                 elif action[0] == BUTTON_LEVEL_MSG:
                     self.load_level(action[1])
+        elif self.state == TD_TUTORIAL:
+            temp = self.tut_progress
+            # first time
+            if self.tut_progress == -1:
+                self.tut_progress = 0
+            if MOUSE_LEFT in newclicks:
+                self.tut_progress += 1
+            elif MOUSE_RIGHT in newclicks:
+                self.tut_progress -= 1
+                if self.tut_progress < 0:
+                    self.tut_progress = 0
+            if self.tut_progress != temp:
+                self.alerts.clear()
+                if self.tut_progress >= len(TUTORIAL_ALERTS):
+                    self.state = TD_MENU
+                    return
+                a = TUTORIAL_ALERTS[self.tut_progress]
+                self.alerts.add(alert.Alert(a[0], a[1], a[2], a[3]))
 
         # end the game upon failure or success
         elif self.state == TD_FAILURE or self.state == TD_SUCCESS:
@@ -459,25 +495,16 @@ class TowerDefense(game.Game):
                     pygame.mouse.set_visible(True)
                     self.display.deactivate()
 
-            # moves the creeps and handles life losing
+            # handles life losing
             for creep in self.creeps:
                 if not creep.has_destination():
-                    dest = self.world.next_waypoint(creep.get_visited())
-                    if dest is not None:
-                        creep.set_destination(self.world.next_waypoint(creep.get_visited()))
-                    else:
-                        dest = self.world.next_waypoint(creep.get_visited())
-                    if dest is not None:
-                        creep.set_destination(self.world.next_waypoint(creep.get_visited()))
-                    else:
-                        # a creep has made it through the level
-                        self.lives -= 1
-                        if self.lives <= 0:
-                            self.lives = 0
-                        creep.health = 0
-                        creep.set_mod(0.0)
-                        message = ALERT_LIFE_LOST_MESSAGE %(self.lives)
-                        self.alerts.add(alert.Alert(self.alert_life_lost_pos, ALERT_LIFE_LOST_WIDTH, ALERT_LIFE_LOST_HEIGHT, message, True, ALERT_LIFE_LOST_DURATION))
+                    self.lives -= 1
+                    if self.lives <= 0:
+                        self.lives = 0
+                    creep.health = 0
+                    creep.set_mod(0.0)
+                    message = ALERT_LIFE_LOST_MESSAGE %(self.lives)
+                    self.alerts.add(alert.Alert(self.alert_life_lost_pos, ALERT_LIFE_LOST_WIDTH, ALERT_LIFE_LOST_HEIGHT, message, True, ALERT_LIFE_LOST_DURATION))
 
             # if we are placing a tower
             # snap its location to the

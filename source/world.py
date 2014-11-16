@@ -258,6 +258,9 @@ class World:
         else:
             return self.waypoints[num_visited-1]
 
+    def get_waypoints(self):
+        return self.waypoints
+
     def paint(self, surface):
         for row in self.layout:
             for cell in row:

@@ -94,6 +94,12 @@ class Quit(Button):
         self.message = BUTTON_QUIT_MSG
         self.item = None
 
+class Help(Button):
+    def __init__(self, position = (0, 0)):
+        Button.__init__(self, position, BUTTON_HELP_WIDTH, BUTTON_HELP_HEIGHT, BUTTON_HELP_IMG, BUTTON_HELP_HOVER_IMG)
+        self.message = BUTTON_HELP_MSG
+        self.item = None
+
 class Level(Button):
     def __init__(self, position = (0, 0), name = ""):
         Button.__init__(self, position, BUTTON_LEVEL_WIDTH, BUTTON_LEVEL_HEIGHT, BUTTON_LEVEL_IMG, BUTTON_LEVEL_HOVER_IMG)
